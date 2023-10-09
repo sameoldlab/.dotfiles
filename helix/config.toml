@@ -1,0 +1,34 @@
+theme = "base16_transparent"
+
+[editor]
+scrolloff = 2
+
+[editor.cursor-shape]
+insert = "bar"
+normal = "block"
+select = "underline"
+
+[editor.file-picker]
+hidden = false
+
+[editor.whitespace.render]
+space = "none"
+tab = "all"
+newline = "none"
+
+[editor.soft-wrap]
+enable = true
+
+[keys.normal]
+h = "insert_mode" # Maps `jk` to exit insert mode
+C-s = ":write" # Maps Ctrl-s to save
+C-o = ":open" # Maps Ctrl-o to open
+# Remapping hjkl to ijkl
+i = "move_visual_line_up"
+j = "move_char_left"
+k = "move_visual_line_down"
+l = "move_char_right"
+
+
+[keys.insert]
+"A-x" = "normal_mode"     # Maps Alt-X to enter normal mode
