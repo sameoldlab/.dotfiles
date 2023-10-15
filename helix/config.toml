@@ -2,7 +2,7 @@ theme = "base16_transparent"
 
 [editor]
 scrolloff = 2
-
+bufferline = "multiple"
 [editor.cursor-shape]
 insert = "bar"
 normal = "block"
