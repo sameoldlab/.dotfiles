@@ -1,0 +1,13 @@
+*
+# !not-this
+!.gitignore
+!ags
+!helix
+!hypr
+!electron25-flags*
+!Code
+!nvim
+!open-razer
+!fish
+!starship*
+!polychromatic
