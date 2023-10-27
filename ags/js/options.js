@@ -3,10 +3,10 @@ export default {
     preferredMpris: 'spotify',
 
     // number of workspaces shown on panel and overview
-    workspaces: 7,
+    workspaces: 9,
 
     //
-    dockItemSize: 56,
+    dockItemSize: 48,
 
     battaryBar: {
         // wether to show percentage by deafult
@@ -24,7 +24,7 @@ export default {
     systemFetchInterval: 5000,
 
     // the slide down animation on quicksettings and dashboard
-    windowAnimationDuration: 250,
+    windowAnimationDuration: 180,
 
     // keyboard id for brightnessctl
     brightnessctlKBD: 'asus::kbd_backlight',

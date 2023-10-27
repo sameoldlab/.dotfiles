@@ -54,7 +54,7 @@ $float: $spacing * 0.7;
 
 .panel {
   @if $bar_style == 'normal' {
-    background-color: $bg_color;
+    background: linear-gradient(hsla(262, 49%, 11%, 0.85), hsla(262, 49%, 11%, 0));
   }
 
   @if not $screen_corners and $bar_style == 'normal' {
