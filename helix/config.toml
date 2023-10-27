@@ -3,6 +3,7 @@ theme = "base16_transparent"
 [editor]
 scrolloff = 2
 bufferline = "multiple"
+
 [editor.cursor-shape]
 insert = "bar"
 normal = "block"
@@ -20,14 +21,15 @@ newline = "none"
 enable = true
 
 [keys.normal]
-h = "insert_mode" # Maps `jk` to exit insert mode
+# h = "insert_mode" # Maps `jk` to exit insert mode
 C-s = ":write" # Maps Ctrl-s to save
 C-o = ":open" # Maps Ctrl-o to open
+
 # Remapping hjkl to ijkl
-i = "move_visual_line_up"
-j = "move_char_left"
-k = "move_visual_line_down"
-l = "move_char_right"
+# i = "move_visual_line_up"
+# j = "move_char_left"
+# k = "move_visual_line_down"
+# l = "move_char_right"
 
 
 [keys.insert]
