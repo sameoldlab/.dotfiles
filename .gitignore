@@ -12,4 +12,5 @@
 !starship*
 !polychromatic
 !mpv
-!nix
+!*nix
+!home-manager
