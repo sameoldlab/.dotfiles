@@ -1,8 +1,9 @@
-theme = "base16_transparent"
+theme = "ayu_evolve"
 
 [editor]
 scrolloff = 2
 bufferline = "multiple"
+auto-save = true
 
 [editor.cursor-shape]
 insert = "bar"
@@ -24,6 +25,7 @@ enable = true
 # h = "insert_mode" # Maps `jk` to exit insert mode
 C-s = ":write" # Maps Ctrl-s to save
 C-o = ":open" # Maps Ctrl-o to open
+
 
 # Remapping hjkl to ijkl
 # i = "move_visual_line_up"
