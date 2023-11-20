@@ -13,7 +13,7 @@ $float: $spacing * 0.7;
       transition: $transition;
     }
 
-    &:hover > * {
+    /* &:hover > * {
       color: $hover_fg;
 
       @if $drop_shadow {
@@ -21,9 +21,9 @@ $float: $spacing * 0.7;
       } @else {
         box-shadow: inset 0 0 0 99px $hover;
       }
-    }
+    } */
 
-    &:active > *,
+    /* &:active > *,
     &.active > * {
       label,
       image {
@@ -31,7 +31,7 @@ $float: $spacing * 0.7;
       }
       background-image: $active_gradient;
       background-color: $accent;
-    }
+    } */
   } @else {
     @include accs_button($flat, $reactive);
     > * {
@@ -54,7 +54,12 @@ $float: $spacing * 0.7;
 
 .panel {
   @if $bar_style == 'normal' {
-    background: linear-gradient(hsla(262, 49%, 11%, 0.85), hsla(262, 49%, 11%, 0));
+    background: linear-gradient(
+        to bottom,
+        hsla(262 49% 11% 0.65),
+        hsla(262 49% 11% 0)
+        );
+    // filter: blur(14px);
   }
 
   @if not $screen_corners and $bar_style == 'normal' {
@@ -221,9 +226,9 @@ $float: $spacing * 0.7;
 
       @if $bar_style == 'separated' {
         border-radius: max($radii - $border_width, 0);
-        &:hover {
+        /* &:hover {
           background-color: $hover;
-        }
+        } */
       } @else {
         @include button($flat: true);
       }
@@ -233,14 +238,13 @@ $float: $spacing * 0.7;
       all: unset;
 
       .indicator {
-        font-size: 0;
-        min-width: 6px;
+        min-width: .25em;
         min-height: 6px;
         border-radius: $radii * 0.6;
         border: $border;
-        margin: 0 $spacing/2;
+        margin: 0 $spacing/4;
         transition: $transition/2;
-        background-color: transparentize($fg_color, 0.8);
+        color: transparentize($fg_color, 0.8);
       }
 
       &:last-child .indicator {
@@ -251,24 +255,20 @@ $float: $spacing * 0.7;
       }
 
       &.occupied .indicator {
-        background-color: transparentize($fg_color, 0.2);
-        min-width: 8px;
-        min-height: 8px;
+        color: transparentize($fg_color, 0.2);
       }
 
       &:hover .indicator {
-        box-shadow: inset 0 0 0 10px transparentize($fg_color, 0.8);
+        color: transparentize($fg_color, 0.8);
       }
 
       &.active .indicator,
       &:active .indicator {
-        background-color: $accent;
+        color: $accent;
+        font-weight: 900;
       }
 
-      &.active .indicator {
-        min-width: 24px;
-        min-height: 12px;
-      }
+      &.active .indicator {      }
     }
   }
 }

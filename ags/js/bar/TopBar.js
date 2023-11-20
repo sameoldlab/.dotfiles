@@ -32,8 +32,8 @@ const SeparatorDot = (service, condition) => Separator({
 const Start = () => Widget.Box({
     className: 'start',
     children: [
-        OverviewButton(),
-        SeparatorDot(),
+        // OverviewButton(),
+        // SeparatorDot(),
         Workspaces(),
         SeparatorDot(),
         FocusedClient(),

@@ -1,0 +1,16 @@
+{
+    "preferences": {
+        "allow_hidden": "0",
+        "alt_enter_action": "0",
+        "base_dir": "~",
+        "follow_symlinks": "0",
+        "result_limit": "15",
+        "search_type": "0",
+        "trim_display_path": "0"
+    },
+    "triggers": {
+        "kw": {
+            "keyword": "."
+        }
+    }
+}

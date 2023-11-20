@@ -25,7 +25,7 @@ export default () => Widget.Box({
     vertical: true,
     className: 'datemenu',
     children: [
-        Clock({ format: '%H:%M' }),
+        Clock({ format: '%X' }),
         Widget.Label({
             binds: [['label', vars.uptime, 'value', t => `uptime: ${t}`]],
         }),

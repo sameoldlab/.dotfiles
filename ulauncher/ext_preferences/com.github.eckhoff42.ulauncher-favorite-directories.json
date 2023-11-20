@@ -1,0 +1,12 @@
+{
+    "preferences": {
+        "default_filebrowser": "pcmanfm",
+        "directory_list": "Downloads, Documents, LAB/[scs]/final, Pictures, .config",
+        "root_dir": "~/"
+    },
+    "triggers": {
+        "f": {
+            "keyword": "d"
+        }
+    }
+}

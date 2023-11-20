@@ -1,0 +1,10 @@
+{
+    "preferences": {
+        "triggers": {
+            "calculator_qalc": {
+                "keyword": "="
+            }
+        }
+    },
+    "triggers": {}
+}
