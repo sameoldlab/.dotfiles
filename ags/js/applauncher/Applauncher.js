@@ -38,6 +38,7 @@ const AppItem = app => Widget.Button({
                 ],
             }),
         ],
+
     }),
 });
 
@@ -62,7 +63,6 @@ const Applauncher = () => {
         },
         onChange: ({ text }) => {
             list.children = Applications.query(text).map(app => [
-                Separator(),
                 AppItem(app),
             ]).flat();
             list.add(Separator());

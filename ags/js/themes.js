@@ -54,9 +54,9 @@ const misc = {
   bar_style: 'normal',
   layout: 'topbar',
   desktop_clock: 'center center',
-  font: 'Ubuntu Nerd Font',
-  mono_font: 'Mononoki Nerd Font',
-  font_size: 16,
+  font: 'Fira Sans',
+  mono_font: 'Fira Code',
+  font_size: 18,
 }
 
 const colors = {
@@ -74,6 +74,16 @@ const colors = {
 }
 
 // themes
+const mid_boreal = {
+    wallpaper: WP + 'kitty.jpeg',
+    name: 'mid_boreal',
+    icon: '󰄛',
+    ...dark,
+    ...misc,
+    ...colors,
+  }
+  
+
 const kitty_dark = {
   wallpaper: WP + 'kitty.jpeg',
   name: 'kitty_dark',

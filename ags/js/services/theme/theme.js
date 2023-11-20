@@ -43,7 +43,7 @@ class ThemeService extends Service {
             ...this.settings,
         };
         setupScss(theme);
-        setupHyprland(theme);
+        // setupHyprland(theme);
         this.setupOther();
         this.setupWallpaper();
     }
@@ -56,7 +56,7 @@ class ThemeService extends Service {
     }
 
     setupOther() {
-        const darkmode = this.getSetting('color_scheme') === 'dark';
+        const darkmode = true;// this.getSetting('color_scheme') === 'dark'; if you actually want to pick... I'm never going to use blind mode
 
         if (Utils.exec('which gsettings')) {
             const gsettings = 'gsettings set org.gnome.desktop.interface color-scheme';

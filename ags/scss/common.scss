@@ -6,7 +6,7 @@ window {
     all: unset;
 
     * {
-        font-size: $font_size;
+        font-size: 1em;//$font_size;
         font-family: $font, sans-serif;
     }
 }
