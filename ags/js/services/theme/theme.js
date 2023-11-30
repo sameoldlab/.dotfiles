@@ -9,16 +9,17 @@ const THEME_CACHE = Utils.CACHE_DIR + '/theme-overrides.json';
 
 class ThemeService extends Service {
     static { Service.register(this); }
-
+		
     get themes() { return themes; }
 
     _defaultAvatar = `/home/${Utils.USER}/Pictures/avatars/donna.jpg`;
-    _defaultTheme = themes[0].name;
+    _defaultTheme = themes[1].name;
 
     constructor() {
         super();
         Utils.exec('swww init');
         this.setup();
+				
     }
 
     openSettings() {
@@ -56,7 +57,7 @@ class ThemeService extends Service {
     }
 
     setupOther() {
-        const darkmode = true;// this.getSetting('color_scheme') === 'dark'; if you actually want to pick... I'm never going to use blind mode
+        const darkmode = this.getSetting('color_scheme') === 'dark'; //if you actually want to pick... I'm never going to use blind mode
 
         if (Utils.exec('which gsettings')) {
             const gsettings = 'gsettings set org.gnome.desktop.interface color-scheme';

@@ -1,0 +1,7 @@
+Aloxaf/fzf-tab
+mattmc3/zephyr path:plugins/color
+jirutka/zsh-shift-select
+belak/zsh-utils path:completion
+zdharma-continuum/fast-syntax-highlighting
+zsh-users/zsh-history-substring-search
+zsh-users/zsh-autosuggestions

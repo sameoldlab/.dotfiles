@@ -10,7 +10,7 @@
     },
     "triggers": {
         "kw": {
-            "keyword": "."
+            "keyword": "f"
         }
     }
 }

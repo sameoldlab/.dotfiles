@@ -1,0 +1,10 @@
+{
+    "preferences": {
+        "triggers": {
+            "custom_scripts_kw": {
+                "keyword": ":"
+            }
+        }
+    },
+    "triggers": {}
+}
