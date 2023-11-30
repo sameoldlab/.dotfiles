@@ -16,7 +16,7 @@ import * as setup from './js/utils.js';
 import { forMonitors } from './js/utils.js';
 
 setup.warnOnLowBattery();
-setup.scssWatcher();
+// setup.scssWatcher();
 setup.globalServices();
 
 export default {
