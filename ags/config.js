@@ -1,44 +1,61 @@
-import TopBar from './js/bar/TopBar.js';
-import ScreenCorners from './js/screencorner/ScreenCorners.js';
-import Overview from './js/overview/Overview.js';
-import Dashboard from './js/dashboard/Dashboard.js';
-import OSD from './js/osd/OSD.js';
-import FloatingDock from './js/dock/FloatingDock.js';
-import Applauncher from './js/applauncher/Applauncher.js';
-import PowerMenu from './js/powermenu/PowerMenu.js';
-import Verification from './js/powermenu/Verification.js';
-import Desktop from './js/desktop/Desktop.js';
-import Notifications from './js/notifications/Notifications.js';
-import QuickSettings from './js/quicksettings/QuickSettings.js';
-import Lockscreen from './js/lockscreen/Lockscreen.js';
-import options from './js/options.js';
-import * as setup from './js/utils.js';
-import { forMonitors } from './js/utils.js';
+import { Variable } from 'resource:///com/github/Aylur/ags/variable.js';
+import Widget from 'resource:///com/github/Aylur/ags/widget.js';
+import { subprocess, exec } from 'resource:///com/github/Aylur/ags/utils.js'
+import App from 'resource:///com/github/Aylur/ags/app.js'
 
-setup.warnOnLowBattery();
-setup.scssWatcher();
-setup.globalServices();
+const scss = App.configDir + '/style.scss'
+const css = App.configDir + '/style.css'
+
+const time = new Variable('', {
+    poll: [1000, 'date'],
+});
+
+const bar = Widget.Window({
+    name: `bar`,
+    anchor: ['top', 'left', 'right'],
+    exclusive: true,
+    child: Widget.CenterBox({
+        start_widget: Widget.Label({
+            // hpack: 'center',
+            label: 'Welcome to AGS!',
+        }),
+        end_widget: Widget.Label({
+            // hpack: 'center',
+            binds: [['label', time]],
+        }),
+    }),
+		connections: [
+		[10000, ags => {	
+		// print("reload css")
+		exec(`sassc ${scss} ${css}`);
+		App.resetCss();
+		App.applyCss(css);;
+		}]
+	],
+})
+
+exec(`sassc ${scss} ${css}`);
+
+/* subprocess([
+	'inotifywait',
+	'--recursive',
+	'--event', 'create,modify',
+	'-m', App.configDir + '/scss',
+], () => {
+	exec(`sassc ${scss} ${css}`);
+	App.resetCss();
+	App.applyCss(css);
+}); */
+
 
 export default {
-    maxStreamVolume: 1.05,
-    cacheNotificationActions: true,
-    closeWindowDelay: {
-        'quicksettings': options.windowAnimationDuration,
-        'dashboard': options.windowAnimationDuration,
-    },
-    windows: [
-        forMonitors(TopBar),
-        forMonitors(ScreenCorners),
-        forMonitors(OSD),
-        // forMonitors(FloatingDock),
-        // forMonitors(Desktop),
-        forMonitors(Notifications),
-        forMonitors(Lockscreen),
-        Applauncher(),
-        Overview(),
-        Dashboard(),
-        QuickSettings(),
-        PowerMenu(),
-        Verification(),
-    ].flat(2),
-};
+	closeWindowDelay: {
+		'window-name': 500, // milliseconds
+	},
+	notificationPopupTimeout: 3000, // milliseconds
+	notificationForceTimeout: true,
+	cacheNotificationActions: true,
+	maxStreamVolume: 1.5, // float
+	style: css,
+  windows: [bar]
+}
