@@ -1,16 +1,14 @@
 import { Variable } from 'resource:///com/github/Aylur/ags/variable.js';
-import Widget from 'resource:///com/github/Aylur/ags/widget.js';
 import { subprocess, exec } from 'resource:///com/github/Aylur/ags/utils.js'
 import App from 'resource:///com/github/Aylur/ags/app.js'
+import Bar from './src/Bar.js'
+import Launcher from './src/Launcher.js'
 
 const scss = App.configDir + '/style.scss'
 const css = App.configDir + '/style.css'
 
-const time = new Variable('', {
-    poll: [1000, 'date'],
-});
 
-const bar = Widget.Window({
+/* const bar = Widget.Window({
     name: `bar`,
     anchor: ['top', 'left', 'right'],
     exclusive: true,
@@ -24,15 +22,15 @@ const bar = Widget.Window({
             binds: [['label', time]],
         }),
     }),
-		connections: [
-		[10000, ags => {	
-		// print("reload css")
-		exec(`sassc ${scss} ${css}`);
-		App.resetCss();
-		App.applyCss(css);;
-		}]
-	],
-})
+		// connections: [
+		// [10000, ags => {	
+		// // print("reload css")
+		// // exec(`sassc ${scss} ${css}`);
+		// // App.resetCss();
+		// // App.applyCss(css);;
+		// }]
+	// ],
+}) */
 
 exec(`sassc ${scss} ${css}`);
 
@@ -57,5 +55,8 @@ export default {
 	cacheNotificationActions: true,
 	maxStreamVolume: 1.5, // float
 	style: css,
-  windows: [bar]
+  windows: [
+		Bar,
+		Launcher
+	]
 }
