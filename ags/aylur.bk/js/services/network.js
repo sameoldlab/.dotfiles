@@ -6,5 +6,5 @@ class Network extends Service {
 
 }
 
-export default new Network()
+// export default new Network()
 
