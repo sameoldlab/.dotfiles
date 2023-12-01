@@ -21,7 +21,7 @@ export default {
         },
         mixer: '',
     },
-    asusctl: {
+    optimus: {
         profile: {
             Balanced: 'power-profile-balanced-symbolic',
             Quiet: 'power-profile-power-saver-symbolic',
