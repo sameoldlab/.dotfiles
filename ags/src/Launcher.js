@@ -20,6 +20,7 @@ const AppItem = app => Widget.Button({
 			Widget.Icon({
 					icon: app.icon_name || '',
 					size: 32,
+					className: 'icon'
 			}),
 				Widget.Box({
 					vertical: true,

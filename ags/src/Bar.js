@@ -8,7 +8,8 @@ import SystemTray from 'resource:///com/github/Aylur/ags/service/systemtray.js';
 import App from 'resource:///com/github/Aylur/ags/app.js';
 import * as Widget from 'resource:///com/github/Aylur/ags/widget.js'
 import { exec, execAsync } from 'resource:///com/github/Aylur/ags/utils.js'
-import Brightnessctl from './services/brightness.js'
+import Brightness from './services/brightness.js'
+import Icon from './icons.js'
 
 
 
@@ -47,33 +48,48 @@ const ClientTitle = () =>
 
 const dayOfWeek = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
 
-const Clock = () =>
-	Widget.Label({
-		className: 'clock',
-		connections: [
-			// this is bad practice, since exec() will block the main event loop
-			// in the case of a simple date its not really a problem
-			// [1000, self => self.label = exec('date "+%H:%M:%S %b %e."')],
+const Clock = () => Widget.Box({
+	className: 'clock',
+	vertical: true,
+	vpack: 'end',
+	children: [
+		Widget.Label({
+			className: 'time',
+			justification: 'right',
+			connections: [
+				[
+					1000,
+					self =>
+						execAsync(['date', '+%I:%M%p'])
+							.then(date => (self.label = date).toUpperCase())
+							.catch(console.error),
+			]],
+		}),
+		Widget.Label({
+			className: 'date',
+			justification: 'right',
+			connections: [
+				[
+					1000000,
+					self =>
+						execAsync(['date', '+%x %a'])
+							.then(date => (self.label = date))
+							.catch(console.error),
+			]]
+		})
+	]
+})
 
-			// this is what you should do
-			[
-				1000,
-				self =>
-					execAsync(['date', '+%I:%M%p %e %a'])
-						.then(date => (self.label = date.toUpperCase().slice(0,-2)))
-						.catch(console.error),
-			],
-		],
-	})
+
 
 const Wifi = () => Widget.Box({
-	className: 'wifi',
+	className: 'wifi tray-icon',
 	children: [
 		Widget.Stack({
 			items: [
 				// tuples of [string, Widget]
-				['1', Widget.Icon('audio-volume-overamplified-symbolic')],
-				['0', Widget.Icon('audio-volume-muted-symbolic')],
+				['1', Widget.Icon('network-wireless-signal-good-symbolic')],
+				['0', Widget.Icon('network-wireless-offline-symbolic')],
 			],
 			connections: [
 				[
@@ -119,8 +135,7 @@ const Notification = () =>
 		],
 	})
 
-const Media = () =>
-	Widget.Button({
+const Media = () => Widget.Button({
 		className: 'media',
 		onPrimaryClick: () => Mpris.getPlayer('')?.playPause(),
 		onScrollUp: () => Mpris.getPlayer('')?.next(),
@@ -143,41 +158,41 @@ const Media = () =>
 		}),
 	})
 
-const Volume = () =>
-	Widget.Box({
-		className: 'volume',
-		// css: 'min-width: 180px',
-		children: [
-			Widget.Stack({
-				items: [
-					// tuples of [string, Widget]
-					['101', Widget.Icon('audio-volume-overamplified-symbolic')],
-					['67', Widget.Icon('audio-volume-high-symbolic')],
-					['34', Widget.Icon('audio-volume-medium-symbolic')],
-					['1', Widget.Icon('audio-volume-low-symbolic')],
-					['0', Widget.Icon('audio-volume-muted-symbolic')],
+const Volume = () => Widget.Box({
+	className: 'volume tray-icon',
+	// css: 'min-width: 180px',
+	children: [
+		Widget.Stack({
+			items: [
+				// tuples of [string, Widget]
+				['101', Widget.Icon('audio-volume-overamplified-symbolic')],
+				['67', Widget.Icon('audio-volume-high-symbolic')],
+				['34', Widget.Icon('audio-volume-medium-symbolic')],
+				['1', Widget.Icon('audio-volume-low-symbolic')],
+				['0', Widget.Icon('audio-volume-muted-symbolic')],
+			],
+			connections: [
+				[
+					Audio,
+					self => {
+						if (!Audio.speaker) return
+
+						if (Audio.speaker.isMuted) {
+							self.shown = '0'
+							return
+						}
+						
+
+						const show = [101, 67, 34, 1, 0].find(
+							threshold => threshold <= Audio.speaker.volume * 100
+						)
+
+						self.shown = `${show}`
+					},
+					'speaker-changed',
 				],
-				connections: [
-					[
-						Audio,
-						self => {
-							if (!Audio.speaker) return
-
-							if (Audio.speaker.isMuted) {
-								self.shown = '0'
-								return
-							}
-
-							const show = [101, 67, 34, 1, 0].find(
-								threshold => threshold <= Audio.speaker.volume * 100
-							)
-
-							self.shown = `${show}`
-						},
-						'speaker-changed',
-					],
-				],
-			}),
+			],
+		}),
 			Widget.Slider({
 				hexpand: true,
 				drawValue: false,
@@ -192,50 +207,37 @@ const Volume = () =>
 					],
 				],
 			}),
+	],
+})
+
+const BrightnessLabel = () => Widget.Label({
+	className: 'battery tray-icon',
+	binds: [['label', Brightness, 'screen-value', v => `${v}`]],
+	connections: [
+		[
+			Brightness,
+			self => {
+				self.label = `${Brightness.screen_value}`
+			},
+			'notify::screen-value',
 		],
-	})
+	],
+})
 
-const Brightness = () =>
-	Widget.Label({
-		binds: [['label', Brightnessctl, 'screen-value', v => `${v}`]],
-
-		connections: [
-			[
-				Brightnessctl,
-				self => {
-					self.label = `${Brightnessctl.screen_value}`
-				},
-				'notify::screen-value',
-			],
-		],
-	})
-
-const BatteryLabel = () =>
-	Widget.Box({
-		className: 'battery',
+const BatteryLabel = () => Widget.Box({
+		className: 'battery tray-icon',
 		children: [
 			Widget.Icon({
 				connections: [
 					[
 						Battery,
 						self => {
-							self.icon = `battery-level-${
-								Math.floor(Battery.percent / 10) * 10
-							}-symbolic`
+							// print(Battery.time_remaining ) //units???
+							self.icon = Battery.icon_name
 						},
 					],
 				],
 			}),
-			/* 
-        Widget.ProgressBar({
-            // vpack: 'center',
-            connections: [[Battery, self => {
-                if (Battery.percent < 0)
-                    return;
-
-                self.fraction = Battery.percent / 100;
-            }]],
-        }), */
 		],
 	})
 
@@ -264,21 +266,21 @@ const Left = () =>
 		children: [
 			Workspaces(),
 			// ClientTitle(),
-			Wifi(),
 		],
 	})
-
-const Center = () =>
+	
+	const Center = () =>
 	Widget.Box({
 		children: [Media(), Notification()],
 	})
-
-const Right = () =>
+	
+	const Right = () =>
 	Widget.Box({
-		// hpack: 'end',
+		hpack: 'end',
 		children: [
-			Brightness(),
 			SysTray(),
+			BrightnessLabel(),
+			Wifi(),
 			Volume(),
 			BatteryLabel(),
 			Clock()],
