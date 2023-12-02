@@ -1,11 +1,6 @@
 import { Hyprland, Notifications, Mpris, Audio, Battery, SystemTray, Brightness}  from '../services/index'
-import {Widget, Utils} from '../imports'
+import { Widget, Utils} from '../imports'
 import Workspaces from './workspaces';
-import { BaseProps,  } from '../../types/widgets/widget';
-import { CenterBoxProps } from '../../types/widgets/centerbox';
-
-
-
 
 const ClientTitle = () =>
 	Widget.Label({
@@ -15,14 +10,11 @@ const ClientTitle = () =>
 
 const dayOfWeek = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
 
-type NewType = BaseProps<CenterBoxProps>;
-
-const Clock = (): NewType => Widget.Box({
-
+const Clock = () => Widget.Box({
 	className: 'clock',
 	vertical: true,
 	hpack: 'end',
-	tooltipText: 'date',
+	tooltip_text: 'date',
 	children: [
 		Widget.Label({
 			className: 'time',

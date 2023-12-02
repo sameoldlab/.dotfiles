@@ -9,7 +9,7 @@ cd /tmp/ags-config
 echo "cloning ags"
 git clone https://github.com/Aylur/ags.git
 cd ags
-pnpm i
+npm i
 
 # generate
 echo "generating types..."
@@ -82,9 +82,9 @@ gi "Gio" "gio-2.0" >>$dts
 gi "GLib" "glib-2.0" >>$dts
 
 # remove tmp
-rm -rf /tmp/ags-config
+# rm -rf /tmp/ags-config
 
-# pnpm i
-echo "pnpm install @girs"
+# npm i
+echo "npm install @girs"
 cd $dir
-pnpm i
+npm i
