@@ -1,44 +1,11 @@
-// importing 
-import Hyprland from 'resource:///com/github/Aylur/ags/service/hyprland.js';
-import Notifications from 'resource:///com/github/Aylur/ags/service/notifications.js';
-import Mpris from 'resource:///com/github/Aylur/ags/service/mpris.js';
-import Audio from 'resource:///com/github/Aylur/ags/service/audio.js';
-import Battery from 'resource:///com/github/Aylur/ags/service/battery.js';
-import SystemTray from 'resource:///com/github/Aylur/ags/service/systemtray.js';
-import App from 'resource:///com/github/Aylur/ags/app.js';
-import * as Widget from 'resource:///com/github/Aylur/ags/widget.js'
-import { exec, execAsync } from 'resource:///com/github/Aylur/ags/utils.js'
-import Brightness from './services/brightness.js'
-import Icon from './icons.js'
+import { Hyprland, Notifications, Mpris, Audio, Battery, SystemTray, Brightness}  from '../services/index'
+import {Widget, Utils} from '../imports'
+import Workspaces from './workspaces';
+import { BaseProps,  } from '../../types/widgets/widget';
+import { CenterBoxProps } from '../../types/widgets/centerbox';
 
 
 
-
-
-// widgets can be only assigned as a child in one container
-// so to make a reuseable widget, just make it a function
-// then you can use it by calling simply calling it
-
-const Workspaces = () =>
-	Widget.Box({
-		className: 'workspaces',
-		connections: [
-			[
-				Hyprland.active.workspace,
-				self => {
-					// generate an array [1..10] then make buttons from the index
-					const arr = Array.from({ length: 10 }, (_, i) => i + 1)
-					self.children = arr.map(i =>
-						Widget.Button({
-							onClicked: () => execAsync(`hyprctl dispatch workspace ${i}`),
-							child: Widget.Label(`${i}`),
-							className: Hyprland.active.workspace.id === i ? 'focused' : '',
-						})
-					)
-				},
-			],
-		],
-	})
 
 const ClientTitle = () =>
 	Widget.Label({
@@ -48,31 +15,38 @@ const ClientTitle = () =>
 
 const dayOfWeek = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
 
-const Clock = () => Widget.Box({
+type NewType = BaseProps<CenterBoxProps>;
+
+const Clock = (): NewType => Widget.Box({
+
 	className: 'clock',
 	vertical: true,
-	vpack: 'end',
+	hpack: 'end',
+	tooltipText: 'date',
 	children: [
 		Widget.Label({
 			className: 'time',
 			justification: 'right',
+			hexpand: true,
 			connections: [
 				[
 					1000,
 					self =>
-						execAsync(['date', '+%I:%M%p'])
-							.then(date => (self.label = date).toUpperCase())
+						Utils.execAsync(['date', '+%I:%M%p'])
+							.then(date => (self.label = date.toUpperCase()))
 							.catch(console.error),
 			]],
 		}),
+
 		Widget.Label({
 			className: 'date',
+			hexpand: true,
 			justification: 'right',
 			connections: [
 				[
 					1000000,
 					self =>
-						execAsync(['date', '+%x %a'])
+						Utils.execAsync(['date', '+%x %a'])
 							.then(date => (self.label = date))
 							.catch(console.error),
 			]]
@@ -94,7 +68,7 @@ const Wifi = () => Widget.Box({
 			connections: [
 				[
 					1000, self => 
-						execAsync([
+						Utils.execAsync([
 							'bash',
 							'-c',
 							`iwctl station wlan0 show \
@@ -182,9 +156,10 @@ const Volume = () => Widget.Box({
 							return
 						}
 						
+						const {volume} = Audio.speaker
 
 						const show = [101, 67, 34, 1, 0].find(
-							threshold => threshold <= Audio.speaker.volume * 100
+							threshold => threshold <= volume * 100
 						)
 
 						self.shown = `${show}`
@@ -223,6 +198,7 @@ const BrightnessLabel = () => Widget.Label({
 		],
 	],
 })
+
 
 const BatteryLabel = () => Widget.Box({
 		className: 'battery tray-icon',
@@ -286,7 +262,6 @@ const Left = () =>
 			Clock()],
 	})
 
-const css = App.configDir + '/style.css'
 
 export default Widget.Window({
 	name: `agsBar`, // name has to be unique
@@ -297,16 +272,7 @@ export default Widget.Window({
 		startWidget: Left(),
 		centerWidget: Center(),
 		endWidget: Right(),
+
 	}),
-	connections: [
-		[
-			5000,
-			_ => {
-				// print("reload css")
-				// exec(`sassc ${scss} ${css}`);
-				App.resetCss()
-				App.applyCss(css)
-			},
-		],
-	],
+	connections: [],
 })

@@ -1,7 +1,7 @@
 import Service from 'resource:///com/github/Aylur/ags/service.js'
 import { exec, execAsync } from 'resource:///com/github/Aylur/ags/utils.js'
 
-class BrightnessService extends Service {
+class NetworkService extends Service {
 	// every subclass of GObject.Object has to register itself
 	static {
 		// takes three arguments
@@ -13,28 +13,27 @@ class BrightnessService extends Service {
 			{
 				// 'name-of-signal': [type as a string from GObject.TYPE_<type>],
 				'screen-changed': ['float'],
+				'is-connected': ['boolean'],
 			},
 			{
 				// 'kebab-cased-name': [type as a string from GObject.TYPE_<type>, 'r' | 'w' | 'rw']
 				// 'r' means readable
 				// 'w' means writable
 				// guess what 'rw' means
-				'screen-value': ['float', 'rw'],
+				'is-connected': ['boolean', 'r'],
 			}
 		)
 	}
 
-	_screenValue = 0
+	_currentNetwork = null
 
 	// the getter has to be in snake_case
-	get screen_value() {
-		return this._screenValue
+	get current_network() {
+		return this._currentNetwork
 	}
 
 	// the setter has to be in snake_case too
 	set screen_value(percent) {
-		if (percent < 0) percent = 0
-		if (percent > 1) percent = 1
 
 		execAsync(`brightnessctl s ${percent * 100}% -q`)
 			.then(() => {
@@ -65,10 +64,10 @@ class BrightnessService extends Service {
 }
 
 // the singleton instance
-const service = new BrightnessService()
+const service = new NetworkService()
 
 // make it global for easy use with cli
-globalThis.brightness = service
+globalThis.network = service
 
 // export to use in other modules
 export default service

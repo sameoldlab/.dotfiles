@@ -1,42 +1,62 @@
 $aqua: #fff;
-$background: #111;
+$background: #000000;
 $indicator: hsl(40, 85%, 49%);
+$foreground: #eee;
+$hover: #333;
+// label {
+// 	// font-weight: 600;
+// }
 
-label {
-	// font-weight: 600;
+* {
+	border-radius: 0;
 }
 .bar {
-	background: hsla(248, 31%, 5%, 0.4);
+	background: rgba(10, 9, 17, 0);
+	background: $background; 
 }
+
+.tray-icon {
+	margin: 0 .5em;
+}
+
 .workspaces button,
 .media {
+	padding: .5em;
 	background-color: transparent;
 	font-weight: 400;
-
 	color: #eee;
+}
 
+.workspaces button :hover,
+#applauncher :focus,
+.media :hover {
+	background-color: rgba(255, 255, 255, 0.1);
+	background: #eee;
+	color: #efefef;
+	color: #222;
+	box-shadow: none;
+}
 
-	:hover {
-		background-color: rgba(255, 255, 255, 0.1);
-		color: #efefef;
-	}
+.workspaces button :active,
+#applauncher  :active,
+.media :active {
+	background-color: rgba(255, 255, 255, 0.2);
+	background: white;
 
-	:active {
-		background-color: rgba(255, 255, 255, 0.2);
-		color: #fff;
-	}
+	color: #fff;
 }
 
 .workspaces button.focused {
-	color: $indicator;
-	font-weight: 600;
+	color: #e7a013;
+	background: #eee;
+	/* color: #efefef; */
+	color: #111;
+	font-weight: 800;
 }
-
-
 
 .client-title {
 	margin-left: 1em;
-	color: $aqua;
+	color: #fff;
 }
 
 .notification image {
@@ -50,64 +70,104 @@ label {
 
 .clock {
 	font-weight: 600;
-	margin: 0 .15em;
-	font-size: 1em;
+	margin: .25em 1em;
+	font-size: .95em;
+	/* justify: "right"; */
 }
 
-progress, highlight {
-	background-color: $indicator;
-	min-height: .5em;
+.date {
+	font-weight: 400;
+	font-size: .85em;
+	color: #eee;
 }
 
-$spacing: 2em;
-$font-size: 1em;
-$popover_padding: 1em;
+progress,
+highlight {
+	background-color: #e7a013;
+	min-height: 0.5em;
+}
 
 .applauncher {
-	// background-color: red;
-	// height: 500px;
-	// width: 500px;
+	background: transparent;
+	/* padding: 1em;	 */
+	/* border: .5px solid green; */
+	/* border-radius: 2em; */
+}	
 
+#applauncher {
+	border: 0;
+	margin: 0;
+	padding: 1em;
+	background: rgba(10, 9, 17, 0.4);
+	background: #111;
 
+	/* border: .5px solid white; */
+	/* border-radius: 2em; */
+	
+}
 
-  .header {
-    margin: $popover_padding;
-    margin-bottom: $popover_padding/4;
+.applauncher .applauncher__entry {
+	padding: .75em .5em;	
+	font-size: 1.3em;
+	border-radius: 0;
+	/* margin: 1em; */
+	margin-bottom: 5em;	
+	background: transparent;
 
-    image,
-    entry {
-      padding: $spacing/2;
-    }
+	/* border: .15em solid #111; */
+	
+	border-bottom: 1px solid rgba(200, 200, 200, 0.5);
+	/* border-top-right-radius: 2em; */
+	/* border-radius: 2em; */
+}
 
-    entry {
-      padding-left: $spacing;
-    }
+.applauncher__entry entry { 
+	color: red;
+	font-weight: 900;
+}
 
-    image {
-      margin-right: $spacing;
-      -gtk-icon-transform: scale(0.8);
-      font-size: $font-size * 1.6;
-    }
-  }
+/* //.applauncher .applauncher__entry, */
 
-  .separator {
+.applauncher__list, 
+.applauncher__item {
+	margin: .5em .5em;
+	/* border-radius: 2em; */
+	background: transparent;
+	font-weight: 600;
+}
+
+#applauncher button {
+	background: transparent;
+}
+
+#applauncher .applauncher__entry :focus {
+	border: 1px solid red;
+	box-shadow: none;
+}
+
+.applauncher__item .description{
+	font-weight: 400;
+	color: #eee;
+}
+.applauncher__item .icon{
+	margin-right: 1em;
+}
+
+/* .separator {
     min-height: 1px;
     background-color: $hover;
     margin: $spacing/2;
-  }
-
+  } */
 /*   scrolledwindow {
     padding: $popover_padding;
     min-width: 500px;
     min-height: 350px;
   } */
-
 /*   .placeholder {
     margin-top: $spacing;
     color: $fg_color;
     font-size: 1.2em;
   } */
-
 /*   .app {
     all: unset;
     transition: $transition;
@@ -150,5 +210,21 @@ $popover_padding: 1em;
         color: $fg_color;
       }
     } 
-  } */
+  } }*/
+
+.applauncher .header {
+	margin: 1em;
+	margin-bottom: 0.25em;
+}
+.applauncher .header image,
+.applauncher .header entry {
+	padding: 1em;
+}
+.applauncher .header entry {
+	padding-left: 2em;
+}
+.applauncher .header image {
+	margin-right: 2em;
+	-gtk-icon-transform: scale(0.8);
+	font-size: 1.6em;
 }
