@@ -1,11 +1,12 @@
 import { Variable } from 'resource:///com/github/Aylur/ags/variable.js';
 import { subprocess, exec } from 'resource:///com/github/Aylur/ags/utils.js'
 import App from 'resource:///com/github/Aylur/ags/app.js'
-import Bar from './src/Bar.js'
+import Bar from './src/Bar/index.js'
 import Launcher from './src/Launcher.js'
 
 const scss = App.configDir + '/style.scss'
 const css = App.configDir + '/style.css'
+exec(`sassc ${scss} ${css}`)
 
 
 /* const bar = Widget.Window({
@@ -32,18 +33,21 @@ const css = App.configDir + '/style.css'
 	// ],
 }) */
 
-exec(`sassc ${scss} ${css}`);
-
-/* subprocess([
-	'inotifywait',
-	'--recursive',
-	'--event', 'create,modify',
-	'-m', App.configDir + '/scss',
-], () => {
-	exec(`sassc ${scss} ${css}`);
-	App.resetCss();
-	App.applyCss(css);
-}); */
+subprocess(
+	[
+		'inotifywait',
+		'--recursive',
+		'--event',
+		'create,modify',
+		'-m',
+		App.configDir + '/scss',
+	],
+	() => {
+		exec(`sassc ${scss} ${css}`)
+		App.resetCss()
+		App.applyCss(css)
+	}
+)
 
 
 export default {

@@ -11,10 +11,12 @@ it will be executed either with dmenu or with rofi
 Examples:
 dmenu_iwd.sh
 rofi_iwd.sh"
+
 if [ "$1" = "-h" ] || [ "$1" = "--help" ]; then
 printf "%s\n" "$help"
 exit 0
 fi
+
 case $script in
 dmenu_*)
 label_interface="interface »"
@@ -41,6 +43,13 @@ remove_escape_sequences() {
     tail -n +5 \
     | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g;/^\s*$/d"
 }
+iwctl device list \
+| tail -n +5 \
+| sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g;/^\s*$/d" \
+| awk '{print $1" == ["$2"] == ["$3"]"}' \
+| $menu_interface -p "$label_interface" \
+| awk '{print $1}'
+
 get_interface() {
     interface=$(
         iwctl device list \
