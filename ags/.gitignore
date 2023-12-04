@@ -1,3 +1,6 @@
 node_modules
 types
 *.bk
+config.js
+src/*.js
+style/*.css

@@ -7,7 +7,7 @@ import SystemTray			from 'resource:///com/github/Aylur/ags/service/systemtray.js
 import Applications		from 'resource:///com/github/Aylur/ags/service/applications.js'
 import Bluetooth			from 'resource:///com/github/Aylur/ags/service/bluetooth.js'
 import Network				from 'resource:///com/github/Aylur/ags/service/network.js'
-import Brightness from './brightness'
+import Brightness from './brightness.js'
 
 
 export { Hyprland, Notifications, Mpris, Audio, Battery, SystemTray, Applications, Bluetooth, Network, Brightness}
