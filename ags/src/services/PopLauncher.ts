@@ -1,6 +1,6 @@
 import Service from 'resource:///com/github/Aylur/ags/service.js'
-import Gio from "gi://Gio?version=2.0"
-import GLib from "gi://GLib?version=2.0"
+import * as Gio from "gi://Gio"
+import * as GLib from "gi://GLib"
 
 class PopLauncher extends Service {
 	constructor() {

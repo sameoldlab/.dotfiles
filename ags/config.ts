@@ -4,8 +4,8 @@ import App from 'resource:///com/github/Aylur/ags/app.js'
 import Bar from './src/Bar/index.js'
 import Launcher from './src/Launcher.js'
 
-const scss = App.configDir + '/style.scss'
-const css = App.configDir + '/style.css'
+const scss = App.configDir + '/style/index.scss';
+const css = App.configDir + '/style/index.css';
 exec(`sassc ${scss} ${css}`)
 
 

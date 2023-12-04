@@ -8,11 +8,13 @@
 .tray-icon {
   margin: 0 .5em; }
 
-.workspaces button,
-.media {
+.workspaces button {
   padding: .5em;
   background-color: transparent;
   font-weight: 400;
+  color: #333; }
+
+.workspaces button.occupied {
   color: #eee; }
 
 .workspaces button :hover,

@@ -19,14 +19,15 @@ $hover: #333;
 	margin: 0 .5em;
 }
 
-.workspaces button,
-.media {
+.workspaces button {
 	padding: .5em;
 	background-color: transparent;
 	font-weight: 400;
-	color: #eee;
+	color: $hover;
 }
-
+.workspaces button.occupied {
+	color: $foreground;
+}
 .workspaces button :hover,
 #applauncher :focus,
 .media :hover {

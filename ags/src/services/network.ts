@@ -53,7 +53,7 @@ class NetworkService extends Service {
 		super()
 		const current = Number(exec('brightnessctl g'))
 		const max = Number(exec('brightnessctl m'))
-		this._screenValue = current / max
+		this.screen_value = current / max
 	}
 
 	// overwriting the connect method, let's you

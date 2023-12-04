@@ -1,6 +1,6 @@
 // https://github.com/pop-os/shell/blob/aafc9458a47a68c396933c637de00421f5198a2a/src/utils.ts#L120
 
-import Gio from 'gi://Gio'
+import * as Gio from 'gi://Gio'
 
 export type AsyncIPC = {
 	child: any;
@@ -24,7 +24,7 @@ export function async_process_ipc(argv: Array<string>): AsyncIPC | null {
 	try {
 			child = launcher.spawnv(argv);
 	} catch (why) {
-			log.error(`failed to spawn ${argv}: ${why}`);
+			console.error(`failed to spawn ${argv}: ${why}`);
 			return null;
 	}
 
