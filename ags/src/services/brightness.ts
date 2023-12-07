@@ -1,6 +1,7 @@
 import Service from 'resource:///com/github/Aylur/ags/service.js'
 import { exec, execAsync } from 'resource:///com/github/Aylur/ags/utils.js'
 import * as Widget  from 'resource:///com/github/Aylur/ags/widget.js'
+import * as Utils from 'resource:///com/github/Aylur/ags/utils.js'
 
 class BrightnessService extends Service {
 	// every subclass of GObject.Object has to register itself
@@ -25,37 +26,61 @@ class BrightnessService extends Service {
 		)
 	}
 
-	_screenValue = 0
+	// this Service assumes only one device with backlight
+	private #interface = Utils.exec("sh -c 'ls -w1 /sys/class/backlight | head -1'")
+
+	// # prefix means private in JS
+	#screenValue = 0
+	#max = Number(Utils.exec('brightnessctl max'))
 
 	// the getter has to be in snake_case
 	get screen_value() {
-		return this._screenValue
+		return this.#screenValue
 	}
 
 	// the setter has to be in snake_case too
 	set screen_value(percent) {
-		if (percent < 0) percent = 0
+		if (percent <= 0) percent = 0.01
 		if (percent > 1) percent = 1
+		
+		Utils.execAsync(`brightnessctl set ${percent * 100}% -q`)
 
-		execAsync(`brightnessctl s ${percent * 100}% -q`)
-			.then(() => {
-				this._screen = percent
-
-				// signals has to be explicity emitted
-				// this.emit('changed') // emits "changed"
-				// this.notify('screen-value') // emits "notify::screen-value"
-
-				// or use Service.changed(propName: string) which does the above two
-				this.changed('screen-value');
-			})
-			.catch(print)
+		// the file monitor will handle the rest
 	}
 
 	constructor() {
 		super()
-		const current = Number(exec('brightnessctl g'))
-		const max = Number(exec('brightnessctl m'))
-		this._screenValue = current / max
+
+		// setup monitor
+		const brightness = `/sys/class/backlight/${this.#interface}/brightness`
+		Utils.subprocess(
+			[
+				'inotifywait',
+				'--recursive',
+				'--event',
+				'create,modify',
+				'-m',
+				brightness,
+			],
+			() => this.#onChange()
+		)
+
+		// initialize
+		this.#onChange()
+	}
+
+	#onChange() {
+		this.#screenValue = Number(Utils.exec('brightnessctl get')) / this.#max
+
+		// signals have to be explicity emitted
+		this.emit('changed') // emits "changed"
+		this.notify('screen-value') // emits "notify::screen-value"
+
+		// or use Service.changed(propName: string) which does the above two
+		// this.changed('screen-value');
+
+		// emit screen-changed with the percent as a parameter
+		this.emit('screen-changed', this.#screenValue)
 	}
 
 	// overwriting the connect method, let's you

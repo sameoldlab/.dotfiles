@@ -1,6 +1,7 @@
-import { Hyprland, Notifications, Mpris, SystemTray}  from '../services/index.js'
-import { Widget, Utils, Variable} from '../imports.js'
+import { Hyprland, Notifications, SystemTray}  from '../services/index.js'
+import { Widget, Utils, } from '../imports.js'
 import Workspaces from './workspaces.js'
+import Media from './media.js'
 import SysTray from './systray.js'
 import GLib from 'gi://GLib'
 import icons from '../icons.js'
@@ -69,116 +70,6 @@ const Notification = () => 	Widget.Box({
   ],
 })
 
-const mpris = {
-  playing: false,
-  player: Mpris.getPlayer(''),
-  media: ''
-
-}
-
-const props = [
-  'bus-name',
-  'name',
-  'identity',
-  'entry',
-  'trackid',
-  'track-artists',
-  'track-title',
-  'track-cover-url',
-  'cover-path',
-  'play-back-status',
-  'can-go-next',
-  'can-go-prev',
-  'can-play',
-  'shuffle-status',
-  'loop-status',
-  'volume',
-  'length',
-  'position',
-]
-
-Mpris.connect('player-added', (_, bus) => {
-  const player = Mpris.getPlayer(bus)
-  const closure = function(prop) {
-      let i = 0
-      return function(player) {
-          print(player.name, prop, player[prop], i++)
-      }
-  }
-
-  // player.connect('changed', closure('name'));
-  for (const prop of props) {
-      player.connect(`notify::${prop}`, closure(prop))
-  }
-})
-const mp = Variable({},{
-  
-})
-
-/* Mpris.connect('player-added', (_, bus) => {
-  Mpris.getPlayer(bus).connect('changed', player => {
-      print(player.name, 'changed to ', player.play_back_status,' ', player.track_title)
-  })
-}) */
-
-const Media = () =>  Widget.Button({
-    class_name: 'media',
-    on_primary_click: () => {
-      print('register click')
-      return Mpris.getPlayer('')?.playPause()
-    },
-    on_scroll_up: () => Mpris.getPlayer('')?.next(),
-    on_scroll_down: () => Mpris.getPlayer('')?.previous(),
-    child: Widget.Box({
-      children:[ 
-        Widget.Revealer({
-          reveal_child: false,
-          transition_duration: 1000,
-          transition: 'slide_left',
-          connections: [
-            /* START Important section */
-            [Mpris, self => {
-              const players = Mpris.players
-              let player = players[0]
-              //prioritize players
-              if (players.length > 1 ) {
-                // very lazy but I'll probably always have
-                // browser open before media player
-                player = players[1]
-              }
-              print(player.name, 'changed to ', player.play_back_status,' ', player.track_title)
-              if (player && player.play_back_status !== "Paused") {
-                print('reveal')
-                self.reveal_child = true;
-                Utils.timeout(3000, () => self.reveal_child = false)							
-              } else {
-                print('void')
-                // reveal_child will be true for 3 seconds unless this is enabled
-                // self.reveal_child = false; // gets triggered on second event 
-              }
-            }, 'player-added' ],
-          ],
-          /* ^^^ Important section ^^^*/
-          child: Widget.Label({
-            connections: [
-              [Mpris, self => {
-                  const player = Mpris.getPlayer('')
-                  // mpris player can be undefined
-                  if (player)
-                    self.label = `${player.track_artists.join(', ')} - ${
-                      player.track_title.substring(0, 15)} `
-                },
-              ],
-            ],
-          })
-        }),
-        //yet another connection to track play or paused state?
-        Widget.Icon('media-playback-start-symbolic'), 
-        // Widget.Box() //todo: seekbar, select source, 
-    ]
-    }),
-})
-
 const ExtTray = () =>
   Widget.Box({
     connections: [
@@ -217,7 +108,7 @@ const Right = () =>
 Widget.Box({
   hpack: 'end',
   children: [
-    // Media(),
+    Media(),
     ExtTray(),
     SysTray(),
     Clock(),
