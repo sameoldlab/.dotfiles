@@ -1,4 +1,4 @@
-import { Notifications, Mpris, Audio, Battery, Brightness}  from '../services/index.js'
+import { Notifications, Audio, Battery, Brightness}  from '../services/index.js'
 import {Widget, Utils} from '../imports.js'
 
 /* 
@@ -18,16 +18,15 @@ const Volume = () => Widget.Button({
 
 
 		on_scroll_down: () => {
-			print(32)
 			if(!Audio.speaker) return
 			const {volume} = Audio.speaker
-			Audio.speaker.volume = volume - .1
+			Audio.speaker.volume = volume - .01
 		},
 		on_scroll_up: () => {
 			print(50)
 			if(!Audio.speaker) return
 			const {volume} = Audio.speaker
-			Audio.speaker.volume = volume + .1
+			Audio.speaker.volume = volume + .01
 		},
 	// css: 'min-width: 180px',
 	child: Widget.Stack({
@@ -64,18 +63,14 @@ const Volume = () => Widget.Button({
 		})
 })
 
-const BrightnessLabel = () => Widget.Label({
+
+const BrightnessLabel = () => Widget.EventBox({
+	on_scroll_up:()=>{Brightness.screen_value += 0.011},
+	on_scroll_down:()=>{Brightness.screen_value -= 0.01},
 	class_name: 'battery tray-icon',
-	binds: [['label', Brightness, 'screen-value', v => `${v}`]],
-	connections: [
-		[
-			Brightness,
-			self => {
-				self.label = `${Brightness.screen_value}`
-			},
-			'notify::screen-value',
-		],
-	],
+	child: Widget.Label({
+		binds: [['label', Brightness, 'screen-value', v => ` B: ${Math.round(v*100)}`]],
+	})
 })
 
 const Wifi = () => Widget.Box({
@@ -141,8 +136,7 @@ const BatteryLabel = () => Widget.Box({
 
 const SysTray = () => Widget.EventBox({
 	// pass_through: true,
-	on_primary_click:()=>{print(42)},
-	on_scroll_up:()=>{print(45)},
+
 	child: 
 		Widget.Box({
 		children: [

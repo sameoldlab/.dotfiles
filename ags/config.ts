@@ -40,7 +40,7 @@ subprocess(
 		'--event',
 		'create,modify',
 		'-m',
-		App.configDir + '/scss',
+		App.configDir + '/style',
 	],
 	() => {
 		exec(`sassc ${scss} ${css}`)
