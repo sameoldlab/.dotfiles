@@ -34,7 +34,7 @@ const AppItem = app => Widget.Button({
 								truncate: 'end',
 							}),
 							// short circuit if there is no description
-							!!app.description && Widget.Label({
+							Widget.Label({
 								class_name: 'description',
 								label: app.description || '',
 								wrap: true,
@@ -78,11 +78,13 @@ const Applauncher = ({ width = 500, height = 500, spacing = 12 } = {}) => {
 
         // filter out the list
         on_change: ({ text = '' }) => {
-					print(text)
-					if(text.startsWith('/ ')) print('search directories')
-					if(text.startsWith('f ')) print('search files')
-					if(text.startsWith(': ')) {
-						print('execute', text.substring(1))
+					if(text) {	
+						print(text)
+						if(text.startsWith('/ ')) print('search directories')
+						if(text.startsWith('f ')) print('search files')
+						if(text.startsWith(': ')) {
+							print('execute', text.substring(1))
+						}
 					}
 
 					return list.children.map(item => {

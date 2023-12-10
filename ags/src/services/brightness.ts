@@ -1,7 +1,10 @@
 import Service from 'resource:///com/github/Aylur/ags/service.js'
-import { exec, execAsync } from 'resource:///com/github/Aylur/ags/utils.js'
-import * as Widget  from 'resource:///com/github/Aylur/ags/widget.js'
-import * as Utils from 'resource:///com/github/Aylur/ags/utils.js'
+import {
+	exec,
+	execAsync,
+	subprocess,
+} from 'resource:///com/github/Aylur/ags/utils.js'
+	
 
 class BrightnessService extends Service {
 	// every subclass of GObject.Object has to register itself
@@ -27,11 +30,11 @@ class BrightnessService extends Service {
 	}
 
 	// this Service assumes only one device with backlight
-	private #interface = Utils.exec("sh -c 'ls -w1 /sys/class/backlight | head -1'")
+	#interface = exec("sh -c 'ls -w1 /sys/class/backlight | head -1'")
 
 	// # prefix means private in JS
 	#screenValue = 0
-	#max = Number(Utils.exec('brightnessctl max'))
+	#max = Number(exec('brightnessctl max'))
 
 	// the getter has to be in snake_case
 	get screen_value() {
@@ -42,8 +45,8 @@ class BrightnessService extends Service {
 	set screen_value(percent) {
 		if (percent <= 0) percent = 0.01
 		if (percent > 1) percent = 1
-		
-		Utils.execAsync(`brightnessctl set ${percent * 100}% -q`)
+
+		execAsync(`brightnessctl set ${percent * 100}% -q`)
 
 		// the file monitor will handle the rest
 	}
@@ -53,7 +56,7 @@ class BrightnessService extends Service {
 
 		// setup monitor
 		const brightness = `/sys/class/backlight/${this.#interface}/brightness`
-		Utils.subprocess(
+		subprocess(
 			[
 				'inotifywait',
 				'--recursive',
@@ -70,7 +73,7 @@ class BrightnessService extends Service {
 	}
 
 	#onChange() {
-		this.#screenValue = Number(Utils.exec('brightnessctl get')) / this.#max
+		this.#screenValue = Number(exec('brightnessctl get')) / this.#max
 
 		// signals have to be explicity emitted
 		this.emit('changed') // emits "changed"
