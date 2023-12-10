@@ -24,12 +24,13 @@ class NetworkService extends Service {
 			}
 		)
 	}
+	#screen = null
 
-	_currentNetwork = null
+	#currentNetwork = null
 
 	// the getter has to be in snake_case
 	get current_network() {
-		return this._currentNetwork
+		return this.#currentNetwork
 	}
 
 	// the setter has to be in snake_case too
@@ -37,7 +38,7 @@ class NetworkService extends Service {
 
 		execAsync(`brightnessctl s ${percent * 100}% -q`)
 			.then(() => {
-				this._screen = percent
+				this.#screen = percent
 
 				// signals has to be explicity emitted
 				// this.emit('changed') // emits "changed"

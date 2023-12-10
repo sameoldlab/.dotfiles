@@ -2,5 +2,5 @@ node_modules
 types
 *.bk
 config.js
-src/*.js
+src/*/**.js
 style/*.css

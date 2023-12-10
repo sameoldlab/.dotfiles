@@ -1,37 +1,14 @@
-import { Variable } from 'resource:///com/github/Aylur/ags/variable.js';
 import { subprocess, exec } from 'resource:///com/github/Aylur/ags/utils.js'
 import App from 'resource:///com/github/Aylur/ags/app.js'
 import Bar from './src/Bar/index.js'
 import Launcher from './src/Launcher.js'
+import SettingsToast from './src/SettingsToast/index.js'
 
-const scss = App.configDir + '/style/index.scss';
-const css = App.configDir + '/style/index.css';
+// import {NotificationsPopupWindow, NotificationCenter} from './src/Toast/index.js'
+
+const scss = App.configDir + '/style/index.scss'
+const css = App.configDir + '/style/index.css'
 exec(`sassc ${scss} ${css}`)
-
-
-/* const bar = Widget.Window({
-    name: `bar`,
-    anchor: ['top', 'left', 'right'],
-    exclusive: true,
-    child: Widget.CenterBox({
-        start_widget: Widget.Label({
-            // hpack: 'center',
-            label: 'Welcome to AGS!',
-        }),
-        end_widget: Widget.Label({
-            // hpack: 'center',
-            binds: [['label', time]],
-        }),
-    }),
-		// connections: [
-		// [10000, ags => {	
-		// // print("reload css")
-		// // exec(`sassc ${scss} ${css}`);
-		// // App.resetCss();
-		// // App.applyCss(css);;
-		// }]
-	// ],
-}) */
 
 subprocess(
 	[
@@ -49,7 +26,6 @@ subprocess(
 	}
 )
 
-
 export default {
 	closeWindowDelay: {
 		'window-name': 500, // milliseconds
@@ -59,8 +35,11 @@ export default {
 	cacheNotificationActions: true,
 	maxStreamVolume: 1.5, // float
 	style: css,
-  windows: [
+	windows: [
 		Bar,
-		Launcher
-	]
+		Launcher,
+		SettingsToast,
+		// NotificationsPopupWindow,
+		// NotificationCenter,
+	],
 }

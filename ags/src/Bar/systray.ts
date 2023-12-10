@@ -1,18 +1,6 @@
 import { Notifications, Audio, Battery, Brightness}  from '../services/index.js'
 import {Widget, Utils} from '../imports.js'
 
-/* 
-// For Media, Volume, and Brightness amounts
-const revealer = Widget.Revealer({
-	reveal_child: false,
-	transition_duration: 1000,
-	transition: 'slide_right',
-	child: Widget.Label('hello!'),
-	connections: [[2000, self => {
-			self.reveal_child = !self.reveal_child;
-	}]],
-}); */
-
 const Volume = () => Widget.Button({
 	class_name: 'volume tray-icon',
 
