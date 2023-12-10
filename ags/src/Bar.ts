@@ -3,11 +3,11 @@ import {
 	Notifications,
 	SystemTray,
 	onScreenIndicator,
-} from '../services/index.js'
-import { Widget, Utils } from '../imports.js'
-import Workspaces from './widget/workspaces.js'
-import Media from './widget/media.js'
-import SysTray from './widget/systray.js'
+} from './services/index.js'
+import { Widget, Utils } from './imports.js'
+import Workspaces from './Bar/workspaces.js'
+import Media from './Bar/media.js'
+import SysTray from './Bar/systray.js'
 import GLib from 'gi://GLib'
 
 const ClientTitle = () =>
@@ -85,23 +85,6 @@ const ExtTray = () =>
 		],
 	})
 
-const SysToast = () =>
-	Widget.Box({
-		children: [
-			Widget.Label({ label: 'canary' }),
-			Widget.Label({
-				connections: [
-					[
-						onScreenIndicator,
-						(self, p) => {
-							print(p)
-							// console.log('obj' + JSON.stringify(onScreenIndicator))
-						},
-					],
-				],
-			}),
-		],
-	})
 
 // layout of the bar
 const Left = Widget.Box({
@@ -111,7 +94,6 @@ const Left = Widget.Box({
 const Center = Widget.Box({
 	children: [
 		// Notification(),
-		SysToast(),
 	],
 })
 

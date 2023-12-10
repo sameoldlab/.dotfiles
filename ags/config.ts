@@ -1,6 +1,6 @@
 import { subprocess, exec } from 'resource:///com/github/Aylur/ags/utils.js'
 import App from 'resource:///com/github/Aylur/ags/app.js'
-import Bar from './src/Bar/index.js'
+import Bar from './src/Bar.js'
 import Launcher from './src/Launcher.js'
 import SettingsToast from './src/SettingsToast/index.js'
 
