@@ -1,0 +1,195 @@
+Not enough permission to place log file at /var/log/archinstall/install.log, creating it in /home/ibro/.config/zellij/install.log instead
+Hardware model detected: Razer Blade; UEFI mode: True
+Processor model detected: Intel(R) Core(TM) i7-9750H CPU @ 2.60GHz
+Memory statistics: 29623612 available out of 32765568 total installed
+Could not detect virtual system: ['/usr/bin/systemd-detect-virt'] exited with abnormal exit code [1]: none
+
+System is not running in a VM: ['/usr/bin/systemd-detect-virt'] exited with abnormal exit code [1]: none
+
+Virtualization detected: None; is VM: False
+Graphics devices detected: dict_keys(['Intel Corporation CoffeeLake-H GT2 [UHD Graphics 630]', 'NVIDIA Corporation TU104M [GeForce RTX 2080 Mobile] (rev a1)'])
+Disk states before installing: [
+    {
+        "children": [
+            {
+                "children": [],
+                "fsavail": 33005568,
+                "fsroots": [
+                    "."
+                ],
+                "fstype": "vfat",
+                "fsuse_percentage": "94%",
+                "fsver": "FAT32",
+                "log_sec": 512,
+                "mountpoint": "/boot",
+                "mountpoints": [
+                    "/boot"
+                ],
+                "name": "nvme0n1p1",
+                "partn": 1,
+                "parttype": "c12a7328-f81f-11d2-ba4b-00a0c93ec93b",
+                "partuuid": "2af4d38c-9a84-4478-994a-19bdb5ae0a9e",
+                "path": "/dev/nvme0n1p1",
+                "pkname": "nvme0n1",
+                "pttype": "gpt",
+                "ptuuid": "b0a3a814-a64e-4740-ab3e-8618047d26e1",
+                "rota": false,
+                "size": "499 MiB",
+                "tran": "nvme",
+                "type": "part",
+                "uuid": "1CA3-FE6E"
+            },
+            {
+                "children": [],
+                "fsavail": null,
+                "fsroots": [],
+                "fstype": null,
+                "fsuse_percentage": null,
+                "fsver": null,
+                "log_sec": 512,
+                "mountpoint": null,
+                "mountpoints": [],
+                "name": "nvme0n1p2",
+                "partn": 2,
+                "parttype": "e3c9e316-0b5c-4db8-817d-f92df00215ae",
+                "partuuid": "6671c890-4ae4-4d0c-9ada-11c2a2686804",
+                "path": "/dev/nvme0n1p2",
+                "pkname": "nvme0n1",
+                "pttype": "gpt",
+                "ptuuid": "b0a3a814-a64e-4740-ab3e-8618047d26e1",
+                "rota": false,
+                "size": "128 MiB",
+                "tran": "nvme",
+                "type": "part",
+                "uuid": null
+            },
+            {
+                "children": [],
+                "fsavail": null,
+                "fsroots": [],
+                "fstype": "ntfs",
+                "fsuse_percentage": null,
+                "fsver": null,
+                "log_sec": 512,
+                "mountpoint": null,
+                "mountpoints": [],
+                "name": "nvme0n1p3",
+                "partn": 3,
+                "parttype": "ebd0a0a2-b9e5-4433-87c0-68b6b72699c7",
+                "partuuid": "1bab79ad-139d-40e2-a54d-83e55154bea7",
+                "path": "/dev/nvme0n1p3",
+                "pkname": "nvme0n1",
+                "pttype": "gpt",
+                "ptuuid": "b0a3a814-a64e-4740-ab3e-8618047d26e1",
+                "rota": false,
+                "size": "280000 MiB",
+                "tran": "nvme",
+                "type": "part",
+                "uuid": "01D2C155E9827E70"
+            },
+            {
+                "children": [],
+                "fsavail": 1006669824,
+                "fsroots": [
+                    "."
+                ],
+                "fstype": "btrfs",
+                "fsuse_percentage": "95%",
+                "fsver": null,
+                "log_sec": 512,
+                "mountpoint": "/",
+                "mountpoints": [
+                    "/"
+                ],
+                "name": "nvme0n1p4",
+                "partn": 4,
+                "parttype": "0fc63daf-8483-4772-8e79-3d69d8477de4",
+                "partuuid": "d6c01501-e1ca-49e3-ae35-3ee7b0c6dac4",
+                "path": "/dev/nvme0n1p4",
+                "pkname": "nvme0n1",
+                "pttype": "gpt",
+                "ptuuid": "b0a3a814-a64e-4740-ab3e-8618047d26e1",
+                "rota": false,
+                "size": "25668 MiB",
+                "tran": "nvme",
+                "type": "part",
+                "uuid": "40927eab-9d7a-448a-b0cc-c7c8fe352927"
+            },
+            {
+                "children": [],
+                "fsavail": null,
+                "fsroots": [],
+                "fstype": "btrfs",
+                "fsuse_percentage": null,
+                "fsver": null,
+                "log_sec": 512,
+                "mountpoint": null,
+                "mountpoints": [],
+                "name": "nvme0n1p8",
+                "partn": 8,
+                "parttype": "0fc63daf-8483-4772-8e79-3d69d8477de4",
+                "partuuid": "486980dd-9f3e-4976-9aa5-6a25d7532da8",
+                "path": "/dev/nvme0n1p8",
+                "pkname": "nvme0n1",
+                "pttype": "gpt",
+                "ptuuid": "b0a3a814-a64e-4740-ab3e-8618047d26e1",
+                "rota": false,
+                "size": "48902 MiB",
+                "tran": "nvme",
+                "type": "part",
+                "uuid": "a2cf973b-f650-4d35-aad3-9a42a7fdc278"
+            },
+            {
+                "children": [],
+                "fsavail": 127395168256,
+                "fsroots": [
+                    "opt",
+                    "."
+                ],
+                "fstype": "btrfs",
+                "fsuse_percentage": "77%",
+                "fsver": null,
+                "log_sec": 512,
+                "mountpoint": "/home",
+                "mountpoints": [
+                    "/opt",
+                    "/home"
+                ],
+                "name": "nvme0n1p9",
+                "partn": 9,
+                "parttype": "0fc63daf-8483-4772-8e79-3d69d8477de4",
+                "partuuid": "09fd472a-271b-47a0-a1ed-5718d46dff93",
+                "path": "/dev/nvme0n1p9",
+                "pkname": "nvme0n1",
+                "pttype": "gpt",
+                "ptuuid": "b0a3a814-a64e-4740-ab3e-8618047d26e1",
+                "rota": false,
+                "size": "621564 MiB",
+                "tran": "nvme",
+                "type": "part",
+                "uuid": "9a62c594-53d2-43c9-a9b4-69a5b710c3ef"
+            }
+        ],
+        "fsavail": null,
+        "fsroots": [],
+        "fstype": null,
+        "fsuse_percentage": null,
+        "fsver": null,
+        "log_sec": 512,
+        "mountpoint": null,
+        "mountpoints": [],
+        "name": "nvme0n1",
+        "partn": null,
+        "parttype": null,
+        "partuuid": null,
+        "path": "/dev/nvme0n1",
+        "pkname": null,
+        "pttype": "gpt",
+        "ptuuid": "b0a3a814-a64e-4740-ab3e-8618047d26e1",
+        "rota": false,
+        "size": "976762 MiB",
+        "tran": "nvme",
+        "type": "disk",
+        "uuid": null
+    }
+]
