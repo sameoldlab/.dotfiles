@@ -34,5 +34,6 @@ C-f = [":new", ":insert-output yazi --chooser-file=/dev/stdout" , ":theme defaul
 
 
 [keys.insert]
-"A-x" = "normal_mode"     # Maps Alt-X to enter normal mode
+"A-i" = "normal_mode"     # Maps Alt-X to enter normal mode
 "C-s" = ":write" # Maps Ctrl-s to save
+j = { f = "normal_mode" }

@@ -5,3 +5,9 @@ file-types = ["astro"]
 auto-format = true
 language-server = { command = "astro-ls", args = ["--stdio"]}
 config = {typescript = {tsdk = "~/.node/install/global/node_modules/typescript/lib"}, environment = "node"}
+
+[[language]]
+name = "markdown"
+scope = "source.markdown"
+file-types = ["md"]
+language-servers = {command = "zk", }
