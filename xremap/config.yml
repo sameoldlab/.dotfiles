@@ -1,0 +1,30 @@
+modmap: 
+  - name: WM
+    remap: 
+      CapsLock: 
+        held: LeftCtrl
+        alone: Esc
+        alone_timeout_millis: 300
+         
+keymap: 
+  - name: default
+    remap:
+      super-x:
+        remap:
+          b: [launch: ["firefox"]]
+          e: [launch: ["nemo"]]
+          c: [launch: ["code"]]
+          t: [launch: ["kitty"]]
+  
+  - name: Default Mode
+    remap:
+      super-s: {set_mode: resize}
+    mode: default
+
+  - name: Resize Mode
+    remap: 
+      super-s: {set_mode: default}
+      esc: {set_mode: default}
+      enter: {set_mode: default}
+      #left: {} #shrink current window
+    mode: resize
