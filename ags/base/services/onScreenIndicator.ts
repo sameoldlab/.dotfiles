@@ -1,4 +1,3 @@
-import { Service, Utils } from '../imports.js';
 import icons from '../utils/icons.js';
 import { Audio } from './index.js';
 import Brightness from './brightness.js';

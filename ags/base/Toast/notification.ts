@@ -1,4 +1,3 @@
-import { Widget, Utils } from '../imports.js'
 
 const NotificationIcon = ({ appEntry, appIcon, image }) => {
 	if (image) {

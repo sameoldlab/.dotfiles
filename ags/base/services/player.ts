@@ -1,5 +1,4 @@
-import { Utils, Variable } from '../imports.js'
-import { Mpris } from '../services/index.js'
+import { Mpris } from './index.js'
 import { MprisPlayer } from '../../types/service/mpris.js'
 
 

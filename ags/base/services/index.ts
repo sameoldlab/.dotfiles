@@ -1,4 +1,3 @@
-import Hyprland				from 'resource:///com/github/Aylur/ags/service/hyprland.js' 
 import Notifications	from 'resource:///com/github/Aylur/ags/service/notifications.js' 
 import Mpris					from 'resource:///com/github/Aylur/ags/service/mpris.js'
 import Audio					from 'resource:///com/github/Aylur/ags/service/audio.js'
@@ -11,7 +10,7 @@ import Network				from 'resource:///com/github/Aylur/ags/service/network.js'
 import Brightness from './brightness.js'
 import onScreenIndicator from './onScreenIndicator.js'
 import Player from './player.js'
-import Launcher from './PopLauncher.js'
+// import Launcher from './PopLauncher.js'
 // import Recorder from './recorder.js'
 
 import * as services from './index.js'
@@ -20,7 +19,7 @@ export async function globalServices() {
 	globalThis.brightness = Brightness
 	// globalThis.recorder = globalThis.ags.Recorder;
 	globalThis.indicator = onScreenIndicator
-	globalThis.launcher = Launcher
+	// globalThis.launcher = Launcher
 	globalThis.audio = Audio
 	globalThis.player = Player.value
 	globalThis.mpris = Mpris
@@ -29,7 +28,6 @@ globalServices()
 
 
 export {
-	Hyprland,
 	Notifications,
 	Mpris,
 	Audio,

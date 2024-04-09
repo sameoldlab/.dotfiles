@@ -1,6 +1,5 @@
 import { Notification } from './notification.js'
 import { Notifications } from '../services/index.js'
-import { Widget } from '../imports.js'
 
 const List = () =>
 	Widget.Box({

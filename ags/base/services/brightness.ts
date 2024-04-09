@@ -1,11 +1,3 @@
-import Service from 'resource:///com/github/Aylur/ags/service.js'
-import {
-	exec,
-	execAsync,
-	subprocess,
-} from 'resource:///com/github/Aylur/ags/utils.js'
-	
-
 class BrightnessService extends Service {
 	// every subclass of GObject.Object has to register itself
 	static {
@@ -30,11 +22,11 @@ class BrightnessService extends Service {
 	}
 
 	// this Service assumes only one device with backlight
-	#interface = exec("sh -c 'ls -w1 /sys/class/backlight | head -1'")
+	#interface = Utils.exec("sh -c 'ls -w1 /sys/class/backlight | head -1'")
 
 	// # prefix means private in JS
 	#screenValue = 0
-	#max = Number(exec('brightnessctl max'))
+	#max = Number(Utils.exec('brightnessctl max'))
 
 	// the getter has to be in snake_case
 	get screen_value() {
@@ -46,8 +38,7 @@ class BrightnessService extends Service {
 		if (percent <= 0) percent = 0.01
 		if (percent > 1) percent = 1
 
-		execAsync(`brightnessctl set ${percent * 100}% -q`)
-
+		Utils.execAsync(`brightnessctl set ${percent * 100}% -q`)
 		// the file monitor will handle the rest
 	}
 
@@ -56,16 +47,8 @@ class BrightnessService extends Service {
 
 		// setup monitor
 		const brightness = `/sys/class/backlight/${this.#interface}/brightness`
-		subprocess(
-			[
-				'inotifywait',
-				'--recursive',
-				'--event',
-				'create,modify',
-				'-m',
-				brightness,
-			],
-			() => this.#onChange()
+		
+		Utils.monitorFile(brightness, () => this.#onChange()
 		)
 
 		// initialize
@@ -73,7 +56,7 @@ class BrightnessService extends Service {
 	}
 
 	#onChange() {
-		this.#screenValue = Number(exec('brightnessctl get')) / this.#max
+		this.#screenValue = Number(Utils.exec('brightnessctl get')) / this.#max
 
 		// signals have to be explicity emitted
 		this.emit('changed') // emits "changed"
@@ -97,7 +80,7 @@ class BrightnessService extends Service {
 const service = new BrightnessService()
 
 // make it global for easy use with cli
-globalThis.brightness = service
+// globalThis.brightness = service
 
 // export to use in other modules
 export default service

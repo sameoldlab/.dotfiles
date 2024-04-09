@@ -1,13 +1,7 @@
-import Widget from 'resource:///com/github/Aylur/ags/widget.js';
-import App from 'resource:///com/github/Aylur/ags/app.js';
-import Applications from 'resource:///com/github/Aylur/ags/service/applications.js';
-import { exec } from 'resource:///com/github/Aylur/ags/utils.js';
+import {applications} from 'resource:///com/github/Aylur/ags/service/applications.js';
 
 const WINDOW_NAME = 'applauncher';
 
-/** 
- * @param {import('resource:///com/github/Aylur/ags/service/applications.js').Application} app 
- */
 const AppItem = app => Widget.Button({
 	on_clicked: () => {
 		App.closeWindow(WINDOW_NAME);
@@ -66,10 +60,10 @@ const Applauncher = ({ width = 500, height = 500, spacing = 12 } = {}) => {
         on_accept: ({ text }) => {
 					if(text.startsWith(': ')) {
 						App.closeWindow(WINDOW_NAME);
-						exec(text.substring(2))
+						Utils.exec(text.substring(2))
 					}
 
-					const list = Applications.query(text || '');
+					const list = applications.query(text || '');
 					if (list[0]) {
 							App.toggleWindow(WINDOW_NAME);
 							list[0].launch();
@@ -128,12 +122,11 @@ const Applauncher = ({ width = 500, height = 500, spacing = 12 } = {}) => {
 
 export default Widget.Window({
     name: WINDOW_NAME,
-    popup: true,
     visible: false,
-    focusable: true,
+    keymode: "on-demand",
     child: Applauncher({
         width: 600,
         height: 400,
         spacing: 0,
     }),
-});
+}).keybind("ESCAPE", () => App.closeWindow(WINDOW_NAME));

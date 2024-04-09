@@ -1,5 +1,4 @@
 // import { Notifications } from 'src/services/index';
-import { Widget, App, Utils } from '../imports.js'
 /* Notifications.connect('changed', (n) => {
     // n.getNotification()
 });
@@ -27,7 +26,6 @@ const Header = () =>
 export const NotificationCenter = Widget.Window({
 	name: 'notification-center',
 	anchor: ['right', 'top', 'bottom'],
-	popup: true,
 	focusable: true,
 	child: Widget.Box({
 		children: [
@@ -43,7 +41,7 @@ export const NotificationCenter = Widget.Window({
 			}),
 		],
 	}),
-})
+}).keybind("ESCAPE", () => App.closeWindow('notifications-center'));
 
 export const NotificationsPopupWindow = Widget.Window({
 	name: 'popup-window',

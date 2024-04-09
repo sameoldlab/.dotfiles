@@ -1,5 +1,5 @@
 import { Notifications, Audio, Battery, Brightness}  from '../services/index.js'
-import {Widget, Utils} from '../imports.js'
+import SystemTray from 'resource:///com/github/Aylur/ags/service/systemtray.js';
 
 const Volume = () => Widget.Button({
 	class_name: 'volume tray-icon',
@@ -18,14 +18,14 @@ const Volume = () => Widget.Button({
 		},
 	// css: 'min-width: 180px',
 	child: Widget.Stack({
-			items: [
+			children: {
 				// tuples of [string, Widget]
-				['101', Widget.Icon('audio-volume-overamplified-symbolic')],
-				['67', Widget.Icon('audio-volume-high-symbolic')],
-				['34', Widget.Icon('audio-volume-medium-symbolic')],
-				['1', Widget.Icon('audio-volume-low-symbolic')],
-				['0', Widget.Icon('audio-volume-muted-symbolic')],
-			],
+				'101': Widget.Icon('audio-volume-overamplified-symbolic'),
+				'67': Widget.Icon('audio-volume-high-symbolic'),
+				'34': Widget.Icon('audio-volume-medium-symbolic'),
+				'1': Widget.Icon('audio-volume-low-symbolic'),
+				'0': Widget.Icon('audio-volume-muted-symbolic'),
+			},
 			connections: [
 				[
 					Audio,
@@ -65,23 +65,18 @@ const Wifi = () => Widget.Box({
 	class_name: 'wifi tray-icon',
 	children: [
 		Widget.Stack({
-			items: [
-				// tuples of [string, Widget]
-				['1', Widget.Icon('network-wireless-signal-good-symbolic')],
-				['0', Widget.Icon('network-wireless-offline-symbolic')],
-			],
-			connections: [
-				[
-					1000, self => 
-						Utils.execAsync([
-							'bash',
-							'-c',
-							`iwctl station wlan0 show \
-							 | grep 'Connected network' \
-							 | sd '            Connected network     ' ''`, 
-						]).then(s => (self.shown = s === '' ? '0' : '1'))
-				],
-			],
+			children: {
+				'c1': Widget.Icon('network-wireless-signal-good-symbolic'),
+				'c0': Widget.Icon('network-wireless-offline-symbolic'),
+			}
+		}).poll(1000, self => {
+			self.shown = Utils.execAsync([
+				'bash',
+				'-c',
+				`iwctl station wlan0 show \
+				 | grep 'Connected network' \
+				 | sd '            Connected network     ' ''`, 
+			]).then(s => (s === '' ? 'c0' : 'c1'))
 		}),
 	]
 })
@@ -121,6 +116,26 @@ const BatteryLabel = () => Widget.Box({
 	}),
 	]
 })
+
+
+const ExtTray = () =>
+	Widget.Box({
+		connections: [
+			[
+				SystemTray,
+				self => {
+					self.children = SystemTray.items.map(item =>
+						Widget.Button({
+							child: Widget.Icon({ binds: [['icon', item, 'icon']] }),
+							on_primary_click: (_, event) => item.activate(event),
+							on_secondary_click: (_, event) => item.openMenu(event),
+							binds: [['tooltip-markup', item, 'tooltip-markup']],
+						})
+					)
+				},
+			],
+		],
+	})
 
 const SysTray = () => Widget.EventBox({
 	// pass_through: true,
