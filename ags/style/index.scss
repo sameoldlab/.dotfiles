@@ -1,18 +1,34 @@
 $aqua: #fff;
-$background: #000000;
+$black: hsl(180, 9%, 6%);
+$white: hsl(0, 0, 89%);
 $indicator: hsl(40, 85%, 49%);
-$foreground: #eee;
+$background: transparent;
+$foreground: $white;
 $hover: #333;
+
 // label {
-// 	// font-weight: 600;
+// 	font-weight: 600;
 // }
 
 * {
 	border-radius: 0;
 }
+
 .bar {
 	background: rgba(10, 9, 17, 0);
-	background: $background; 
+	background: red;
+	background: $background;
+}
+
+button {
+	background: $background;
+	color: $foreground;
+}
+
+.quick-settings {
+	margin: 2em;
+	padding: 2em;
+	background: red;
 }
 
 .tray-icon {
@@ -22,13 +38,15 @@ $hover: #333;
 .workspaces button {
 	padding: .5em;
 	// font-size: svw;
-	background-color: transparent;
+	background-color: $background;
 	font-weight: 400;
 	color: $hover;
 }
+
 .workspaces button.occupied {
 	color: $foreground;
 }
+
 .workspaces button :hover,
 #applauncher :focus,
 .media :hover {
@@ -40,7 +58,7 @@ $hover: #333;
 }
 
 .workspaces button :active,
-#applauncher  :active,
+#applauncher :active,
 .media :active {
 	background-color: rgb(255, 255, 255);
 	background: white;
@@ -94,7 +112,7 @@ highlight {
 	/* padding: 1em;	 */
 	/* border: .5px solid green; */
 	/* border-radius: 2em; */
-}	
+}
 
 #applauncher {
 	border: 0;
@@ -105,32 +123,32 @@ highlight {
 
 	/* border: .5px solid white; */
 	/* border-radius: 2em; */
-	
+
 }
 
 .applauncher .applauncher__entry {
-	padding: .75em .5em;	
+	padding: .75em .5em;
 	font-size: 1.3em;
 	border-radius: 0;
 	/* margin: 1em; */
-	margin-bottom: 5em;	
+	margin-bottom: 5em;
 	background: transparent;
 
 	/* border: .15em solid #111; */
-	
+
 	border-bottom: 1px solid rgba(200, 200, 200, 0.5);
 	/* border-top-right-radius: 2em; */
 	/* border-radius: 2em; */
 }
 
-.applauncher__entry entry { 
+.applauncher__entry entry {
 	color: red;
 	font-weight: 900;
 }
 
 /* //.applauncher .applauncher__entry, */
 
-.applauncher__list, 
+.applauncher__list,
 .applauncher__item {
 	margin: .5em .5em;
 	/* border-radius: 2em; */
@@ -147,11 +165,12 @@ highlight {
 	box-shadow: none;
 }
 
-.applauncher__item .description{
+.applauncher__item .description {
 	font-weight: 400;
 	color: #eee;
 }
-.applauncher__item .icon{
+
+.applauncher__item .icon {
 	margin-right: 1em;
 }
 
@@ -218,13 +237,16 @@ highlight {
 	margin: 1em;
 	margin-bottom: 0.25em;
 }
+
 .applauncher .header image,
 .applauncher .header entry {
 	padding: 1em;
 }
+
 .applauncher .header entry {
 	padding-left: 2em;
 }
+
 .applauncher .header image {
 	margin-right: 2em;
 	-gtk-icon-transform: scale(0.8);
