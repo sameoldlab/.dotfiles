@@ -1,36 +1,33 @@
 import {
-	Hyprland,
 	Notifications,
 	SystemTray,
 	onScreenIndicator,
-} from '../base/services/index.js'
-import Workspaces from './Bar/workspaces.js'
-import Media from '../base/Bar/media.js'
-import SysTray from '../base/Bar/systray.js'
-
-const ClientTitle = () =>
-	Widget.Label({
-		class_name: 'client-title',
-		binds: [['label', Hyprland.active.client, 'title']],
-	})
+} from '../services/index.js'
+import Media from './media.js'
+import SysTray from './systray.js'
+import GLib from 'gi://GLib'
 
 const dayOfWeek = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
 let date = GLib.DateTime.new_now_local()
 const Clock = () =>
 	Widget.Box({
 		class_name: 'clock',
-		vertical: true,
-		hpack: 'end',
+		vertical: false,
+		spacing: 4,
 		children: [
 			Widget.Label({
 				class_name: 'time',
 				justification: 'right',
-				hexpand: true,
+				// vpack: 'end',
+				vexpand: true,
+				// hexpand: true,
 				connections: [[1000, self => (self.label = date.format('%I:%M %p'))]],
 			}),
 			Widget.Label({
 				class_name: 'date',
-				hexpand: true,
+				// hexpand: true,
+				vexpand: true,
+				// vpack: 'end',
 				justification: 'right',
 				connections: [[1000, self => (self.label = date.format('%a, %b %d'))]],
 			}),
@@ -64,29 +61,13 @@ const Notification = () =>
 		],
 	})
 
-const ExtTray = () =>
-	Widget.Box({
-		connections: [
-			[
-				SystemTray,
-				self => {
-					self.children = SystemTray.items.map(item =>
-						Widget.Button({
-							child: Widget.Icon({ binds: [['icon', item, 'icon']] }),
-							on_primary_click: (_, event) => item.activate(event),
-							on_secondary_click: (_, event) => item.openMenu(event),
-							binds: [['tooltip-markup', item, 'tooltip-markup']],
-						})
-					)
-				},
-			],
-		],
-	})
 
 
 // layout of the bar
 const Left = Widget.Box({
-	children: [Workspaces()],
+	children: [
+		//Workspaces()
+		],
 })
 
 const Center = Widget.Box({
@@ -97,13 +78,14 @@ const Center = Widget.Box({
 
 const Right = Widget.Box({
 	hpack: 'end',
-	children: [Media(), ExtTray(), SysTray(), Clock()],
+	children: [Media(), SysTray(), Clock()],
 })
 
 export default Widget.Window({
 	name: `agsBar`, // name has to be unique
-	class_name: 'bar',
+	class_name: 'bar',	
 	anchor: ['top', 'left', 'right'],
+	// margins: [4],
 	exclusivity: 'exclusive' /* Stops draw over */,
 	child: Widget.CenterBox({
 		start_widget: Left,

@@ -1,9 +1,10 @@
-import Bar from './Bar.js'
 import {
+	Bar,
 	Launcher,
-	SettingsToast,
-	QuickSettings
-} from '../base/windows.js'
+	// SettingsToast,
+	// QuickSettings
+} from './windows.js'
+// import {NotificationsPopupWindow, NotificationCenter} from './src/Toast/index.js'
 
 const scss = App.configDir + '/style/index.scss'
 const css = App.configDir + '/style/index.css'
@@ -27,17 +28,19 @@ Utils.subprocess(
 
 App.config({
 	closeWindowDelay: {
-		'window-name': 500, // milliseconds
+		'window-name': 200, // milliseconds
 	},
 	notificationPopupTimeout: 3000, // milliseconds
 	notificationForceTimeout: true,
 	cacheNotificationActions: true,
 	maxStreamVolume: 1.5, // float
 	style: css,
+	// icons: "./",
+	// gtkTheme: "./",
 	windows: [
 		Bar,
 		Launcher,
-		SettingsToast,
+		// SettingsToast,
 		// NotificationsPopupWindow,
 		// NotificationCenter,
 	],

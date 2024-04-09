@@ -14,8 +14,9 @@
 		],
 		"skipLibCheck": true,
 		"forceConsistentCasingInFileNames": true,
-		"outDir": "/tmp/ags/js",
+		"outDir": "/tmp/ags.hypr/js",
 	},
-	"include": ["base", "types"],
-	"exclude": ["build", "config.*.js"]
+	"include": ["base", "hypr", "types"],
+	"exclude": ["build", "config.*.js"],
+	// "references": [{ "path": "./tsconfig.json" }]
 }

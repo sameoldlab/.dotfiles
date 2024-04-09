@@ -1,4 +1,3 @@
-import { Widget, Utils } from '../imports.js'
 import { Hyprland } from '../services/index.js'
 
 
