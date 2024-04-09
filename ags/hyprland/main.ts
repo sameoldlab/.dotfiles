@@ -1,16 +1,18 @@
-import { subprocess, exec } from 'resource:///com/github/Aylur/ags/utils.js'
-import App from 'resource:///com/github/Aylur/ags/app.js'
-import Bar from './src/Bar.js'
-import Launcher from './src/Launcher.js'
-import SettingsToast from './src/SettingsToast/index.js'
+import {
+	Bar,
+	Launcher,
+	SettingsToast,
+	QuickSettings
+} from './windows.js'
+
 
 // import {NotificationsPopupWindow, NotificationCenter} from './src/Toast/index.js'
 
 const scss = App.configDir + '/style/index.scss'
 const css = App.configDir + '/style/index.css'
-exec(`sassc ${scss} ${css}`)
+Utils.exec(`sassc ${scss} ${css}`)
 
-subprocess(
+Utils.subprocess(
 	[
 		'inotifywait',
 		'--recursive',
@@ -20,7 +22,7 @@ subprocess(
 		App.configDir + '/style',
 	],
 	() => {
-		exec(`sassc ${scss} ${css}`)
+		Utils.exec(`sassc ${scss} ${css}`)
 		App.resetCss()
 		App.applyCss(css)
 	}
