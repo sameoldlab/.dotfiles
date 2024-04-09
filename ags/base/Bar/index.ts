@@ -8,31 +8,33 @@ import SysTray from './systray.js'
 import GLib from 'gi://GLib'
 
 const dayOfWeek = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
-let date = GLib.DateTime.new_now_local()
-const Clock = () =>
+let date = Variable(GLib.DateTime.new_now_local(), {
+		poll: [1000, () => GLib.DateTime.new_now_local()]
+	})
+
+export const Clock = () =>
 	Widget.Box({
 		class_name: 'clock',
 		vertical: false,
 		spacing: 4,
 		children: [
 			Widget.Label({
+				label: date.bind().as(d => d.format('%I:%M %p')?.toString() ?? ""),
 				class_name: 'time',
 				justification: 'right',
 				// vpack: 'end',
 				vexpand: true,
 				// hexpand: true,
-				connections: [[1000, self => (self.label = date.format('%I:%M %p'))]],
 			}),
 			Widget.Label({
+				label: date.bind().as(d => d.format('%a, %b %d')?.toString() ?? ""),
 				class_name: 'date',
 				// hexpand: true,
 				vexpand: true,
 				// vpack: 'end',
 				justification: 'right',
-				connections: [[1000, self => (self.label = date.format('%a, %b %d'))]],
-			}),
-		],
-		connections: [[1000, _ => (date = GLib.DateTime.new_now_local())]],
+			})
+		]
 	})
 
 const Notification = () =>
@@ -70,13 +72,13 @@ const Left = Widget.Box({
 		],
 })
 
-const Center = Widget.Box({
+export const Center = Widget.Box({
 	children: [
 		// Notification(),
 	],
 })
 
-const Right = Widget.Box({
+export const Right = Widget.Box({
 	hpack: 'end',
 	children: [Media(), SysTray(), Clock()],
 })
@@ -91,6 +93,5 @@ export default Widget.Window({
 		start_widget: Left,
 		center_widget: Center,
 		end_widget: Right,
-	}),
-	connections: [],
+	})
 })
