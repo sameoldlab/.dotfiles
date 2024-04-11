@@ -1,25 +1,22 @@
-
 import GLib from 'gi://GLib'
 import Gio from 'gi://Gio'
 
 type AsyncIPC = {
 	child: Gio.Subprocess
-	stdout: Gio.DataInputStream 
-	stdin: Gio.DataOutputStream 
-	cancellable: Gio.Cancellable 
+	stdout: Gio.DataInputStream
+	stdin: Gio.DataOutputStream
+	cancellable: Gio.Cancellable
 }
 
-function start() {
+export function start() {
 	let cancellable = new Gio.Cancellable()
 	let child: Gio.Subprocess | null
 	try {
 		child = new Gio.SubprocessLauncher({
 			flags: Gio.SubprocessFlags.STDIN_PIPE | Gio.SubprocessFlags.STDOUT_PIPE,
 		}).spawnv(['pop-launcher'])
-
 	} catch (error) {
-		console.error(`spawn failed: ${error}`)
-		return null
+		throw Error(`spawn failed: ${error}`)
 	}
 
 	let stdin = new Gio.DataOutputStream({
@@ -76,39 +73,42 @@ export function async_process_ipc(argv: Array<string>): AsyncIPC | null {
 	return { child, stdin, stdout, cancellable }
 }
 
-export class LauncherService extends Service{
+export class LauncherService extends Service {
 	static {
 		Service.register(
 			this,
-			{},
-			{}
+			{
+				'new-response': ['jsobject'],
+			},
+			{
+				'ipc-response': ['jsobject', 'r'],
+			}
 		)
 	}
 
-	service: AsyncIPC
+	#service: AsyncIPC = start()
+	#ipcResponse = {}
 
-	constructor(
+	get ipc_response() {
+		return this.#ipcResponse
+	}
 
-		service: AsyncIPC,
-		callback: (response: JsonIPC.Response) => void
-	) {
+	constructor() {
 		super()
 
-		this.service = service
-
-
 		/** Recursively registers an intent to read the next line asynchronously  */
-		const generator = (stdout: Gio.DataInputStream, res: any) => {	
+		const generator = (stdout: Gio.DataInputStream, res: any) => {
 			try {
 				const [bytes] = stdout.read_line_finish(res)
 				if (bytes) {
 					const string = new TextDecoder().decode(bytes)
 
 					// console.log(`received response from launcher service: ${string.split('},{')}`)
-					callback(JSON.parse(string))
-					this.service.stdout.read_line_async(
+					this.#onResponse(JSON.parse(string))
+
+					this.#service.stdout.read_line_async(
 						0,
-						this.service.cancellable,
+						this.#service.cancellable,
 						generator
 					)
 				}
@@ -122,30 +122,44 @@ export class LauncherService extends Service{
 			}
 		}
 
-		this.service.stdout.read_line_async(0, this.service.cancellable, generator)
-
+		this.#service.stdout.read_line_async(
+			0,
+			this.#service.cancellable,
+			generator
+		)
 	}
 
+	#onResponse(response: JsonIPC.Response) {
+		this.#ipcResponse = response
+		this.changed('ipc-response')
+		this.emit('new-response', this.#ipcResponse)
+	}
+
+	/** Activate on the selected item */
 	activate(id: number) {
-		this.send({ Activate: id })
+		this.#send({ Activate: id })
 	}
 
+	/** Activate a context item on an item. */
 	activate_context(id: number, context: number) {
-		this.send({ ActivateContext: { id, context } })
+		this.#send({ ActivateContext: { id, context } })
 	}
 
-	complete(id: number) {
-		this.send({ Complete: id })
-	}
-
+	/** Request for any context options this result may have. */
 	context(id: number) {
-		this.send({ Context: id })
+		this.#send({ Context: id })
 	}
 
+	/** Perform a tab completion from the selected item */
+	complete(id: number) {
+		this.#send({ Complete: id })
+	}
+
+	/** Request to end the service */
 	exit() {
-		this.send('Exit')
-		this.service.cancellable.cancel()
-		const service = this.service
+		this.#send('Exit')
+		this.#service.cancellable.cancel()
+		const service = this.#service
 
 		GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
 			if (service.stdout.has_pending() || service.stdin.has_pending())
@@ -168,111 +182,99 @@ export class LauncherService extends Service{
 		})
 	}
 
-	query(search: string) {
-		this.send({ Search: search })
+	/** Perform a search in our database */
+	search(search: string) {
+		return this.#send({ Search: search })
 	}
 
+	/** Request to close the selected item */
 	quit(id: number) {
-		this.send({ Quit: id })
+		this.#send({ Quit: id })
 	}
 
+	/** Activate on the selected item */
 	select(id: number) {
-		this.send({ Select: id })
+		this.#send({ Select: id })
 	}
 
-	send(object: Object) {
+	#send(object: Object) {
 		const message = JSON.stringify(object)
-		console.log('launcherIPC l140 message = ' + message)
+		console.info('launcherIPC send() message = ' + message)
 		try {
-			this.service.stdin.write_all(message + '\n', null)
+			this.#service.stdin.write_all(message + '\n', null)
 		} catch (why) {
 			console.error(`failed to send request to pop-launcher: ${why}`)
 		}
 	}
 }
 
+const launcher = new LauncherService()
 
-const ipc = start()
-let Launcher = ipc ? new LauncherService(ipc, (response: JsonIPC.Response) => {
-	if ('Close' === response) {
-		// this.close()
-	} else if ('Update' in response) {
-		console.log('response: ' + response)
-		console.log(response.Update[0])
-	} else {
-		console.log(JSON.stringify(response))
-	}
-}) : null
-
-export default Launcher
-
+export default launcher
 
 /** Launcher types transmitted across the wire as JSON. */
 export namespace JsonIPC {
-	export interface SearchResult {
+	export type SearchResult = {
 		id: number
 		name: string
 		description: string
-		icon?: IconSource
-		category_icon?: IconSource
+		icon?:
+			| { Name: string }
+			| {
+					Mime: string
+			  }
+			| {
+					Window: [number, number]
+			  }
+		category_icon?:
+			| { Name: string }
+			| {
+					Mime: string
+			  }
+			| {
+					Window: [number, number]
+			  }
 		window?: [number, number]
-	}
-
-	export type IconSource = IconV.Name | IconV.Mime | IconV.Window
-
-	namespace IconV {
-		export interface Name {
-			Name: string
-		}
-
-		export interface Mime {
-			Mime: string
-		}
-
-		export interface Window {
-			Window: [number, number]
-		}
 	}
 
 	export type Response =
 		| ResponseV.Update
 		| ResponseV.Fill
 		| ResponseV.Close
-		| ResponseV.DesktopEntryR
+		| ResponseV.DesktopEntry
 		| ResponseV.Context
 
 	namespace ResponseV {
 		export type Close = 'Close'
 
-		export interface Context {
+		export type Context = {
+			/** Additional options for launching a certain item */
 			Context: {
 				id: number
-				options: Array<ContextOption>
+				options: ContextOption[]
 			}
 		}
-
-		export interface ContextOption {
+		type ContextOption = {
 			id: number
 			name: string
 		}
 
-		export interface Update {
-			Update: Array<SearchResult>
+		export type Update = {
+			/**  The frontend should clear its search results and display a new list */
+			Update: SearchResult[]
 		}
 
-		export interface Fill {
+		export type Fill = {
+			/** An item was selected that resulted in a need to autofill the launcher */
 			Fill: string
 		}
 
-		export interface DesktopEntryR {
-			DesktopEntry: DesktopEntry
+		export type DesktopEntry = {
+			/** Notifies that a .desktop entry should be launched by the frontend. */
+			DesktopEntry: {
+				path: string
+				gpu_preference: 'Default' | 'NonDefault'
+			}
 		}
 	}
-
-	export interface DesktopEntry {
-		path: string
-		gpu_preference: GpuPreference
-	}
-
-	export type GpuPreference = 'Default' | 'NonDefault'
 }

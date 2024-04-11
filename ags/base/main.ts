@@ -1,6 +1,7 @@
 import {
 	Bar,
 	Launcher,
+	PopLauncher,
 	// SettingsToast,
 	// QuickSettings
 } from './windows.js'
@@ -35,11 +36,11 @@ App.config({
 	cacheNotificationActions: true,
 	maxStreamVolume: 1.5, // float
 	style: css,
-	// icons: "./",
-	// gtkTheme: "./",
+	iconTheme: 'Pop',
 	windows: [
 		Bar,
 		Launcher,
+		PopLauncher,
 		// SettingsToast,
 		// NotificationsPopupWindow,
 		// NotificationCenter,

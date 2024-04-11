@@ -1,22 +1,26 @@
-import { Applications } from './services/index.js'
-import Launcher from './services/launcherIPC.js'
-import type { JsonIPC } from './services/launcherIPC.js'
+import { applications } from 'resource:///com/github/Aylur/ags/service/applications.js'
+import launcher from './services/launcherIPC.js'
+import type { start, JsonIPC } from './services/launcherIPC.js'
 
-const WINDOW_NAME = 'applauncher'
+const WINDOW_NAME = 'poplauncher'
 
-
-const AppItem = app =>
+const EntryItem = (res: JsonIPC.SearchResult) =>
 	Widget.Button({
 		on_clicked: () => {
-			App.closeWindow(WINDOW_NAME)
-			app.launch()
+			launcher.activate(res.id)
+			// App.closeWindow(WINDOW_NAME)
 		},
-		setup: self => (self.app = app),
+		// setup: self => (self.app = app),
 		child: Widget.Box({
 			className: 'applauncher__item',
 			children: [
 				Widget.Icon({
-					icon: app.icon_name || '',
+					icon: res.category_icon?.Name || res.category_icon?.Mime || '',
+					size: 16,
+					className: 'icon',
+				}),
+				Widget.Icon({
+					icon: res.icon?.Name || res.icon?.Mime || '',
 					size: 32,
 					className: 'icon',
 				}),
@@ -26,7 +30,7 @@ const AppItem = app =>
 					children: [
 						Widget.Label({
 							class_name: 'title',
-							label: app.name,
+							label: res.name,
 							xalign: 0,
 							vpack: 'center',
 							truncate: 'end',
@@ -34,7 +38,7 @@ const AppItem = app =>
 						// short circuit if there is no description
 						Widget.Label({
 							class_name: 'description',
-							label: app.description || '',
+							label: res.description || '',
 							wrap: true,
 							xalign: 0,
 							justification: 'left',
@@ -47,15 +51,7 @@ const AppItem = app =>
 	})
 
 const Applauncher = ({ width = 500, height = 500, spacing = 12 } = {}) => {
-
-	
-
-
-	const search = (pat: string) => {
-		if (Launcher !== null) {
-				Launcher.query(pat);
-		} else console.error('service is null')
-	}
+	let entries: JsonIPC.SearchResult[]
 
 	const list = Widget.Box({
 		vertical: true,
@@ -63,34 +59,39 @@ const Applauncher = ({ width = 500, height = 500, spacing = 12 } = {}) => {
 	})
 
 	const entry = Widget.Entry({
+		on_accept: ({ text }) => {
+			// const results = applications.query(text || '')
+			// if (results[0]) {
+			// App.toggleWindow(WINDOW_NAME)
+			// results[0].launch()
+
+			// }
+			launcher.activate(entries[0].id)
+		},
+		on_change: ({ text }) => {
+			text = text ?? ''
+			print(text)
+			launcher.search(text)
+		},
 		hexpand: true,
-		text: '-', // set some text so on-change works the first time
 		css: `margin-bottom: ${spacing}px;`,
 		className: 'applauncher__entry',
-		// to launch the first item on Enter
-		on_accept: ({ text }) => { 
-			if (text.startsWith(': ')) {
-				App.closeWindow(WINDOW_NAME)
-				exec(text.substring(2))
-			}
+	})
 
-			const list = Applications.query(text || '')
-			if (list[0]) {
-				App.toggleWindow(WINDOW_NAME)
-				list[0].launch()
-			}
-		},
-		// filter out the list
-		on_change: ({ text = '' }) => {
-			if (text) {
-				print(text)
-				Launcher?.query(text)
-			}
-
-/* 			return list.children.map(item => {
-				item.visible = item.app.match(text)
-			}) */
-		},
+	launcher.connect('new-response', (service, res: JsonIPC.Response) => {
+		if ('Close' === res) {
+			// App.closeWindow(WINDOW_NAME)
+			console.log('CLOSE')
+		} else if ('Update' in res) {
+			entries = res.Update
+			list.children = entries.map(EntryItem)
+		} else if ('Fill' in res) {
+			entry.text = res.Fill
+		} else if ('DesktopEntry' in res) {
+			console.log('DesktopEntry: ', res.DesktopEntry)
+		} else {
+			console.log(JSON.stringify(res))
+		}
 	})
 
 	return Widget.Box({
@@ -110,21 +111,27 @@ const Applauncher = ({ width = 500, height = 500, spacing = 12 } = {}) => {
 				child: list,
 			}),
 		],
+		setup: self =>
+			self.hook(App, (_, windowName, visible) => {
+				if (windowName !== WINDOW_NAME) return
 
-		// make entry.text empty on launch
-		// and update the list's children so it is sorted by frequency
-		
+				// when the applauncher shows up
+				if (visible) {
+					// entry.text = ''
+					entry.grab_focus()
+					launcher.search(' ')
+				}
+			}),
 	})
 }
 
 export default Widget.Window({
 	name: WINDOW_NAME,
 	visible: false,
-	keymode: "on-demand",
+	keymode: 'exclusive',
 	child: Applauncher({
 		width: 600,
 		height: 400,
 		spacing: 0,
 	}),
-}).keybind("ESCAPE", () => App.closeWindow(WINDOW_NAME));
-
+}).keybind('Escape', () => App.closeWindow(WINDOW_NAME))
