@@ -1,16 +1,23 @@
-import { applications } from 'resource:///com/github/Aylur/ags/service/applications.js'
 import launcher from './services/launcherIPC.js'
-import type { start, JsonIPC } from './services/launcherIPC.js'
+import type { JsonIPC } from './services/launcherIPC.js'
 
 const WINDOW_NAME = 'poplauncher'
 
 const EntryItem = (res: JsonIPC.SearchResult) =>
 	Widget.Button({
 		on_clicked: () => {
+			console.info(`clicked: ${res.name}`)
 			launcher.activate(res.id)
-			// App.closeWindow(WINDOW_NAME)
 		},
-		// setup: self => (self.app = app),
+		on_primary_click: () => {
+			console.info(`clicked: ${res.name}`)
+			launcher.activate(res.id)
+		},
+		/* 
+		on_secondary_click: () => {
+			console.info(`clicked: ${res.name}`)
+			launcher.activate_context(res.id, 1)
+		}, */
 		child: Widget.Box({
 			className: 'applauncher__item',
 			children: [
@@ -53,6 +60,13 @@ const EntryItem = (res: JsonIPC.SearchResult) =>
 const Applauncher = ({ width = 500, height = 500, spacing = 12 } = {}) => {
 	let entries: JsonIPC.SearchResult[]
 
+	const close = () => {
+		console.info('CLOSE')
+		entry.text = ''
+		launcher.interrupt()
+		App.closeWindow(WINDOW_NAME)
+	}
+
 	const list = Widget.Box({
 		vertical: true,
 		spacing,
@@ -78,21 +92,25 @@ const Applauncher = ({ width = 500, height = 500, spacing = 12 } = {}) => {
 		className: 'applauncher__entry',
 	})
 
-	launcher.connect('new-response', (service, res: JsonIPC.Response) => {
-		if ('Close' === res) {
-			// App.closeWindow(WINDOW_NAME)
-			console.log('CLOSE')
-		} else if ('Update' in res) {
+	launcher.connect('new-response', (service, res: Exclude<JsonIPC.Response, "Close">) => {
+		// console.log('message received is:', res)
+		if ('Update' in res) {
 			entries = res.Update
 			list.children = entries.map(EntryItem)
 		} else if ('Fill' in res) {
 			entry.text = res.Fill
 		} else if ('DesktopEntry' in res) {
-			console.log('DesktopEntry: ', res.DesktopEntry)
+			launch(res)
+			close()
 		} else {
-			console.log(JSON.stringify(res))
+			console.log(
+				"Don't know how to handle context: ",
+				JSON.stringify(res.Context)
+			)
 		}
 	})
+
+	launcher.connect('close', close)
 
 	return Widget.Box({
 		vertical: true,
@@ -122,7 +140,7 @@ const Applauncher = ({ width = 500, height = 500, spacing = 12 } = {}) => {
 					launcher.search(' ')
 				}
 			}),
-	})
+	}).keybind('Escape', close)
 }
 
 export default Widget.Window({
@@ -134,4 +152,14 @@ export default Widget.Window({
 		height: 400,
 		spacing: 0,
 	}),
-}).keybind('Escape', () => App.closeWindow(WINDOW_NAME))
+})
+
+function launch(de: JsonIPC.ResponseV.DesktopEntry) {
+	let entry = de.DesktopEntry
+	// console.log(`launching desktop entry ${de}`)
+	const desktop_entry_id = entry.path
+		.substring(entry.path.indexOf('/applications/') + 14)
+		.replace('/', '-')
+	// console.log(`from file: ${desktop_entry_id}`)
+	Utils.execAsync(['gtk-launch', desktop_entry_id])
+}

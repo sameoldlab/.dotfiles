@@ -1,6 +1,7 @@
 import GLib from 'gi://GLib'
 import Gio from 'gi://Gio'
 
+
 type AsyncIPC = {
 	child: Gio.Subprocess
 	stdout: Gio.DataInputStream
@@ -79,6 +80,7 @@ export class LauncherService extends Service {
 			this,
 			{
 				'new-response': ['jsobject'],
+				'close': ['boolean'],
 			},
 			{
 				'ipc-response': ['jsobject', 'r'],
@@ -87,7 +89,7 @@ export class LauncherService extends Service {
 	}
 
 	#service: AsyncIPC = start()
-	#ipcResponse = {}
+	#ipcResponse: JsonIPC.Response | null = null
 
 	get ipc_response() {
 		return this.#ipcResponse
@@ -104,7 +106,7 @@ export class LauncherService extends Service {
 					const string = new TextDecoder().decode(bytes)
 
 					// console.log(`received response from launcher service: ${string.split('},{')}`)
-					this.#onResponse(JSON.parse(string))
+					this.#onResponse(string)
 
 					this.#service.stdout.read_line_async(
 						0,
@@ -130,9 +132,14 @@ export class LauncherService extends Service {
 	}
 
 	#onResponse(response: JsonIPC.Response) {
-		this.#ipcResponse = response
-		this.changed('ipc-response')
-		this.emit('new-response', this.#ipcResponse)
+		// console.log("type of message is:", response)
+		if (typeof response ==='string' && response.includes('Close')) {
+			this.emit('close', true)
+		} else {
+			this.#ipcResponse = JSON.parse(response)
+			this.changed('ipc-response')
+			this.emit('new-response', this.#ipcResponse)
+		}
 	}
 
 	/** Activate on the selected item */
@@ -181,6 +188,8 @@ export class LauncherService extends Service {
 			return false
 		})
 	}
+
+	interrupt() {this.#send("Interrupt")}
 
 	/** Perform a search in our database */
 	search(search: string) {
@@ -244,7 +253,7 @@ export namespace JsonIPC {
 		| ResponseV.DesktopEntry
 		| ResponseV.Context
 
-	namespace ResponseV {
+	export namespace ResponseV {
 		export type Close = 'Close'
 
 		export type Context = {
