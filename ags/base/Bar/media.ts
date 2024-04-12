@@ -8,18 +8,17 @@ const Media = () =>  Widget.Button({
     child: Widget.Box({
       children:[ 
         Widget.Revealer({
-          reveal_child: false,
+          reveal_child: Player.bind().as(v => v.reveal),
           transition_duration: 1000,
           transition: 'slide_left',
-					binds: [['reveal-child', Player, 'value', v => v.reveal]],
           child: Widget.Label({
-						binds: [['label', Player, 'value', v => v.media]],
+						label: Player.bind().as(v => v.media)
           })
         }),
         Widget.Icon({
-					binds: [['icon', Player, 'value', v => v.icon]]
+					icon: Player.bind().as(v => v.icon)
 				}), 
-        // Widget.Box() //todo: seekbar, select source, 
+        // Widget.Box() //todo: seekbar, select source,
     ]
     }),
 })

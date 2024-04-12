@@ -1,8 +1,4 @@
-import {
-	Notifications,
-	SystemTray,
-	onScreenIndicator,
-} from '../services/index.js'
+import { notifications } from "resource:///com/github/Aylur/ags/service/notifications.js"
 import Media from './media.js'
 import SysTray from './systray.js'
 import GLib from 'gi://GLib'
@@ -43,23 +39,11 @@ const Notification = () =>
 		children: [
 			Widget.Icon({
 				icon: 'preferences-system-notifications-symbolic',
-				connections: [
-					[
-						Notifications,
-						self => (self.visible = Notifications.popups.length > 0),
-					],
-				],
+				visible: notifications.bind('popups').as(p=> p.length > 0)
 			}),
 			Widget.Label({
-				connections: [
-					[
-						Notifications,
-						self => {
-							self.label = Notifications.popups[0]?.summary || ''
-						},
-					],
-				],
-			}),
+				label: notifications.bind('popups').as(p => p[0].summary),
+			})
 		],
 	})
 

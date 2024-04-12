@@ -1,11 +1,6 @@
-import {
-	Bar,
-	Launcher,
-	PopLauncher,
-	// SettingsToast,
-	// QuickSettings
-} from './windows.js'
-// import {NotificationsPopupWindow, NotificationCenter} from './src/Toast/index.js'
+import PopLauncher from './popLauncher.js'
+import Bar from './Bar/index.js'
+import osiNotify from './osiNotify.js'
 
 const scss = App.configDir + '/style/index.scss'
 const css = App.configDir + '/style/index.css'
@@ -39,9 +34,9 @@ App.config({
 	iconTheme: 'Pop',
 	windows: [
 		Bar,
-		Launcher,
+		// Launcher,
 		PopLauncher,
-		// SettingsToast,
+		osiNotify,
 		// NotificationsPopupWindow,
 		// NotificationCenter,
 	],
