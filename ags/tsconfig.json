@@ -14,7 +14,7 @@
 		],
 		"skipLibCheck": true,
 		"forceConsistentCasingInFileNames": true,
-		"outDir": "/tmp/ags/js",
+		"outDir": "./build",
 	},
 	"include": ["base", "types"],
 	"exclude": ["build", "config.*.js"]

@@ -3,3 +3,4 @@ types
 *.bk
 src/*/**.js
 style/*.css
+build

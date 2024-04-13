@@ -6,6 +6,7 @@
 	"main": "config.js",
 	"author": "sameoldlab",
 	"scripts": {
+		"ags": "ags -b test",
 		"dev": "tsc -w",
 		"build": "tsc"
 	},
