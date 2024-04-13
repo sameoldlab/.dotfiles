@@ -23,6 +23,7 @@ $hover: #333;
 button {
 	background: $background;
 	color: $foreground;
+	border: 0;
 }
 
 .quick-settings {
@@ -48,7 +49,6 @@ button {
 }
 
 .workspaces button :hover,
-#applauncher :focus,
 .media :hover {
 	background-color: rgba(255, 255, 255, 0.1);
 	background: #eee;
@@ -58,7 +58,6 @@ button {
 }
 
 .workspaces button :active,
-#applauncher :active,
 .media :active {
 	background-color: rgb(255, 255, 255);
 	background: white;
@@ -114,7 +113,7 @@ highlight {
 	/* border-radius: 2em; */
 }
 
-#applauncher {
+#applauncher, #poplauncher {
 	border: 0;
 	margin: 0;
 	padding: 1em;
@@ -126,27 +125,29 @@ highlight {
 
 }
 
-.applauncher .applauncher__entry {
+.applauncher entry.applauncher__entry,
+.applauncher entry.applauncher__entry:active,
+.applauncher entry.applauncher__entry:focus {
 	padding: .75em .5em;
 	font-size: 1.3em;
 	border-radius: 0;
 	/* margin: 1em; */
 	margin-bottom: 5em;
 	background: transparent;
-
-	/* border: .15em solid #111; */
+	outline-width: 0;
+		border: .0em solid #111;
 
 	border-bottom: 1px solid rgba(200, 200, 200, 0.5);
 	/* border-top-right-radius: 2em; */
 	/* border-radius: 2em; */
+box-shadow: 0 0 transparent;
 }
 
-.applauncher__entry entry {
-	color: red;
+entry.applauncher__entry {
+	// color: red;
 	font-weight: 900;
 }
 
-/* //.applauncher .applauncher__entry, */
 
 .applauncher__list,
 .applauncher__item {
@@ -160,9 +161,18 @@ highlight {
 	background: transparent;
 }
 
-#applauncher .applauncher__entry :focus {
-	border: 1px solid red;
-	box-shadow: none;
+$padding-block: .5em;
+
+#poplauncher button {
+	background: transparent;
+	border: 0;
+	border: 0;
+	padding: 0;
+	// outline: 0;
+	box-shadow: 0 0 transparent;
+	padding-top: $padding-block;
+	padding-bottom: $padding-block;
+	box-shadow: 1px 1px red;
 }
 
 .applauncher__item .description {
@@ -170,68 +180,24 @@ highlight {
 	color: #eee;
 }
 
+.applauncher__item box {
+	padding-left: .75em;
+	padding-right: .75em;
+	padding-top: .25em;
+	padding-bottom: .25em;
+}
 .applauncher__item .icon {
+	margin: .5em;
 	margin-right: 1em;
 }
+.category_icon {
+	opacity: .7;
+}
 
-/* .separator {
-    min-height: 1px;
-    background-color: $hover;
-    margin: $spacing/2;
-  } */
-/*   scrolledwindow {
-    padding: $popover_padding;
-    min-width: 500px;
-    min-height: 350px;
-  } */
-/*   .placeholder {
-    margin-top: $spacing;
-    color: $fg_color;
-    font-size: 1.2em;
-  } */
-/*   .app {
-    all: unset;
-    transition: $transition;
-    padding: $spacing;
-
-    label {
-      transition: $transition;
-
-      &.title {
-        color: $fg_color;
-      }
-
-      &.description {
-        color: transparentize($fg_color, 0.3);
-      }
-    }
-
-    image {
-      transition: $transition;
-      margin-right: $spacing;
-    }
-
-    &:hover,
-    &:focus {
-      .title {
-        color: $accent;
-      }
-
-      image {
-        -gtk-icon-shadow: 2px 2px $accent;
-      }
-    }
-
-     &:active {
-      background-color: transparentize($accent, 0.5);
-      border-radius: $radii;
-      box-shadow: inset 0 0 0 $border_width $border_color;
-
-      .title {
-        color: $fg_color;
-      }
-    } 
-  } }*/
+.applauncher__item.selected {
+	background: rgba(255, 255, 255, 0.1);
+	border-radius: 8px;
+}
 
 .applauncher .header {
 	margin: 1em;

@@ -1,34 +1,42 @@
+import Gdk from 'gi://Gdk?version=3.0'
+import Gio from 'gi://Gio'
 import launcher from './services/launcherIPC.js'
 import type { JsonIPC } from './services/launcherIPC.js'
 
 const WINDOW_NAME = 'poplauncher'
 
+let active_id = 0
 const EntryItem = (res: JsonIPC.SearchResult) =>
-	Widget.Button({
-		on_clicked: () => {
-			console.info(`clicked: ${res.name}`)
-			launcher.activate(res.id)
-		},
-		on_primary_click: () => {
-			console.info(`clicked: ${res.name}`)
-			launcher.activate(res.id)
-		},
-		/* 
-		on_secondary_click: () => {
-			console.info(`clicked: ${res.name}`)
-			launcher.activate_context(res.id, 1)
-		}, */
+	Widget.EventBox({
+		on_primary_click: () => launcher.activate(res.id),
+		className: 'applauncher__item',
+		name: res.name,
 		child: Widget.Box({
-			className: 'applauncher__item',
 			children: [
+				/* 
+				Widget.Icon('inode-directory'),
+				Widget.Icon('text-plain'),
+				Widget.Icon('application-gzip'),
+				Widget.Icon('package-x-generic'),
+				Widget.Icon('text-x-generic'),
+				Widget.Icon('image-x-generic'),
+				Widget.Icon('folder'), */
 				Widget.Icon({
-					icon: res.category_icon?.Name || res.category_icon?.Mime || '',
+					icon: res.category_icon
+						? 'Name' in res.category_icon
+							? res.category_icon.Name
+							: Gio.content_type_get_icon(res.category_icon.Mime).names[1]
+						: '',
 					size: 16,
-					className: 'icon',
+					className: 'icon category_icon',
 				}),
 				Widget.Icon({
-					icon: res.icon?.Name || res.icon?.Mime || '',
-					size: 32,
+					icon: res.icon
+						? 'Name' in res.icon
+							? res.icon.Name
+							: Gio.content_type_get_icon(res.icon.Mime).names[1]
+						: '',
+					size: 28,
 					className: 'icon',
 				}),
 				Widget.Box({
@@ -57,46 +65,40 @@ const EntryItem = (res: JsonIPC.SearchResult) =>
 		}),
 	})
 
-const Applauncher = ({ width = 500, height = 500, spacing = 12 } = {}) => {
-	let entries: JsonIPC.SearchResult[]
+const entries = Variable<JsonIPC.SearchResult[]>([])
 
-	const close = () => {
-		console.info('CLOSE')
-		entry.text = ''
-		launcher.interrupt()
-		App.closeWindow(WINDOW_NAME)
-	}
+const close = () => {
+	console.info('CLOSE')
+	entry.text = ''
+	launcher.interrupt()
+	active_id = 0
+	App.closeWindow(WINDOW_NAME)
+}
 
-	const list = Widget.Box({
-		vertical: true,
-		spacing,
-	})
+const list = Widget.Box({
+	vertical: true,
+	children: entries.bind().as(v => v.map(EntryItem)),
+	spacing: 0,
+})
 
-	const entry = Widget.Entry({
-		on_accept: ({ text }) => {
-			// const results = applications.query(text || '')
-			// if (results[0]) {
-			// App.toggleWindow(WINDOW_NAME)
-			// results[0].launch()
+const entry = Widget.Entry({
+	on_accept: () => launcher.activate(active_id),
+	on_change: ({ text }) => {
+		text = text ?? ''
+		launcher.search(text)
+	},
+	placeholder_text: " Type to search apps, or type '?' for more options.",
+	hexpand: true,
+	css: `margin-bottom: ${0}px;`,
+	className: 'applauncher__entry',
+})
 
-			// }
-			launcher.activate(entries[0].id)
-		},
-		on_change: ({ text }) => {
-			text = text ?? ''
-			print(text)
-			launcher.search(text)
-		},
-		hexpand: true,
-		css: `margin-bottom: ${spacing}px;`,
-		className: 'applauncher__entry',
-	})
-
-	launcher.connect('new-response', (service, res: Exclude<JsonIPC.Response, "Close">) => {
+launcher.connect(
+	'new-response',
+	(service, res: Exclude<JsonIPC.Response, 'Close'>) => {
 		// console.log('message received is:', res)
 		if ('Update' in res) {
-			entries = res.Update
-			list.children = entries.map(EntryItem)
+			entries.setValue(res.Update)
 		} else if ('Fill' in res) {
 			entry.text = res.Fill
 		} else if ('DesktopEntry' in res) {
@@ -108,11 +110,12 @@ const Applauncher = ({ width = 500, height = 500, spacing = 12 } = {}) => {
 				JSON.stringify(res.Context)
 			)
 		}
-	})
+	}
+)
+launcher.connect('close', close)
 
-	launcher.connect('close', close)
-
-	return Widget.Box({
+const Applauncher = ({ width = 500, height = 500, spacing = 12 } = {}) =>
+	Widget.Box({
 		vertical: true,
 		className: 'applauncher',
 		css: `margin: ${spacing * 2}px;`,
@@ -136,22 +139,73 @@ const Applauncher = ({ width = 500, height = 500, spacing = 12 } = {}) => {
 				// when the applauncher shows up
 				if (visible) {
 					// entry.text = ''
-					entry.grab_focus()
+					// entry.grab_focus()
 					launcher.search(' ')
 				}
 			}),
-	}).keybind('Escape', close)
-}
-
+	})
 export default Widget.Window({
 	name: WINDOW_NAME,
+	anchor: ['bottom'],
+	margins: [100],
 	visible: false,
 	keymode: 'exclusive',
 	child: Applauncher({
-		width: 600,
-		height: 400,
+		width: 550,
+		height: 380,
 		spacing: 0,
 	}),
+}).keybind('Escape', close)
+
+entry.on('key-press-event', (self, event: Gdk.Event) => {
+	const key = Gdk.keyval_name(Gdk.keyval_to_upper(event.get_keyval()[1]))
+	const is_forward = () => key === 'Down' //|| key === 'J' || key === 'N'
+	const is_backward = () => key === 'Up' || key === 'ISO_Left_Tab' //|| key === 'K' || key === 'P'
+
+	const select_id = (id: number) => {
+		list.children[active_id]?.toggleClassName('selected', false)
+		active_id = id
+		print(active_id)
+		// console.log)
+		const entry = list.children[active_id]
+		if (entry) {
+			entry.toggleClassName('selected', true)
+			console.log(`${entry.name}: ${entry.class_names}`)
+			// try {
+			// Util.ensureActorVisibleInScrollView(this.scroller, entry)
+			// } catch (_error) {}
+		}
+	}
+	const back = () => {
+		if (0 < active_id) {
+			select_id(active_id - 1)
+		} else if (active_id == 0) {
+			select_id(list.children.length - 1)
+		}
+	}
+	const forward = () => {
+		if (active_id + 1 < list.children.length) {
+			select_id(active_id + 1)
+		} else if (active_id + 1 == list.children.length) {
+			select_id(0)
+		}
+	}
+
+	if (key === 'Tab') {
+		console.log('tab complete: ', active_id)
+		launcher.complete(active_id)
+		return true
+	}
+	if (is_backward()) {
+		back()
+		return true
+	}
+	if (is_forward()) {
+		forward()
+		return true
+	}
+
+	select_id(active_id)
 })
 
 function launch(de: JsonIPC.ResponseV.DesktopEntry) {

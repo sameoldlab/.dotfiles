@@ -1,7 +1,6 @@
 import GLib from 'gi://GLib'
 import Gio from 'gi://Gio'
 
-
 type AsyncIPC = {
 	child: Gio.Subprocess
 	stdout: Gio.DataInputStream
@@ -133,7 +132,7 @@ export class LauncherService extends Service {
 
 	#onResponse(response: JsonIPC.Response) {
 		// console.log("type of message is:", response)
-		if (typeof response ==='string' && response.includes('Close')) {
+		if (typeof response === 'string' && response.includes('Close')) {
 			this.emit('close', true)
 		} else {
 			this.#ipcResponse = JSON.parse(response)
@@ -189,7 +188,9 @@ export class LauncherService extends Service {
 		})
 	}
 
-	interrupt() {this.#send("Interrupt")}
+	interrupt() {
+		this.#send('Interrupt')
+	}
 
 	/** Perform a search in our database */
 	search(search: string) {
@@ -227,25 +228,11 @@ export namespace JsonIPC {
 		id: number
 		name: string
 		description: string
-		icon?:
-			| { Name: string }
-			| {
-					Mime: string
-			  }
-			| {
-					Window: [number, number]
-			  }
-		category_icon?:
-			| { Name: string }
-			| {
-					Mime: string
-			  }
-			| {
-					Window: [number, number]
-			  }
-		window?: [number, number]
+		icon?: Icon
+		category_icon?: Icon
 	}
-
+	export type Icon = { Name: string } | { Mime: string }
+	//|		window?: [number, number]
 	export type Response =
 		| ResponseV.Update
 		| ResponseV.Fill
