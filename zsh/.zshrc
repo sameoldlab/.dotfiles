@@ -137,10 +137,10 @@ bindkey '^[[1;3C' my-cd-forward
 setopt extendedglob
 
 
-# # Aliases
+## Aliases
 setopt extendedglob
 typeset -Ag abbreviations=(
-  # Whenever I type 'cm' followed by space, replace
+  # Whenever I type 'Gc' followed by space, replace
   # that with 'git commit -m ""' with the cursor between
   # the double quotes.
   'Gc' 'git commit -m "__CURSOR__"'
@@ -157,13 +157,22 @@ alias Pa="sudo pacman"
 alias Pup="sudo pacman"
 alias Prm="sudo pacman"
 
-alias brave="flatpak run com.brave.Browser"
-
 alias Gup="git push"
 alias Ga="git add"
 alias Gs="git status"
 
-
+alias zj="zellij"
+alias fzfp="fzf --preview 'bat --style=numbers --color=always {}'"
+export FZF_CTRL_T_OPTS="--walker-skip .git,node_modules,dist"
+export FZF_DEFAULT_COMMAND='fd --type file --hidden'
+export FZF_CTRL_T_COMMAND="fd"
+export FZF_CTRL_T_OPTS="
+  --preview 'bat -n --color=always {}'
+  --bind 'ctrl-/:change-preview-window(down|hidden|)'"
+export FZF_ALT_C_COMMAND="fd --type d --no-ignore-vcs --exclude node_modules --exclude .git"
+export FZF_ALT_C_OPTS="
+    --preview 'dust -D {}'
+"
 
 magic-abbrev-expand() {
     local MATCH
@@ -189,17 +198,16 @@ bindkey " " magic-abbrev-expand
 bindkey "^x " no-magic-abbrev-expand
 bindkey -M isearch " " self-insert
 
-# # Named Directory Hashes
-
-
-
 eval "$(starship init zsh)"  
 eval "$(zoxide init zsh)"  
+eval "$(fzf --zsh)"
 
+export EDITOR="helix"
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  
 # pnpm
-export PNPM_HOME="/home/ibro/.local/share/pnpm"
+export PNPM_HOME="$HOME/.local/share/pnpm"
+export CARGO_HOME="$HOME/.cargo"
 # Add to PATH
-export PATH="$PATH:/home/ibro/.foundry/bin:/usr/local/cuda-12.2/bin:$PNPM_HOME"
+export PATH="$PATH:/home/ibro/.foundry/bin:/usr/local/cuda-12.2/bin:$PNPM_HOME:$CARGO_HOME/bin"
 export GPG_TTY=/dev/pts/0
