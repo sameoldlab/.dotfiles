@@ -1,0 +1,253 @@
+$aqua: #fff;
+$black: hsl(180, 9%, 6%);
+$white: hsl(0, 0, 89%);
+$indicator: hsl(40, 85%, 49%);
+$background: transparent;
+$foreground: $white;
+$hover: #333;
+
+// label {
+// 	font-weight: 600;
+// }
+
+* {
+	border-radius: 0;
+	border: 0;
+	margin: 0;
+	padding: 0;
+	box-shadow: 0px 0px transparent;
+}
+
+.bar {
+	background: rgba(10, 9, 17, 0);
+	background: red;
+	background: $background;
+}
+
+button {
+	background: $background;
+	color: $foreground;
+	border: 0;
+}
+
+.quick-settings {
+	margin: 2em;
+	padding: 2em;
+	background: red;
+}
+
+.tray-icon {
+	margin: 0 0.5em;
+}
+
+.workspaces button {
+	padding: 0.5em;
+	// font-size: svw;
+	background-color: $background;
+	font-weight: 400;
+	color: $hover;
+}
+
+.workspaces button.occupied {
+	color: $foreground;
+}
+
+.workspaces button :hover,
+.media :hover {
+	background-color: rgba(255, 255, 255, 0.1);
+	background: #eee;
+	color: #efefef;
+	color: #222;
+	box-shadow: none;
+}
+
+.workspaces button :active,
+.media :active {
+	background-color: rgb(255, 255, 255);
+	background: white;
+
+	color: #fff;
+}
+
+.workspaces button.focused {
+	color: #e7a013;
+	background: #eee;
+	/* color: #efefef; */
+	color: #111;
+	font-weight: 800;
+}
+
+.client-title {
+	margin-left: 1em;
+	color: #fff;
+}
+
+.notification image {
+	color: yellow;
+	margin-left: 1em;
+}
+
+.battery progressbar {
+	margin: 0 6px;
+}
+
+.clock {
+	font-weight: 600;
+	margin: 0.25em 1em;
+	font-size: 0.95em;
+	/* justify: "right"; */
+}
+
+.date {
+	font-weight: 400;
+	font-size: 0.85em;
+	color: #eee;
+}
+
+progress,
+highlight {
+	// background-color: #e7a013;
+	// min-height: 0.5em;
+}
+
+#applauncher,
+#poplauncher {
+	border: 0;
+	margin: 0;
+	padding: 1em;
+	background: rgba(10, 9, 17, 0.4);
+	background: #111;
+
+	/* border: .5px solid white; */
+	/* border-radius: 2em; */
+}
+
+.applauncher {
+	background: transparent;
+	/* padding: 1em;	 */
+	/* border: .5px solid green; */
+	/* border-radius: 2em; */
+
+	.header {
+		margin: 1em;
+		margin-bottom: 0.25em;
+
+		& image,
+		& entry {
+			padding: 1em;
+		}
+
+		& entry {
+			padding-left: 2em;
+		}
+
+		& image {
+			margin-right: 2em;
+			-gtk-icon-transform: scale(0.8);
+			font-size: 1.6em;
+		}
+	}
+
+	entry entry:active,
+	entry:focus {
+		padding: 0.75em 0.5em;
+		font-size: 1.3em;
+		border-radius: 0;
+		/* margin: 1em; */
+		font-weight: 900;
+
+		margin-bottom: 5em;
+		background: transparent;
+		outline-width: 0;
+		border: 0em solid #111;
+
+		border-bottom: 1px solid rgba(200, 200, 200, 0.5);
+		/* border-top-right-radius: 2em; */
+		/* border-radius: 2em; */
+		box-shadow: 0 0 transparent;
+	}
+
+	button {
+		$padding-block: 0.5em;
+
+		background: transparent;
+		border: 0;
+		border: 0;
+		padding: 0;
+		// outline: 0;
+		box-shadow: 0 0 transparent;
+		padding-top: $padding-block;
+		padding-bottom: $padding-block;
+		box-shadow: 1px 1px red;
+	}
+}
+
+.applauncher__list {
+	margin: 0.75em 0.75em;
+}
+
+.applauncher__item {
+	font-weight: 600;
+
+	&.selected {
+		background: rgba(255, 255, 255, 0.1);
+		border-radius: 8px;
+	}
+
+	box {
+		padding: 0.25em 0.75em;
+	}
+
+	.description {
+		font-weight: 400;
+		color: #eee;
+	}
+
+	.icon {
+		margin: 0.5em;
+		margin-right: 1em;
+
+		&.category_icon {
+			opacity: 0.7;
+		}
+	}
+}
+
+#osiNotify {
+	background-color: greenyellow;
+	// border-radius: 0.75rem;
+}
+
+.sys-toast {
+	// margin: 1em;
+	padding: .5em;
+	// min-height: 1em;
+	background-color: greenyellow;
+}
+
+levelbar {
+	margin-top: 1px;
+	// min-width: 10px;
+	background-color: greenyellow;
+	min-height: 1px;
+	background-color: transparent;
+	border-radius: 0.75rem;
+	// background: ;
+	// border-radius: 16px;
+
+
+	& trough block {
+		border-radius: 0.75rem;
+		background-color: $indicator;
+		border: 0;
+		margin: 0;
+
+		&.empty {
+			background-color: #111;
+		}
+
+		&.full {
+			background-color: red;
+		}
+	}
+}
