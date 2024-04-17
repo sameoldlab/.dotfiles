@@ -1,4 +1,4 @@
-import { onScreenIndicator } from './services/index.js'
+import onScreenIndicator from './services/onScreenIndicator.js'
 
 const indicator = Variable({
 	visible: false,
@@ -6,37 +6,36 @@ const indicator = Variable({
 	value: -1,
 })
 
-onScreenIndicator.connect('popup', (_, value, icon) => {
-	indicator.setValue({
-		visible: value && value !== -1,
-		icon,
-		value,
+const osi = () => {
+	const service = Widget.Icon({
+		size: 24
 	})
-})
+	const level = Widget.LevelBar({
+		className: "osi_level",
+		width_request: 100,		
+	})
+	
+	onScreenIndicator.connect('popup', (_, value, icon) => {
+		service.icon = icon
+		level.value = value
+	})
 
-const osiNotify = Widget.Window({
-	name: 'osiNotify',
-	visible: indicator.bind('value').as(v => v.visible),
-	margins: [128, 0],
-	anchor: ['bottom'],
-	css: 'background: black; border-radius: 16px',
-	child: Widget.Box({
-		class_names: ['sys-toast'],
-		vertical: false,
-		margin: 4,
-		spacing: 8,
-		css: 'margin: 2em;',
-		children: [
-			Widget.Icon({
-				size: 24,
-				icon: indicator.bind('value').as(v => v.icon),
-			}),
-			Widget.LevelBar({
-				widthRequest: 120,
-				value: indicator.bind('value').as(v => v.value),
-			}),
-		],
-	}),
-})
+	return Widget.Window({
+		name: 'osiNotify',
+		visible: onScreenIndicator.bind('visible'),
+		margins: [128, 0],
+		anchor: ['bottom'],
+		child: Widget.Box({
+			class_names: ['sys-toast'],
+			vertical: false,
+			margin: 4,
+			spacing: 8,
+			children: [
+				service,
+				level
+			],
+		}),
+	})
+}
 
-export default osiNotify
+export default osi()

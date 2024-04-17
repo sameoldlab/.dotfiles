@@ -1,70 +1,96 @@
-import icons from '../utils/icons.js';
-import { Audio } from './index.js';
-import Brightness from './brightness.js';
+import icons from '../utils/icons.js'
+import Audio from 'resource:///com/github/Aylur/ags/service/audio.js'
+import Brightness from './brightness.js'
 
-const getAudioTypeIcon = (icon) => {
-	const subs = {
-		'audio-headset-bluetooth'	: icons.audio.type.headset,
-		'audio-card-analog-usb'		: icons.audio.type.speaker,
-		'audio-card-analog-pci'		: icons.audio.type.card,
-	}
- 
-	return subs[icon] ? subs[icon] : null
-}	
+const getAudioTypeIcon = (icon: string | null): string => {
+	const subs = new Map([
+		['audio-headset-bluetooth', icons.audio.type.headset],
+		['audio-card-analog-usb', icons.audio.type.speaker],
+		['audio-card-analog-pci', icons.audio.type.card],
+	])
 
-class Indicator extends Service {
-    static {
-        Service.register(
-					this,
-					 {
-            'popup': ['double', 'string'],
-					 },
-				);
-    }
-
-    #delay = 1500;
-    #count = 0;
-
-    popup(value, icon) {
-        this.emit('popup', value, icon);
-        this.#count++;
-        Utils.timeout(this.#delay, () => {
-            this.#count--;
-
-            if (this.#count === 0)
-                this.emit('popup', -1, icon);
-        });
-    }
-
-
-    speaker() {
-			if(!Audio.speaker) throw Error("Audio.speaker does not exist from Indicator service line:43")
-				
-        this.popup(
-					Audio.speaker.volume,
-          getAudioTypeIcon(Audio.speaker.icon_name),
-        );
-    }
-
-
-    display() {
-        // brightness is async, so lets wait a bit
-        Utils.timeout(10, () => this.popup(
-            Brightness.screen_value,
-            icons.brightness.screen));
-    }
-
-/*     kbd() {
-        // brightness is async, so lets wait a bit
-        Utils.timeout(10, () => this.popup(
-            (Brightness.kbd * 33 + 1) / 100,
-            icons.brightness.keyboard));
-    } */
-
-    connect(event = 'popup', callback) {
-        return super.connect(event, callback);
-    }
-
+	return icon && subs[icon] ? subs[icon] : icons.audio.type.speaker
 }
 
-export default new Indicator();
+class Indicator extends Service {
+	static {
+		Service.register(
+			this,
+			{
+				popup: ['float', 'string'],
+			},
+			{
+				visible: ['boolean', 'r'],
+				icon: ['string', 'r'],
+			}
+		)
+	}
+
+	constructor() {
+		super()
+	}
+
+	#visible = false
+	#icon = ''
+	
+	get icon() {
+		return this.#icon
+	}
+	
+	get visible() {
+		return this.#visible
+	}
+	
+	// every setTimeout blocks the main thread. pick the largest step you can where there's still time to interupt
+	#delay = 0
+	singleton = 0
+	async close(id = 0) {
+		if(id < this.singleton) return
+		this.#delay--
+		if (this.#delay > 0 && this.#visible === true) {
+			await new Promise(res => setTimeout(res, 100)) /* delay * 100ms = 1.5s */
+			return this.close(id)
+		}
+
+		this.singleton = 0
+		this.#visible = false
+		this.changed('visible')
+	}
+
+	popup(value, icon) {
+		this.#visible = true
+		this.changed('visible')		
+		this.#icon = icon
+		this.emit('popup', value, this.#icon)
+		
+		this.#delay = 15
+		this.singleton++
+		this.close(this.singleton)
+		return 1
+	}
+
+	speaker() {
+		if (!Audio.speaker)
+			throw Error('Indicator.speaker() error: Audio.speaker does not exist')
+
+		return this.popup(
+			Audio.speaker.volume,
+			getAudioTypeIcon(Audio.speaker.icon_name)
+		)
+	}
+
+	display() {
+		// brightness is async, so lets wait a bit
+		return Utils.timeout(5, () =>
+			this.popup(Brightness.screen_value, icons.brightness.screen)
+		)
+	}
+
+	connect(event = 'popup', callback) {
+		return super.connect(event, callback)
+	}
+}
+
+const indicator = new Indicator()
+
+export default indicator
