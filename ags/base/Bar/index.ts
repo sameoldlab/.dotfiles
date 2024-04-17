@@ -6,8 +6,8 @@ import GLib from 'gi://GLib'
 
 const dayOfWeek = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
 let date = Variable(GLib.DateTime.new_now_local(), {
-		poll: [1000, () => GLib.DateTime.new_now_local()]
-	})
+	poll: [1000, () => GLib.DateTime.new_now_local()],
+})
 
 export const Clock = () =>
 	Widget.Box({
@@ -16,7 +16,7 @@ export const Clock = () =>
 		spacing: 4,
 		children: [
 			Widget.Label({
-				label: date.bind().as(d => d.format('%I:%M %p')?.toString() ?? ""),
+				label: date.bind().as(d => d.format('%I:%M %p')?.toString() ?? ''),
 				class_name: 'time',
 				justification: 'right',
 				// vpack: 'end',
@@ -24,14 +24,14 @@ export const Clock = () =>
 				// hexpand: true,
 			}),
 			Widget.Label({
-				label: date.bind().as(d => d.format('%a, %b %d')?.toString() ?? ""),
+				label: date.bind().as(d => d.format('%a, %b %d')?.toString() ?? ''),
 				class_name: 'date',
 				// hexpand: true,
 				vexpand: true,
 				// vpack: 'end',
 				justification: 'right',
-			})
-		]
+			}),
+		],
 	})
 
 const Notification = () =>
@@ -40,21 +40,35 @@ const Notification = () =>
 		children: [
 			Widget.Icon({
 				icon: 'preferences-system-notifications-symbolic',
-				visible: notifications.bind('popups').as(p=> p.length > 0)
+				visible: notifications.bind('popups').as(p => p.length > 0),
 			}),
 			Widget.Label({
 				label: notifications.bind('popups').as(p => p[0].summary),
-			})
+			}),
 		],
 	})
 
-
+const systemTray = () =>
+	Widget.Box({
+		children: SystemTray.bind('items').as(items =>
+			items.map(item =>
+				Widget.Button({
+					child: Widget.Icon({ icon: item.bind('icon') }),
+					on_primary_click: (_, event) => item.activate(event),
+					on_secondary_click: (_, event) => item.openMenu(event),
+					tooltip_markup: item.bind('tooltip_markup'),
+				})
+			)
+		),
+	})
+/*
+ */
 
 // layout of the bar
 const Left = Widget.Box({
 	children: [
 		//Workspaces()
-		],
+	],
 })
 
 export const Center = Widget.Box({
@@ -65,18 +79,23 @@ export const Center = Widget.Box({
 
 export const Right = Widget.Box({
 	hpack: 'end',
-	children: [Media(), SysTray(), Clock()],
+	children: [
+		Media(),
+		SysTray(),
+		// systemTray(),
+		Clock(),
+	],
 })
 
 export default Widget.Window({
-	name: `agsBar`, // name has to be unique
-	class_name: 'bar',	
+	name: `agsBar`,
+	class_name: 'bar',
 	anchor: ['top', 'left', 'right'],
 	// margins: [4],
-	exclusivity: 'exclusive' /* Stops draw over */,
+	exclusivity: 'exclusive',
 	child: Widget.CenterBox({
 		start_widget: Left,
 		center_widget: Center,
 		end_widget: Right,
-	})
+	}),
 })
