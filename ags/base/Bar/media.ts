@@ -1,4 +1,4 @@
-import { Player } from '../services/index.js'
+import Player from '../services/player.js'
 
 const Media = () =>  Widget.Button({
     class_name: 'media',

@@ -1,5 +1,6 @@
-import { Notifications, Audio, Battery, Brightness}  from '../services/index.js'
-import SystemTray from 'resource:///com/github/Aylur/ags/service/systemtray.js';
+import { Brightness } from '../services/index.js'
+import Audio from 'resource:///com/github/Aylur/ags/service/audio.js'
+import Battery from 'resource:///com/github/Aylur/ags/service/battery.js'
 
 const Volume = () => Widget.Button({
 	class_name: 'volume tray-icon',

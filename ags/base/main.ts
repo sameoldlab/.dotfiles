@@ -1,21 +1,14 @@
 import PopLauncher from './popLauncher.js'
 import Bar from './Bar/index.js'
 import osiNotify from './osiNotify.js'
+import { globalServices } from './services/index.js'
 
+globalServices()
 const scss = App.configDir + '/style/index.scss'
 const css = App.configDir + '/style/index.css'
-Utils.exec(`sassc ${scss} ${css}`)
+Utils.execAsync(`sassc ${scss} ${css}`)
 
-Utils.subprocess(
-	[
-		'inotifywait',
-		'--recursive',
-		'--event',
-		'create,modify',
-		'-m',
-		App.configDir + '/style',
-	],
-	() => {
+Utils.monitorFile(scss, () => {
 		Utils.exec(`sassc ${scss} ${css}`)
 		App.resetCss()
 		App.applyCss(css)
@@ -23,9 +16,6 @@ Utils.subprocess(
 )
 
 App.config({
-	closeWindowDelay: {
-		'window-name': 200, // milliseconds
-	},
 	notificationPopupTimeout: 3000, // milliseconds
 	notificationForceTimeout: true,
 	cacheNotificationActions: true,

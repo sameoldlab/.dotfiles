@@ -1,4 +1,5 @@
-import { notifications } from "resource:///com/github/Aylur/ags/service/notifications.js"
+import { notifications } from 'resource:///com/github/Aylur/ags/service/notifications.js'
+import SystemTray from 'resource:///com/github/Aylur/ags/service/systemtray.js'
 import Media from './media.js'
 import SysTray from './systray.js'
 import GLib from 'gi://GLib'

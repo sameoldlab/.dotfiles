@@ -1,4 +1,4 @@
-import { Mpris } from './index.js'
+import Mpris from 'resource:///com/github/Aylur/ags/service/mpris.js'
 import { MprisPlayer } from '../../types/service/mpris.js'
 
 
