@@ -247,7 +247,7 @@ animations {
 
 // Work around WezTerm's initial configure bug
 // by setting an empty default-column-width.
-window-rule {
+/-window-rule {
     // This regular expression is intentionally made as specific as possible,
     // since this is the default config, and we want no false positives.
     // You can get away with just app-id="wezterm" if you want.
@@ -307,11 +307,11 @@ binds {
     XF86MonBrightnessUp   { spawn "bash" "-c" "ags -b niri -r 'brightness.screen_value += 0.05; indicator.display()'"; }
     XF86MonBrightnessDown { spawn "bash" "-c" "ags -b niri -r 'brightness.screen_value -= 0.05; indicator.display()'"; }
     
-    XF86AudioPlay  { spawn "bash" "-c" "ags -b niri -r mpris.players[mpris.players.length - 1].playPause()" ; }
-    XF86AudioPause { spawn "bash" "-c" "ags -b niri -r mpris.players[mpris.players.length - 1].playPause()"; }
-    XF86AudioStop  { spawn "bash" "-c" "ags -b niri -r mpris.players[mpris.players.length - 1].stop()"; }
-    XF86AudioPrev  { spawn "bash" "-c" "ags -b niri -r mpris.players[mpris.players.length - 1].previous()"; }
-    XF86AudioNext  { spawn "bash" "-c" "ags -b niri -r mpris.players[mpris.players.length - 1].next()"; }
+    XF86AudioPlay  { spawn "bash" "-c" "ags -b niri -r 'mpris.players[mpris.players.length - 1].playPause()'" ; }
+    XF86AudioPause { spawn "bash" "-c" "ags -b niri -r 'mpris.players[mpris.players.length - 1].playPause()'"; }
+    XF86AudioStop  { spawn "bash" "-c" "ags -b niri -r 'mpris.players[mpris.players.length - 1].stop()'"; }
+    XF86AudioPrev  { spawn "bash" "-c" "ags -b niri -r 'mpris.players[mpris.players.length - 1].previous()'"; }
+    XF86AudioNext  { spawn "bash" "-c" "ags -b niri -r 'mpris.players[mpris.players.length - 1].next()'"; }
 
     Mod+Q { close-window; }
 
