@@ -1,9 +1,31 @@
 import { Brightness } from '../services/index.js'
+import Network from '../services/network.js'
 import Audio from 'resource:///com/github/Aylur/ags/service/audio.js'
 import Battery from 'resource:///com/github/Aylur/ags/service/battery.js'
 
-const volume = () =>
-	Widget.Button({
+const volume = () => {
+	const icons = {
+		101: 'overamplified',
+		67: 'high',
+		34: 'medium',
+		1: 'low',
+		0: 'muted',
+	}
+	function getIcon() {
+		const icon = Audio.speaker.is_muted
+			? 0
+			: [101, 67, 34, 1, 0].find(
+					threshold => threshold <= Audio.speaker.volume * 100
+			  )!
+
+		return `audio-volume-${icons[icon]}-symbolic`
+	}
+
+	const icon = Widget.Icon({
+		icon: Utils.watch(getIcon(), Audio.speaker, getIcon),
+	})
+
+	return Widget.Button({
 		class_name: 'volume tray-icon',
 
 		on_scroll_down: () => {
@@ -18,27 +40,9 @@ const volume = () =>
 			Audio.speaker.volume = volume + 0.01
 		},
 		// css: 'min-width: 180px',
-		child: Widget.Stack({
-			children: {
-				// tuples of [string, Widget]
-				'101': Widget.Icon('audio-volume-overamplified-symbolic'),
-				'67': Widget.Icon('audio-volume-high-symbolic'),
-				'34': Widget.Icon('audio-volume-medium-symbolic'),
-				'1': Widget.Icon('audio-volume-low-symbolic'),
-				'0': Widget.Icon('audio-volume-muted-symbolic'),
-			},
-			shown: Audio.bind('speaker').as(v => {
-				console.log(v.volume)
-				if (v.is_muted === true ) return '0'
-				const show = [101, 67, 34, 1, 0].find(
-					threshold => threshold <= v.volume * 100
-				)?.toString() as "101" | "67" | "34" | "1"| "0" | undefined
-				
-				return show
-			}),
-			
-		}),
+		child: icon,
 	})
+}
 
 const brightnessLabel = () =>
 	Widget.EventBox({
@@ -51,10 +55,28 @@ const brightnessLabel = () =>
 		class_name: 'battery tray-icon',
 		child: Widget.Label({
 			label: Brightness.bind('screen_value').as(
-				v => ` B: ${Math.round(v * 100)}`
+				v => `B: ${Math.round(v * 100)}`
 			),
 		}),
 	})
+
+const signal = Variable('offline', {
+	poll: [
+		1000,
+		[
+			'bash',
+			'-c',
+			`iwctl station wlan0 show \
+			| grep 'Connected network' \
+			| sd '            Connected network     ' ''`,
+		],
+		val => {
+			// console.log(val)
+			if (val === '') return 'offline'
+			return 'good'
+		},
+	],
+})
 
 const wifi = () =>
 	Widget.Box({
@@ -62,17 +84,10 @@ const wifi = () =>
 		children: [
 			Widget.Stack({
 				children: {
-					'good': Widget.Icon('network-wireless-signal-good-symbolic'),
-					'offline': Widget.Icon('network-wireless-offline-symbolic'),
+					good: Widget.Icon('network-wireless-signal-good-symbolic'),
+					offline: Widget.Icon('network-wireless-offline-symbolic'),
 				},
-			}).poll(1000, self => {
-				Utils.execAsync([
-					'bash',
-					'-c',
-					`iwctl station wlan0 show \
-				 | grep 'Connected network' \
-				 | sd '            Connected network     ' ''`,
-				]).then(s => (s === '' ? 'offline' : 'good'))
+				shown: signal.bind(),
 			}),
 		],
 	})
@@ -106,7 +121,6 @@ const batteryLabel = () =>
 			}),
 		],
 	})
-
 
 const Tray = () =>
 	Widget.EventBox({
