@@ -1,10 +1,26 @@
-@nodes-io
-BraveSoftware
-anytype
-blender
-Code
-Electron
-Docker*
-figma-linux
-Google
-Logseq
+# Ignore everything
+*
+
+# But not these...
+!.gitsubmodules
+!ags
+!bat
+!fish
+!helix
+!hypr
+!kitty
+!mpv
+!niri
+!nvim
+!polychromatic
+!swaylock
+!xremap
+!zellij
+!zsh
+!starfish.toml
+!*-flags.conf
+
+# Except if
+hypr/plugins/*
+zsh/antidote/*
+zsh/functions/*
