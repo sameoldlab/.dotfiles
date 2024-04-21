@@ -1,5 +1,6 @@
 import Service from 'resource:///com/github/Aylur/ags/service.js'
-import { exec, execAsync } from 'resource:///com/github/Aylur/ags/utils.js'
+import { exec } from 'resource:///com/github/Aylur/ags/utils.js'
+import { interval } from 'resource:///com/github/Aylur/ags/utils/timeout.js'
 
 const STRENGTH_ICONS = [
 	'network-wireless-signal-none-symbolic',
@@ -8,76 +9,56 @@ const STRENGTH_ICONS = [
 	'network-wireless-signal-good-symbolic',
 	'network-wireless-signal-excellent-symbolic',
 ]
-const iwd = () => {
-	const IWD = 'iwctl'
-	const { exec } = Utils
-	/** Remove table header and escape characters */
-	const clean = `tail -n +5 \
-	| sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]//g;/^\s*$/d"`
+const IWD = 'iwctl'
 
-	const devices = () =>
-		exec(`${IWD} device list \
-	| ${clean}\
-	| awk '{print  $1`).split('\n')
-	const defaultInterface = devices()[0]
+const iwd = {
+	devices: () => exec(`${App.configDir}/scripts/get_device.sh`).split('\n'),
 
 	// Might be smarter to start iwctl (interactive mode) as a subprocess(?) and get the output of station show from there where it's live updating?
 
-	const station = (device = devices()[0]) => {
+	station: device => {
 		const req = `${IWD} station ${device}`
+		// console.log(req)
+
+		const scan = () => exec(`${req} scan`)
+
+		const show = (): IWDStationState =>
+			JSON.parse(exec(`${App.configDir}/scripts/iwd_show.sh ${device}`))
+
+		const get_networks = () => {
+			scan()
+			const str = exec(`${App.configDir}/scripts/get_networks.sh ${device}`)
+			if (str === '') return null
+
+			const networks: Array<IWDStationNetwork> = str
+				.split('\n')
+				.map(s => JSON.parse(s))
+			networks.sort((a, b) => a.signal - b.signal)
+			return networks
+		}
+
 		return {
-			/** list devices in station mode */
-			list: `${IWD} station list | ${clean}`,
 			/** show station info */
-			show: (): IWDStationState =>
-				JSON.parse(
-					exec(`${req} show 
-		| ${clean} \
-		| sd '   +' '|' \
-		| awk -F "|" 'BEGIN {print "{"}; {print "\""$2"\": \""$3"\","} END {print"\"eof\":0}"}'
-		`)
-				),
-			get_networks: () => {
-				const str = exec(`${req} get-networks \
-			| grep psk | sd '\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[m|K]' '  '\
-			| sd '>' ' ' \
-			| sd '  +' '|' \ 
-			| awk -F "|" '{print "{\"name\":\""$2"\", \"signal\":"length($4)"}"}'`)
-				const networks: Array<IWDStationNetwork> = str
-					.split('\n')
-					.map(s => JSON.parse(s))
-				networks.sort((a, b) => a.signal - b.signal)
-				return networks
-			},
+			show,
+			get_networks,
 			/**
 			 * Scan for networks.
-			 * Note!: does not return scanned networks on it's own.
-			 * Call `get_networks` after this to get an array of available networks
+			 * Note: does not return scanned networks on it's own.
+			 * use `get_networks` instead for an array of available networks
 			 */
-			scan: () => {
-				exec(`${req} scan`)
-			},
+			scan,
 			/** Disconnect from current network */
-			disconnect: () => {
-				exec(`${req} disconnect`)
-			},
+			disconnect: () => exec(`${req} disconnect`),
 			/**
 			 * Connect to a given network
 			 * currently assumes you have authenticated with this network in the past
 			 * @param network name of network to connect to
 			 */
-			connect: (network: string) => {
-				exec(`${req} connect ${network}`)
-			},
+			connect: (network: string) => exec(`${req} connect ${network}`),
 		}
-	}
+	},
 
 	// const known = (network) => {list(), forget(), show(), set(name, value)}
-
-	return {
-		devices,
-		station,
-	}
 }
 type IWDDevice = {
 	name: string
@@ -85,6 +66,13 @@ type IWDDevice = {
 	powered: 'on' | 'off'
 	adapter: string
 	mode: 'station' | string
+}
+type IWDStation = {
+	show: () => IWDStationState
+	get_networks: () => IWDStationNetwork[] | null
+	scan: () => void
+	disconnect: () => void
+	connect: (network: string) => void
 }
 type IWDStationNetwork = {
 	name: string
@@ -119,67 +107,114 @@ type IWDStationState =
 			'RxBitrate': String
 	  }
 
-
 class NetworkService extends Service {
-	// every subclass of GObject.Object has to register itself
 	static {
-		// takes three arguments
-		// the class itself
-		// an object defining the signals
-		// an object defining its properties
 		Service.register(
 			this,
+			{},
 			{
-				// 'name-of-signal': [type as a string from GObject.TYPE_<type>],
-				'screen-changed': ['float'],
-				'is-connected': ['boolean'],
-			},
-			{
-				// 'kebab-cased-name': [type as a string from GObject.TYPE_<type>, 'r' | 'w' | 'rw']
-				// 'r' means readable
-				// 'w' means writable
-				// guess what 'rw' means
-				'is-connected': ['boolean', 'r'],
+				'enabled': ['boolean', 'rw'],
+				// 'internet': ['boolean'],
+				'frequency': ['int'],
+				'access-points': ['jsobject'],
+				'ssid': ['string'],
+
+				'state': ['string'],
+				'network': ['jsobject'],
+				'strength': ['int', 'r'],
+				'icon-name': ['string', 'r'],
 			}
 		)
 	}
-	#screen = null
 
-	#currentNetwork = null
-
-	// the getter has to be in snake_case
-	get current_network() {
-		return this.#currentNetwork
-	}
-
-	// the setter has to be in snake_case too
-	set screen_value(percent) {
-
-		execAsync(`brightnessctl s ${percent * 100}% -q`)
-			.then(() => {
-				this.#screen = percent
-
-				// signals has to be explicity emitted
-				// this.emit('changed') // emits "changed"
-				// this.notify('screen-value') // emits "notify::screen-value"
-
-				// or use Service.changed(propName: string) which does the above two
-				this.changed('screen-value');
-			})
-			.catch(print)
-	}
+	#network: IWDStationNetwork | undefined
+	#device: string = iwd.devices()[0]
+	#station: IWDStation = iwd.station(this.#device)
+	#state: 'connected' | 'connecting' | 'disconnected' = 'disconnected' //this.#station.show().State
 
 	constructor() {
 		super()
-		const current = Number(exec('brightnessctl g'))
-		const max = Number(exec('brightnessctl m'))
-		this.screen_value = current / max
+
+		this.scan()
+		console.log(`device: ${iwd.devices()}`)
+		this.#station = iwd.station(this.#device)
+
+		this.#state = this.#station.show().State
+		// this.update()
+		interval(1000, () => {
+			console.log('show', this.#station.show())
+			console.log('get_networks', this.#station.get_networks())
+		})
+	}
+	// todo: scan, get active, --get signal--
+
+	get network(): IWDStationNetwork | undefined {
+		const state = this.#station?.show()
+		if (state?.State !== 'connected') return undefined
+
+		const network = this.#station
+			.get_networks()
+			?.find(n => n.name === state['Connected network'])
+
+		if (this.network?.name !== network?.name) {
+			this.#network = network
+			this.strength = network?.signal ?? 0
+		}
+		this.changed('network')
+		return this.#network
 	}
 
-	// overwriting the connect method, let's you
-	// change the default event that widgets connect to
-	connect(event = 'screen-changed', callback) {
-		return super.connect(event, callback)
+	get icon_name() {
+		console.log('icon name has run')
+		if (!this.network) return STRENGTH_ICONS[0]
+		return STRENGTH_ICONS[this.network.signal]
+	}
+	get strength() {
+		return this.network?.signal ?? 0
+	}
+	set strength(v) {
+		this.strength = v
+		// this.icon_name
+		this.changed('strength')
+		this.changed('icon-name')
+	}
+
+	set state(val: IWDStationState['State']) {
+		this.#state = val
+		if (val === 'disconnected') {
+			this.#network = undefined
+			this.changed('network')
+		}
+		this.changed('state')
+	}
+
+	scan() {
+		this.#station.scan()
+	}
+	disconnect() {
+		this.#station.disconnect()
+	}
+
+	connectNetwork(network: IWDStationNetwork | undefined) {
+		if (!network) {
+			this.#station.scan()
+			const networks = this.#station.get_networks()
+			if (!networks) return
+			network = networks[0]
+		}
+		try {
+			this.#station.connect(network.name)
+			this.state = this.#station.show().State
+		} catch (why) {
+			console.error('Connection failed' + why)
+		}
+	}
+
+	update() {
+		interval(1000, () => {
+			console.log(this.strength)
+		})
+		this.changed('icon_name')
 	}
 }
 
