@@ -1,0 +1,25 @@
+[cursor]
+# color = bbbbbb
+color = adacae 2d2d2d
+
+[colors]
+background =0E0D17
+foreground =CDCCCE
+															 
+regular0   =0E0D1E  # black
+regular1   =F3789D  # red
+regular2   =7EE2B3  # green
+regular3   =E2B370  # yellow
+regular4   =7798E0  # blue
+regular5   =E693D7  # magenta
+regular6   =7DCDEB  # cyan
+regular7   =CDCCCE  # white
+
+bright0    =2D2D2D  # bright black
+bright1    =F37896  # bright red
+bright2    =7EE2B3  # bright green
+bright3    =E2B37E  # bright yellow
+bright4    =8FABE7  # bright blue
+bright5    =E693D6  # bright magenta
+bright6    =7DCDE1  # bright cyan
+bright7    =EDECEE  # bright white

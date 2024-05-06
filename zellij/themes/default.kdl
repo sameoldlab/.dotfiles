@@ -12,4 +12,46 @@ themes {
 		black   "#000000"
 		white   "#ffffff"
 	}
+	catppuccin-macchiato {
+		bg "#5b6078" // Surface2
+		fg "#cad3f5"
+		red "#ed8796"
+		green "#a6da95"
+		blue "#8aadf4"
+		yellow "#eed49f"
+		magenta "#f5bde6" // Pink
+		orange "#f5a97f" // Peach
+		cyan "#91d7e3" // Sky
+		black "#1e2030" // Mantle
+		white "#cad3f5"
+	}
+
+	catppuccin-mocha {
+		bg "#585b70" // Surface2
+		fg "#cdd6f4"
+		red "#f38ba8"
+		green "#a6e3a1"
+		blue "#89b4fa"
+		yellow "#f9e2af"
+		magenta "#f5c2e7" // Pink
+		orange "#fab387" // Peach
+		cyan "#89dceb" // Sky
+		black "#181825" // Mantle
+		white "#cdd6f4"
+	}
+
+	pale-boreal {
+		bg "#0E0D17" // Surface2
+		fg "#cdccce"
+		black "#0E0D1E"
+		red "#f3789D"
+		green "#7798e0" // Blue
+		yellow "#E2B370"
+		blue "#7EE2B3" // Green
+		magenta "#E693D7"
+		cyan "#7DCDEB"
+		white "#cdcccE"
+		orange "#E2B370" // Yellow
+	}
+
 }

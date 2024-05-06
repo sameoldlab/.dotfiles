@@ -1,11 +1,13 @@
 # Ignore everything
-*
+/*
+!.gitignore
 
 # But not these...
 !.gitsubmodules
 !ags
 !bat
 !fish
+!foot
 !helix
 !hypr
 !kitty
@@ -19,6 +21,7 @@
 !zsh
 !starfish.toml
 !*-flags.conf
+!theme.css
 
 # Except if
 hypr/plugins/*

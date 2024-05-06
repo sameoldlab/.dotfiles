@@ -1,0 +1,55 @@
+.catppuccin {
+	/* [cursor] */
+--color:#1A1826;
+--color2:#D9E0EE;
+
+/* [colors] */
+--background: #D9E0EE;
+--foreground: #1E1D2F;
+															 
+--regular0: #6E6C7E; /* # black */
+--regular1: #F28FAD; /* # red */
+--regular2: #ABE9B3; /* # green */
+--regular3: #FAE3B0; /* # yellow */
+--regular4: #96CDFB; /* # blue */
+--regular5: #F5C2E7; /* # magenta */
+--regular6: #89DCEB; /* # cyan */
+--regular7: #D9E0EE; /* # white */
+
+--bright0: #988BA2;  /* # bright black */
+--bright1: #F28FAD;  /* # bright red */
+--bright2: #ABE9B3;  /* # bright green */
+--bright3: #FAE3B0;  /* # bright yellow */
+--bright4: #96CDFB;  /* # bright blue */
+--bright5: #F5C2E7;  /* # bright magenta */
+--bright6: #89DCEB;  /* # bright cyan */
+--bright7: #D9E0EE;  /* # bright white */
+}
+
+.pale-boreal {
+	/* [cursor] */
+--color:#adacae;
+--color2:#2d2d2d;
+
+/* [colors] */
+--background: #0E0D17;
+--foreground: #cdccce;
+															 
+--regular0: #0E0D1E; /* # black */
+--regular1: #f3789D; /* # red */
+--regular2: #7EE2B3; /* # green */
+--regular3: #E2B370; /* # yellow */
+--regular4: #7798e0; /* # blue */
+--regular5: #E693D7; /* # magenta */
+--regular6: #7DCDEB; /* # cyan */
+--regular7: #cdcccE; /* # white */
+
+--bright0: #2d2d2d;  /* # bright black */
+--bright1: #f37896;  /* # bright red */
+--bright2: #7EE2B3;  /* # bright green */
+--bright3: #E2B37E;  /* # bright yellow */
+--bright4: #8fabe7;  /* # bright blue */
+--bright5: #E693D6;  /* # bright magenta */
+--bright6: #7DCDE1;  /* # bright cyan */
+--bright7: #edecee;  /* # bright white */
+}

@@ -14,7 +14,10 @@ keymap:
           b: [launch: ["firefox"]]
           e: [launch: ["nemo"]]
           c: [launch: ["code"]]
-          t: [launch: ["kitty"]]
+          t: [launch: ["foot"]]
+          z: [launch: ["Zed"]]
+          h: [launch: ["helix"]]
+          
   
   - name: Default Mode
     remap:
