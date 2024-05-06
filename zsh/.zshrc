@@ -162,6 +162,12 @@ alias Ga="git add"
 alias Gs="git status"
 
 alias zj="zellij"
+
+function zr () { zellij run --name "$*" -- zsh -ic "$*";}
+function zrf () { zellij run --name "$*" --floating -- zsh -ic "$*";}
+function ze () { zellij edit "$*";}
+function zef () { zellij edit --floating "$*";}
+
 alias fzfp="fzf --preview 'bat --style=numbers --color=always {}'"
 export FZF_CTRL_T_OPTS="--walker-skip .git,node_modules,dist"
 export FZF_DEFAULT_COMMAND='fd --type file --hidden'
@@ -198,7 +204,7 @@ bindkey " " magic-abbrev-expand
 bindkey "^x " no-magic-abbrev-expand
 bindkey -M isearch " " self-insert
 
-eval "$(starship init zsh)"  
+# eval "$(starship init zsh)"  
 eval "$(zoxide init zsh)"  
 eval "$(fzf --zsh)"
 
@@ -208,6 +214,7 @@ export NVM_DIR="$HOME/.nvm"
 # pnpm
 export PNPM_HOME="$HOME/.local/share/pnpm"
 export CARGO_HOME="$HOME/.cargo"
+export RUSTC_WRAPPER="$(which sccache)"
 # Add to PATH
-export PATH="$PATH:/home/ibro/.foundry/bin:/usr/local/cuda-12.2/bin:$PNPM_HOME:$CARGO_HOME/bin"
+export PATH="$PATH:/home/ibro/.foundry/bin:/usr/local/cuda-12.2/bin:$PNPM_HOME:$CARGO_HOME/bin:$HOME/.local/bin"
 export GPG_TTY=/dev/pts/0

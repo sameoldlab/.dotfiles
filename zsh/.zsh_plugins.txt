@@ -5,3 +5,4 @@ belak/zsh-utils path:completion
 zdharma-continuum/fast-syntax-highlighting
 zsh-users/zsh-history-substring-search
 zsh-users/zsh-autosuggestions
+romkatv/powerlevel10k
