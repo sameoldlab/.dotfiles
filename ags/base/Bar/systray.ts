@@ -15,8 +15,8 @@ const volume = () => {
 		const icon = Audio.speaker.is_muted
 			? 0
 			: [101, 67, 34, 1, 0].find(
-					threshold => threshold <= Audio.speaker.volume * 100
-			  )!
+				threshold => threshold <= Audio.speaker.volume * 100
+			)!
 
 		return `audio-volume-${icons[icon]}-symbolic`
 	}
@@ -59,27 +59,34 @@ const brightnessLabel = () =>
 			),
 		}),
 	})
+try {
+	Network.connect(undefined, (a, b) => {
+		console.log(a)
+		console.log(b)
+	})
+} catch (err) {
+	console.error(err)
+}
 
-const signal = Variable('offline', {
-	poll: [
-		1000,
-		[
-			'bash',
-			'-c',
-			`iwctl station wlan0 show \
-			| grep 'Connected network' \
-			| sd '            Connected network     ' ''`,
+const wifi = () => {
+	const signal = Variable('offline', {
+		poll: [
+			1000,
+			[
+				'bash',
+				'-c',
+				`iwctl station wlan0 show \
+				| grep 'Connected network' \
+				| sd '            Connected network     ' ''`,
+			],
+			val => {
+				// console.log(val)
+				if (val === '') return 'offline'
+				return 'good'
+			},
 		],
-		val => {
-			// console.log(val)
-			if (val === '') return 'offline'
-			return 'good'
-		},
-	],
-})
-
-const wifi = () =>
-	Widget.Box({
+	})
+	return Widget.Box({
 		class_name: 'wifi tray-icon',
 		children: [
 			Widget.Stack({
@@ -91,6 +98,7 @@ const wifi = () =>
 			}),
 		],
 	})
+}
 
 const naturalTime = (s: number) => {
 	let time = ['']
@@ -130,7 +138,7 @@ const Tray = () =>
 			children: [
 				brightnessLabel(),
 				// revealer,
-				wifi(),
+				// wifi(),
 				volume(),
 				batteryLabel(),
 			],

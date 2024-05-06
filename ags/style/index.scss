@@ -38,6 +38,9 @@ button {
 
 .tray-icon {
 	margin: 0 0.5em;
+	color: $foreground;
+	-icon-theme: 'papirus';
+	margin: 0 .75em;
 }
 
 .workspaces button {

@@ -215,5 +215,5 @@ function launch(de: JsonIPC.ResponseV.DesktopEntry) {
 		.substring(entry.path.indexOf('/applications/') + 14)
 		.replace('/', '-')
 	// console.log(`from file: ${desktop_entry_id}`)
-	Utils.execAsync(['gtk-launch', desktop_entry_id])
+	Utils.execAsync(['dex', entry.path])
 }

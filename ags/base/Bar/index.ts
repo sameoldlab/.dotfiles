@@ -51,15 +51,17 @@ const Notification = () =>
 const systemTray = () =>
 	Widget.Box({
 		children: SystemTray.bind('items').as(items =>
-			items.map(item =>
-				Widget.Button({
-					child: Widget.Icon({ icon: item.bind('icon') }),
+			items.map(item => Widget.Button({
+					child: Widget.Icon({
+						 icon: item.bind('icon'),
+						}),
+					class_name: "tray-icon",
 					on_primary_click: (_, event) => item.activate(event),
 					on_secondary_click: (_, event) => item.openMenu(event),
 					tooltip_markup: item.bind('tooltip_markup'),
 				})
 			)
-		),
+		), 
 	})
 /*
  */
@@ -81,8 +83,8 @@ export const Right = Widget.Box({
 	hpack: 'end',
 	children: [
 		Media(),
+		systemTray(),
 		SysTray(),
-		// systemTray(),
 		Clock(),
 	],
 })

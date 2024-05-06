@@ -21,7 +21,7 @@ App.config({
 	cacheNotificationActions: true,
 	maxStreamVolume: 1.5, // float
 	style: css,
-	iconTheme: 'Pop',
+	// iconTheme: 'Pop',
 	windows: [
 		Bar,
 		// Launcher,

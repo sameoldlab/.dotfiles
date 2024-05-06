@@ -1,6 +1,7 @@
 import Service from 'resource:///com/github/Aylur/ags/service.js'
 import { exec } from 'resource:///com/github/Aylur/ags/utils.js'
 import { interval } from 'resource:///com/github/Aylur/ags/utils/timeout.js'
+import Gio from 'gi://Gio'
 
 const STRENGTH_ICONS = [
 	'network-wireless-signal-none-symbolic',
@@ -9,6 +10,126 @@ const STRENGTH_ICONS = [
 	'network-wireless-signal-good-symbolic',
 	'network-wireless-signal-excellent-symbolic',
 ]
+// const systemConnection = Gio.DBus.system.get_p;
+/* https://git.kernel.org/pub/scm/network/wireless/iwd.git/tree */
+const iwdKnownNetworkInterface = `<node>
+<interface name="net.connman.iwd.KnownNetwork">
+	<method name="Forget"></method>
+	<property name="Name" type="s" access="read"/>
+	<property name="Type" type="s" access="read"/>
+	<property name="Hidden" type="b" access="read"/>
+	<property name="AutoConnect" type="b" access="readwrite"/>
+	<property name="LastConnectedTime" type="s" access="read"/>
+</interface>
+</node>`
+const iwdNetworkInterface = `<node>
+<interface name="net.connman.iwd.Network">
+	<method name="Connect"></method>
+	<property name="Name" type="s" access="read"/>
+	<property name="Connected" type="b" access="read"/>
+	<property name="Device" type="o" access="read"/>
+	<property name="Type" type="s" access="read"/>
+	<property name="KnownNetwork" type="o" access="read"/>
+</interface>
+</node>`
+const iwdStationInterface = `<node>
+<interface name="net.connman.iwd.Station">
+<method name="ConnectHiddenNetwork">
+	<arg name="name" type="s" direction="in"/>
+</method>
+<method name="Disconnect"/>
+<method name="GetOrderedNetworks">
+	<arg name="networks" type="a(on)" direction="out"/>
+</method>
+<method name="GetHiddenAccessPoints">
+	<arg name="accesspoints" type="a(sns)" direction="out"/>
+</method>
+<method name="Scan"/>
+<method name="RegisterSignalLevelAgent">
+	<arg name="path" type="o" direction="in"/>
+	<arg name="levels" type="an" direction="in"/>
+</method>
+<method name="UnregisterSignalLevelAgent">
+	<arg name="path" type="o" direction="in"/>
+</method>
+<property name="ConnectedNetwork" type="o" access="read"/>
+<property name="Scanning" type="b" access="read"/>
+<property name="State" type="s" access="read"/>
+</interface>
+</node>`
+const StationWrapper = Gio.DBusProxy.makeProxyWrapper(iwdStationInterface)
+const NetworkWrapper = Gio.DBusProxy.makeProxyWrapper(iwdNetworkInterface)
+let stationProxy: Gio.DBusProxy | null = null
+let connectedProxy: Gio.DBusProxy | null = null
+
+try {	stationProxy = StationWrapper(Gio.DBus.system, 'net.connman.iwd','/net/connman/iwd/0/3'	)
+} catch (why) {	console.error('Proxy Construction failed: ', why)}
+
+stationProxy?.connect('g-properties-changed', (proxy, changed, invalidated) => {
+	// UnregisterSignalLevelAgent
+	// RegisterSignalLevelAgent
+	try {
+		const connectedObject = stationProxy.ConnectedNetwork
+		if(connectedObject === null) return
+		connectedProxy = NetworkWrapper(
+			Gio.DBus.system,
+			'net.connman.iwd',
+			connectedObject
+	)
+	console.log(connectedProxy.Name)
+} catch(e) {
+	console.log(e)
+}
+})
+// track signal_strength: /net/connman/iwd/0/3 [Signal] Changed ?? in docs need to register first?
+// stationProxy.ScanSync()
+let networks = stationProxy.GetOrderedNetworksSync()
+/*  Array[[
+        [
+            "/net/connman/iwd/0/3/41697274656c5f34475f534d415254424f585f39444438_psk",
+            -3900
+        ],
+        [
+            "/net/connman/iwd/0/3/4d544e48794e6574666c657820322e3447687a_psk",
+            -8500
+        ]
+		]]
+		nested [].0: Network[] which has a connect method
+		0.map(n => NetworkWrapper(Gio.DBus.system, 'net'connman.iwd', n.0))
+*/
+
+
+// stationProxy.ConnectAsync()
+stationProxy?.connectSignal('Changed', (_proxy, nameOwner, args) => {
+	console.log(nameOwner)
+	console.log(args[0])
+})
+/* stationProxy.GetOrderedNetworks('', (returnValue, errorObj, fdList) => {
+	// If @errorObj is `null`, then the method call succeeded and the variant
+	// will already be unpacked with `GLib.Variant.prototype.deepUnpack()`
+	if (errorObj === null) {
+			console.log(`ComplexMethod('input string'): ${returnValue}`);
+
+			if (fdList !== null) {
+					// Methods that return file descriptors are fairly rare, so you
+					// will know if you should expect one or not. Consult the API
+					// documentation for `Gio.UnixFDList` for more information.
+			}
+
+			// If you were wrapping this function call in a Promise, this is where
+			// you would call `resolve()`
+
+	// If there was an error, then @returnValue will be an empty list and
+	// @errorObj will be an Error object
+	} else {
+			logError(errorObj);
+
+			// If you were wrapping this function call in a Promise, this is where
+			// you would call `reject()`
+	}
+});
+ */
+
 const IWD = 'iwctl'
 
 const iwd = {
@@ -141,10 +262,10 @@ class NetworkService extends Service {
 
 		this.#state = this.#station.show().State
 		// this.update()
-		interval(1000, () => {
+		/* interval(1000, () => {
 			console.log('show', this.#station.show())
 			console.log('get_networks', this.#station.get_networks())
-		})
+		}) */
 	}
 	// todo: scan, get active, --get signal--
 
@@ -218,11 +339,16 @@ class NetworkService extends Service {
 	}
 }
 
+let service
 // the singleton instance
-const service = new NetworkService()
+try {
+	service = new NetworkService()
 
-// make it global for easy use with cli
-globalThis.network = service
-
-// export to use in other modules
-export default service
+	// make it global for easy use with cli
+	globalThis.network = service
+} catch(err) {
+	console.error(err)
+}
+//need to take care of case where dbus not found
+	// export to use in other modules
+	export default service
