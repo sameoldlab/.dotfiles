@@ -1,8 +1,30 @@
-Aloxaf/fzf-tab
+mattmc3/zephyr path:plugins/completion
 mattmc3/zephyr path:plugins/color
-jirutka/zsh-shift-select
+# zsh-users/zsh-completions path:src kind:fpath
+
+# olets/zsh-abbr kind:defer
+# sindresorhus/pure
+# romkatv/powerlevel10k 
+# belak/zsh-utils path:editor # Conflict with substring search :(
+# jirutka/zsh-shift-select
+
+$ZDOTDIR/.aliases
+$ZDOTDIR/.exports
+# $ZDOTDIR/.functions
+
+$ZDOTDIR/plugins/history.zsh
+$ZDOTDIR/plugins/fzf-tab-completions.zsh kind:defer
+$ZDOTDIR/plugins/dirstack.zsh 
+$ZDOTDIR/plugins/editor.zsh 
+
 belak/zsh-utils path:completion
-zdharma-continuum/fast-syntax-highlighting
-zsh-users/zsh-history-substring-search
-zsh-users/zsh-autosuggestions
-romkatv/powerlevel10k
+# Last things before syntax-higlighting
+Aloxaf/fzf-tab
+
+
+zdharma-continuum/fast-syntax-highlighting kind:defer
+# -----------------------------------------------------------------
+zsh-users/zsh-autosuggestions kind:defer
+zsh-users/zsh-history-substring-search kind:defer
+
+

@@ -1,0 +1,23 @@
+#!/usr/bin/zsh
+#
+# zsh exports
+#
+export FZF_CTRL_T_OPTS="--walker-skip .git,node_modules,dist"
+export FZF_DEFAULT_COMMAND='fd --type file --hidden'
+export FZF_CTRL_T_COMMAND="fd"
+export FZF_CTRL_T_OPTS="
+  --preview 'bat -n --color=always {}'
+  --bind 'ctrl-/:change-preview-window(down|hidden|)'"
+export FZF_ALT_C_COMMAND="fd --type d --no-ignore-vcs --exclude node_modules --exclude .git"
+export FZF_ALT_C_OPTS="
+    --preview 'dust -D {}'
+"
+export EDITOR="helix"
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  
+export PNPM_HOME="$HOME/.local/share/pnpm"
+export CARGO_BIN="$HOME/.cargo/bin"
+export RUSTC_WRAPPER="$CARGO_BIN/sccache"
+# Add to PATH
+export PATH="$PATH:/home/ibro/.foundry/bin:/usr/local/cuda-12.2/bin:$PNPM_HOME:$CARGO_BIN:$HOME/.local/bin"
+export GPG_TTY=/dev/pts/0
