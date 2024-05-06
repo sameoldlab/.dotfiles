@@ -4,6 +4,7 @@ theme = "catppuccin_mocha"
 scrolloff = 2
 bufferline = "multiple"
 auto-save = true
+line-number = "relative"
 
 [editor.cursor-shape]
 insert = "bar"
@@ -24,16 +25,20 @@ enable = true
 [keys.normal]
 # h = "insert_mode" # Maps `jk` to exit insert mode
 C-s = ":write" # Maps Ctrl-s to save
-C-f = [":new", ":insert-output yazi --chooser-file=/dev/stdout" , ":theme default", "select_all", "split_selection_on_newline", "goto_file", "goto_last_modified_file", ":buffer-close!", ":theme mignight_boreal"] 
-
+# C-f = [":new", ":insert-output yazi --chooser-file=/dev/stdout" , ":theme default", "select_all", "split_selection_on_newline", "goto_file", "goto_last_modified_file", ":buffer-close!", ":theme mignight_boreal", ":redraw"] 
+C-g = [":new", ":insert-output lazygit", ":buffer-close!", ":redraw"]
 # Remapping hjkl to ijkl
 # i = "move_visual_line_up"
 # j = "move_char_left"
 # k = "move_visual_line_down"
 # l = "move_char_right"
-
+tab = ":buffer-next"
+S-tab = ":buffer-previous"
+# space = { x = [":write:", "buffer-close"]}
+esc = ["collapse_selection", "keep_primary_selection"]
 
 [keys.insert]
 "A-i" = "normal_mode"     # Maps Alt-X to enter normal mode
 "C-s" = ":write" # Maps Ctrl-s to save
 j = { f = "normal_mode" }
+# S-; = {w = ":write"} 

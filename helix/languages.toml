@@ -1,7 +1,7 @@
 [language-server.astro-ls]
 command = "astro-ls"
 args = ["--stdio"]
-config = {typescript = {tsdk = "/Users/user/.bun/install/global/node_modules/typescript/lib"}, environment = "node"}
+config = {typescript = {tsdk = "/home/ibro/.local/share/pnpm/global/5/node_modules/typescript/lib"}, environment = "node"}
 
 [[language]]
 name = "astro"
@@ -15,3 +15,11 @@ args = ["lsp"]
 [[language]]
 name = "markdown"
 language-servers = ["zk" ]
+
+[[language]]
+name = "rust"
+
+[language-server.rust-analyzer]
+command = "rust-analyzer"
+
+# [language-server.rust-analyzer.config]
