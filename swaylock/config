@@ -1,0 +1,31 @@
+# indicator
+clock
+ignore-empty-password
+image=~/Pictures/bg.jpg
+ring-color=6356F477
+ring-ver-color=E6821577
+#ring-wrong-color=89384E77
+indicator-thickness=8
+font=Liberation Sans
+indicator-radius=240
+
+effect-blur=24x4
+fade-in=1
+
+text-color=FFFFFF
+text-clear-color=FFFFFF
+text-wrong-color=FFFFFF
+text-ver-color=FFFFFF
+
+line-color=00000000
+line-wrong-color=00000000
+
+separator-color=00000000
+
+inside-color=00000000
+inside-ver-color=00000000
+inside-clear-color=00000000
+inside-wrong-color=00000000
+
+bs-hl-color=BA1E8C
+key-hl-color=7CB5D6
