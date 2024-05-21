@@ -15,6 +15,11 @@ spawn-at-startup "swayidle"
 spawn-at-startup "xwayland-satellite" ":11"
 spawn-at-startup "udiskie" "-sna"
 
+workspace "1"
+workspace "2"
+workspace "3"
+workspace "9"
+
 input {
     keyboard {
         xkb {
@@ -150,18 +155,9 @@ layout {
         width 2
         // active-color 127 200 255 255
         // inactive-color 80 80 80 255
-		active-gradient from="#aA7168" to="#780137" angle=135 relative-to="workspace-view"
-		inactive-gradient from="#7A716800" to="#08013700" angle=135 relative-to="workspace-view"
+		active-gradient from="#f5c2e7" to="#89DCEB" angle=135 relative-to="workspace-view"
+		inactive-gradient from="#7A7168" to="#080137" angle=135 relative-to="workspace-view"
     }
-	/-window-rule {
-    match app-id="^blender$"
-
-    // GIMP app ID contains the version like "gimp-2.99",
-    // so we only match the beginning (with ^) and not the end.
-    match app-id="^gimp"
-
-    default-column-width { fixed 1200; }
-}
     // You can customize the widths that "switch-preset-column-width" (Mod+R) toggles between.
     preset-column-widths {
         // Proportion sets the width as a fraction of the output width, taking gaps into account.
@@ -259,6 +255,11 @@ animations {
 
 // Work around WezTerm's initial configure bug
 // by setting an empty default-column-width.
+window-rule {
+    draw-border-with-background false
+	geometry-corner-radius 8
+	clip-to-geometry true
+}
 /-window-rule {
     // This regular expression is intentionally made as specific as possible,
     // since this is the default config, and we want no false positives.
@@ -280,7 +281,12 @@ animations {
 }
 window-rule {
     match app-id="^blender$"
-    default-column-width { fixed 1200; }
+
+    // GIMP app ID contains the version like "gimp-2.99",
+    // so we only match the beginning (with ^) and not the end.
+    match app-id="^gimp"
+
+    default-column-width { proportion 0.8; }
 }
 
 // Settings for the "Important Hotkeys" overlay.
