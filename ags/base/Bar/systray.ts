@@ -1,5 +1,5 @@
 import { Brightness } from '../services/index.js'
-import Network from '../services/network.js'
+// import Network from '../services/network.js'
 import Audio from 'resource:///com/github/Aylur/ags/service/audio.js'
 import Battery from 'resource:///com/github/Aylur/ags/service/battery.js'
 
@@ -59,14 +59,14 @@ const brightnessLabel = () =>
 			),
 		}),
 	})
-try {
-	Network.connect(undefined, (a, b) => {
-		console.log(a)
-		console.log(b)
-	})
-} catch (err) {
-	console.error(err)
-}
+// try {
+// 	Network.connect(undefined, (a, b) => {
+// 		console.log(a)
+// 		console.log(b)
+// 	})
+// } catch (err) {
+// 	console.error(err)
+// }
 
 const wifi = () => {
 	const signal = Variable('offline', {

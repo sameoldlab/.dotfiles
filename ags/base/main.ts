@@ -24,7 +24,6 @@ App.config({
 	// iconTheme: 'Pop',
 	windows: [
 		Bar,
-		// Launcher,
 		PopLauncher,
 		osiNotify,
 		// NotificationsPopupWindow,
