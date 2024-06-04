@@ -1,77 +1,6 @@
 import GLib from 'gi://GLib'
 import Gio from 'gi://Gio'
-
-type AsyncIPC = {
-	child: Gio.Subprocess
-	stdout: Gio.DataInputStream
-	stdin: Gio.DataOutputStream
-	cancellable: Gio.Cancellable
-}
-
-export function start() {
-	let cancellable = new Gio.Cancellable()
-	let child: Gio.Subprocess | null
-	try {
-		child = new Gio.SubprocessLauncher({
-			flags: Gio.SubprocessFlags.STDIN_PIPE | Gio.SubprocessFlags.STDOUT_PIPE,
-		}).spawnv(['pop-launcher'])
-	} catch (error) {
-		throw Error(`spawn failed: ${error}`)
-	}
-
-	let stdin = new Gio.DataOutputStream({
-		base_stream: child.get_stdin_pipe(),
-		close_base_stream: true,
-	})
-
-	let stdout = new Gio.DataInputStream({
-		base_stream: child.get_stdout_pipe(),
-		close_base_stream: true,
-	})
-
-	child.wait_async(null, (source: any, res: any) => {
-		source.wait_finish(res)
-		cancellable.cancel()
-	})
-
-	return { child, stdin, stdout, cancellable }
-}
-
-export function async_process_ipc(argv: Array<string>): AsyncIPC | null {
-	const { SubprocessLauncher, SubprocessFlags } = Gio
-
-	const launcher = new SubprocessLauncher({
-		flags: SubprocessFlags.STDIN_PIPE | SubprocessFlags.STDOUT_PIPE,
-	})
-
-	let child: Gio.Subprocess | null
-
-	let cancellable = new Gio.Cancellable()
-
-	try {
-		child = launcher.spawnv(argv)
-	} catch (why) {
-		console.error(`failed to spawn ${argv}: ${why}`)
-		return null
-	}
-
-	let stdin = new Gio.DataOutputStream({
-		base_stream: child.get_stdin_pipe(),
-		close_base_stream: true,
-	})
-
-	let stdout = new Gio.DataInputStream({
-		base_stream: child.get_stdout_pipe(),
-		close_base_stream: true,
-	})
-
-	child.wait_async(null, (source: any, res: any) => {
-		source.wait_finish(res)
-		cancellable.cancel()
-	})
-
-	return { child, stdin, stdout, cancellable }
-}
+import Gtk from '../../types/@girs/gtk-3.0/gtk-3.0'
 
 export class LauncherService extends Service {
 	static {
@@ -87,50 +16,28 @@ export class LauncherService extends Service {
 		)
 	}
 
-	#service: AsyncIPC = start()
+	#service: Gio.Subprocess
 	#ipcResponse: JsonIPC.Response | null = null
 
 	get ipc_response() {
 		return this.#ipcResponse
 	}
 
-	constructor() {
+	constructor(widget: Gtk.Widget | undefined) {
 		super()
 
-		/** Recursively registers an intent to read the next line asynchronously  */
-		const generator = (stdout: Gio.DataInputStream, res: any) => {
-			try {
-				const [bytes] = stdout.read_line_finish(res)
-				if (bytes) {
-					const string = new TextDecoder().decode(bytes)
-
-					// console.log(`received response from launcher service: ${string.split('},{')}`)
-					this.#onResponse(string)
-
-					this.#service.stdout.read_line_async(
-						0,
-						this.#service.cancellable,
-						generator
-					)
-				}
-			} catch (why) {
-				// Do not print an error if it was merely cancelled.
-				if ((why as any).matches(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED)) {
-					return
-				}
-
-				console.error(`failed to read response from launcher service: ${why}`)
-			}
-		}
-
-		this.#service.stdout.read_line_async(
-			0,
-			this.#service.cancellable,
-			generator
+		this.#service = Utils.subprocess(
+			['pop-launcher'],
+			(stdout) => {
+				// console.log(stdout)	
+				this.#onResponse(stdout)
+			},
+			(stderr) => console.error('problem in stream: ', stderr),
+			widget
 		)
 	}
 
-	#onResponse(response: JsonIPC.Response) {
+	#onResponse(response: string) {
 		// console.log("type of message is:", response)
 		if (typeof response === 'string' && response.includes('Close')) {
 			this.emit('close', true)
@@ -164,7 +71,7 @@ export class LauncherService extends Service {
 	/** Request to end the service */
 	exit() {
 		this.#send('Exit')
-		this.#service.cancellable.cancel()
+		// this.#service.cancellable.cancel()
 		const service = this.#service
 
 		GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
@@ -211,13 +118,17 @@ export class LauncherService extends Service {
 		const message = JSON.stringify(object)
 		console.info('launcherIPC send() message = ' + message)
 		try {
-			this.#service.stdin.write_all(message + '\n', null)
+			this.#service.write(message + '\n')
 		} catch (why) {
 			console.error(`failed to send request to pop-launcher: ${why}`)
 		}
 	}
 }
 
+/** 
+ * TODO: move subprocess to somewhere it can be bound to components. Without this changes to desktop entries or installed applications will not register unless ags is restarted
+ *
+ */ 
 const launcher = new LauncherService()
 
 export default launcher
