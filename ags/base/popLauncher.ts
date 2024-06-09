@@ -2,7 +2,6 @@ import Gdk from 'gi://Gdk?version=3.0'
 import Gio from 'gi://Gio'
 import launcher from './services/launcherIPC.js'
 import type { JsonIPC } from './services/launcherIPC.js'
-
 const WINDOW_NAME = 'poplauncher'
 
 let active_id = 0
@@ -68,13 +67,12 @@ const EntryItem = (res: JsonIPC.SearchResult) =>
 const entries = Variable<JsonIPC.SearchResult[]>([])
 
 const close = () => {
-	console.info('CLOSE')
+	console.log('popLauncher: CLOSE')
 	entry.text = ''
 	launcher.interrupt()
 	active_id = 0
 	App.closeWindow(WINDOW_NAME)
 }
-
 const list = Widget.Box({
 	vertical: true,
 	children: entries.bind().as(v => v.map(EntryItem)),
@@ -140,7 +138,8 @@ const Applauncher = ({ width = 500, height = 500, spacing = 12 } = {}) =>
 				if (visible) {
 					// entry.text = ''
 					// entry.grab_focus()
-					launcher.search(' ')
+					// For nicer default results modify plugin.ron for destop_entries to include query (peristent: true, history: true)
+					launcher.search('')
 				}
 			}),
 	})
