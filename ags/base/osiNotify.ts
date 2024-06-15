@@ -12,19 +12,26 @@ const osi = () => {
 	})
 	const level = Widget.LevelBar({
 		className: "osi_level",
-		width_request: 100,		
+		width_request: 100,
+		max_value: 1,
+		min_value: 0,
+		css: 'min-width: 0px',
+		value: onScreenIndicator.bind('value')
 	})
 	
-	onScreenIndicator.connect('popup', (_, value, icon) => {
+	onScreenIndicator.connect('popup', (_, value: number, icon: string) => {
 		service.icon = icon
-		level.value = value
+		// level.value = (value)
+	// console.log("osi value: ", icon)
 	})
 
 	return Widget.Window({
 		name: 'osiNotify',
+		setup(self) { self.visible = false },
 		visible: onScreenIndicator.bind('visible'),
 		margins: [128, 0],
 		anchor: ['bottom'],
+		layer: 'overlay',
 		child: Widget.Box({
 			class_names: ['sys-toast'],
 			vertical: false,

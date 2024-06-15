@@ -22,6 +22,7 @@ class Indicator extends Service {
 			{
 				visible: ['boolean', 'r'],
 				icon: ['string', 'r'],
+				value: ['float', 'r']
 			}
 		)
 	}
@@ -32,15 +33,18 @@ class Indicator extends Service {
 
 	#visible = false
 	#icon = ''
+	#value = 0
 	
 	get icon() {
 		return this.#icon
 	}
-	
-	get visible() {
+		get visible() {
 		return this.#visible
 	}
-	
+	get value() {
+		return this.#value
+	}
+
 	// every setTimeout blocks the main thread. pick the largest step you can where there's still time to interupt
 	#delay = 0
 	singleton = 0
@@ -59,8 +63,11 @@ class Indicator extends Service {
 
 	popup(value, icon) {
 		this.#visible = true
-		this.changed('visible')		
 		this.#icon = icon
+		this.#value = value
+		this.emit('changed')
+		this.notify('value')
+		this.notify('visible')
 		this.emit('popup', value, this.#icon)
 		
 		this.#delay = 15
@@ -74,7 +81,7 @@ class Indicator extends Service {
 			throw Error('Indicator.speaker() error: Audio.speaker does not exist')
 
 		return this.popup(
-			Audio.speaker.volume,
+			(Audio.speaker.volume / 1.5),
 			getAudioTypeIcon(Audio.speaker.icon_name)
 		)
 	}

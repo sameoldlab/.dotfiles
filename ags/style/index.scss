@@ -1,7 +1,7 @@
 $aqua: #fff;
 $black: hsl(180, 9%, 6%);
 $white: hsl(0, 0, 89%);
-$indicator: hsl(40, 85%, 49%);
+$indicator: hsl(220 64.1% 77.06%);
 $background: transparent;
 $foreground: $white;
 $hover: #333;
@@ -16,6 +16,8 @@ $hover: #333;
 	margin: 0;
 	padding: 0;
 	box-shadow: 0px 0px transparent;
+	font-size: 13px;
+	font-weight: 500;
 }
 
 .bar {
@@ -31,8 +33,8 @@ button {
 }
 
 .quick-settings {
-	margin: 2em;
-	padding: 2em;
+	margin: 0 2em;
+	padding: 0 2em;
 	background: red;
 }
 
@@ -44,15 +46,16 @@ button {
 }
 
 .workspaces button {
-	padding: 0.5em;
+	padding: 0 0.5em;
 	// font-size: svw;
 	background-color: $background;
 	font-weight: 400;
 	color: $hover;
-}
 
-.workspaces button.occupied {
-	color: $foreground;
+
+	&.occupied {
+		color: $foreground;
+	}
 }
 
 .workspaces button :hover,
@@ -97,13 +100,13 @@ button {
 .clock {
 	font-weight: 600;
 	margin: 0.25em 1em;
-	font-size: 0.95em;
+	/* font-size: 0.95em; */
 	/* justify: "right"; */
 }
 
 .date {
 	font-weight: 400;
-	font-size: 0.85em;
+	/* font-size: 0.85em; */
 	color: #eee;
 }
 
@@ -217,40 +220,44 @@ highlight {
 }
 
 #osiNotify {
-	background-color: greenyellow;
+	background-color: $background;
 	// border-radius: 0.75rem;
 }
 
 .sys-toast {
 	// margin: 1em;
-	padding: .5em;
+	/* padding: .2em; */
 	// min-height: 1em;
-	background-color: greenyellow;
+	background-color: $background;
 }
 
 levelbar {
-	margin-top: 1px;
-	// min-width: 10px;
-	background-color: greenyellow;
-	min-height: 1px;
-	background-color: transparent;
-	border-radius: 0.75rem;
+	/* margin-top: 1px; */
+	background-color: $background;
+	/* min-height: 1px; */
+	/* background-color: transparent; */
+	border-radius: 0.25rem;
 	// background: ;
 	// border-radius: 16px;
 
 
 	& trough block {
-		border-radius: 0.75rem;
+		border-radius: 0.25rem;
 		background-color: $indicator;
 		border: 0;
 		margin: 0;
+		transition: background-color 400ms ease-in-out;
 
 		&.empty {
 			background-color: #111;
 		}
 
+		&.low {
+			background-color: darken($indicator, 15%);
+		}
+
 		&.full {
-			background-color: red;
+			background-color: lighten($indicator, 5%);
 		}
 	}
 }
