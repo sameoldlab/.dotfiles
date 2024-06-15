@@ -23,6 +23,8 @@ const volume = () => {
 
 	const icon = Widget.Icon({
 		icon: Utils.watch(getIcon(), Audio.speaker, getIcon),
+		vexpand: true,
+		vpack: 'center'
 	})
 
 	return Widget.Button({
@@ -40,7 +42,17 @@ const volume = () => {
 			Audio.speaker.volume = volume + 0.01
 		},
 		// css: 'min-width: 180px',
-		child: icon,
+		child: Widget.Box({
+			vpack: 'center',
+			vexpand: true,
+			spacing: 2,
+			children: [
+				icon,
+				Widget.Label({ label: Audio.speaker.bind('volume').as(
+					v => `${Math.round(v * 100)}`
+				)})
+			]
+		})
 	})
 }
 
@@ -53,11 +65,16 @@ const brightnessLabel = () =>
 			Brightness.screen_value -= 0.01
 		},
 		class_name: 'battery tray-icon',
-		child: Widget.Label({
-			label: Brightness.bind('screen_value').as(
-				v => `B: ${Math.round(v * 100)}`
-			),
-		}),
+		child: Widget.Box({
+			spacing: 2,
+			vexpand:true,
+			children: [
+				Widget.Icon('display-brightness-symbolic'),
+				Widget.Label({label: Brightness.bind('screen_value').as(
+					v => `${Math.round(v * 100)}`
+				)}),
+			]
+		}) 
 	})
 // try {
 // 	Network.connect(undefined, (a, b) => {
@@ -118,6 +135,8 @@ const naturalTime = (s: number) => {
 
 const batteryLabel = () =>
 	Widget.Box({
+		spacing: 2,
+		vexpand:true,
 		class_name: 'battery tray-icon',
 		tooltip_text: Battery.bind('time_remaining').as(s => naturalTime(s)),
 		children: [
@@ -135,6 +154,9 @@ const Tray = () =>
 		// pass_through: true,
 
 		child: Widget.Box({
+		vexpand: true,
+		spacing: 8,
+		vpack: 'center'
 			children: [
 				brightnessLabel(),
 				// revealer,
