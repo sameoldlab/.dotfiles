@@ -1,7 +1,8 @@
 $aqua: #fff;
 $black: hsl(180, 9%, 6%);
 $white: hsl(0, 0, 89%);
-$indicator: hsl(220 64.1% 77.06%);
+$text: $white;
+$indicator: hsl(220, 64.1%, 77.06%);
 $background: transparent;
 $foreground: $white;
 $hover: #333;
@@ -154,13 +155,14 @@ highlight {
 		}
 	}
 
+	entry,
 	entry entry:active,
 	entry:focus {
-		padding: 0.75em 0.5em;
-		font-size: 1.3em;
+		padding: 1.25em 1.5em;
+		font-size: 1.2em;
 		border-radius: 0;
 		/* margin: 1em; */
-		font-weight: 900;
+		font-weight: 500;
 
 		margin-bottom: 5em;
 		background: transparent;
@@ -193,7 +195,7 @@ highlight {
 }
 
 .applauncher__item {
-	font-weight: 600;
+	font-weight: 800;
 
 	&.selected {
 		background: rgba(255, 255, 255, 0.1);
@@ -204,17 +206,23 @@ highlight {
 		padding: 0.25em 0.75em;
 	}
 
+	.title {
+		font-weight: 600;
+	}
+
 	.description {
 		font-weight: 400;
-		color: #eee;
+		color: darken($text, 16%);
 	}
 
 	.icon {
 		margin: 0.5em;
-		margin-right: 1em;
+		font-size: 1.1rem;
 
 		&.category_icon {
-			opacity: 0.7;
+			opacity: 0.8;
+			font-size: 1rem;
+			/* margin-right: 1em; */
 		}
 	}
 }
