@@ -134,7 +134,7 @@ export default Widget.Window({
 	class_name: 'bar',
 	anchor: ['top', 'left', 'right'],
 	// margins: [4],
-	exclusivity: 'exclusive',
+	// exclusivity: 'exclusive',
 	child: Widget.CenterBox({
 		start_widget: Left,
 		center_widget: Center,

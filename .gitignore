@@ -23,6 +23,8 @@
 !*-flags.conf
 !theme.css
 
+!wezterm
+
 # Except if
 hypr/plugins/*
 zsh/antidote/*
