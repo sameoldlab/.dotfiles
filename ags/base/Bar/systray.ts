@@ -156,7 +156,7 @@ const Tray = () =>
 		child: Widget.Box({
 		vexpand: true,
 		spacing: 8,
-		vpack: 'center'
+		vpack: 'center',
 			children: [
 				brightnessLabel(),
 				// revealer,

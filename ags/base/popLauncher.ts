@@ -8,18 +8,11 @@ let active_id = 0
 const EntryItem = (res: JsonIPC.SearchResult) =>
 	Widget.EventBox({
 		on_primary_click: () => launcher.activate(res.id),
+		
 		className: 'applauncher__item',
 		name: res.name,
 		child: Widget.Box({
 			children: [
-				/* 
-				Widget.Icon('inode-directory'),
-				Widget.Icon('text-plain'),
-				Widget.Icon('application-gzip'),
-				Widget.Icon('package-x-generic'),
-				Widget.Icon('text-x-generic'),
-				Widget.Icon('image-x-generic'),
-				Widget.Icon('folder'), */
 				Widget.Icon({
 					icon: res.category_icon
 						? 'Name' in res.category_icon
@@ -128,7 +121,8 @@ const Applauncher = ({ width = 500, height = 500, spacing = 12 } = {}) =>
 								min-height: ${height}px;
 							`,
 				child: list,
-			}),
+				
+			})
 		],
 		setup: self =>
 			self.hook(App, (_, windowName, visible) => {
