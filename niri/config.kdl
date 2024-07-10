@@ -322,7 +322,7 @@ binds {
     Mod+T { spawn "wezterm"; }
     Mod+Return { spawn "wezterm"; }
     Mod+B { spawn "brave"; }
-    Mod+E { spawn "nemo"; }
+    Mod+E { spawn "dolphin"; }
     Mod+C { spawn "code"; }
     Mod+Space { spawn "bash" "-c" "ags -b niri toggle-window poplauncher"; }
     // Mod { spawn "bash" "-c" "ags -b niri toggle-window poplauncher"; }
@@ -537,6 +537,9 @@ environment {
 	QT_QPA_PLATFORM "wayland"
 	QT_QPA_PLATFORMTHEME "qt6ct"
 	QT_ENABLE_HIGHDPI_SCALING "1"
+	
+	// brings back default applications in dolphin
+	XDG_MENU_PREFIX "arch-"
 	// Remove a variable by using null as the value:
 	// DISPLAY null
 }
