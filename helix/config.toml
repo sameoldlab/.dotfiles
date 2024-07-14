@@ -36,9 +36,26 @@ tab = ":buffer-next"
 S-tab = ":buffer-previous"
 # space = { x = [":write:", "buffer-close"]}
 esc = ["collapse_selection", "keep_primary_selection"]
+H = "extend_char_left"
+J = "extend_line_down"
+K = "extend_line_up"
+L = "extend_char_right"
+
+W = "extend_next_word_start"
+A-W = "extend_next_long_word_start"
+A-w = "move_next_long_word_start"
+E = "extend_next_word_end"
+A-E = "extend_next_long_word_end"
+A-e = "move_next_long_word_end"
+B = "extend_prev_word_start"
+A-B = "extend_prev_long_word_start"
+A-b = "move_prev_long_word_start"
+T = "extend_till_char"
+F = "extend_next_char"
 
 [keys.insert]
 "A-i" = "normal_mode"     # Maps Alt-X to enter normal mode
 "C-s" = ":write" # Maps Ctrl-s to save
 j = { f = "normal_mode" }
 # S-; = {w = ":write"} 
+esc = ["normal_mode", ":update "]
