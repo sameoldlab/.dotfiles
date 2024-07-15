@@ -1,5 +1,10 @@
 local wezterm = require 'wezterm'
 
+local session_manager = require('wezterm-session-manager/session-manager')
+wezterm.on("save_session", function(window) session_manager.save_state(window) end)
+wezterm.on("load_session", function(window) session_manager.load_state(window) end)
+wezterm.on("restore_session", function(window) session_manager.restore_state(window) end)
+
 return {
   enable_wayland = true,
 	color_scheme = 'Catppuccin Mocha',
@@ -18,7 +23,7 @@ return {
 	},
 
 unix_domains = {
-	
+
 },
 
 use_fancy_tab_bar = false,
@@ -40,5 +45,6 @@ colors = {
 	window_background_opacity = 1.0,
 	text_background_opacity = 1.0,
 
+	leader = {key = 'a', mods='ALT', timeout_milliseconds = 1300},
 	keys = require("keys"),
 }
