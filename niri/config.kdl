@@ -5,7 +5,7 @@
 // Note that running niri as a session supports xdg-desktop-autostart,
 // which may be more convenient to use.
 
-spawn-at-startup "swaybg" "-i" "/home/ibro/Pictures/bg.jpg"
+spawn-at-startup "swaybg" "-i" "/home/ibro/Pictures/bg.png"
 spawn-at-startup "xremap" "/home/ibro/.config/xremap/config.yml"
 spawn-at-startup "ags" "-b" "niri"
 spawn-at-startup "udiskie" "&"
@@ -319,7 +319,7 @@ binds {
     Mod+Alt+5 {set-column-width "90%";}
 
     // Suggested bnds for running programs: terminal, app launcher, screen locker.
-    Mod+T { spawn "wezterm"; }
+    // Mod+T { spawn "wezterm"; }
     Mod+Return { spawn "wezterm"; }
     Mod+B { spawn "brave"; }
     Mod+E { spawn "dolphin"; }
@@ -353,6 +353,7 @@ binds {
     Mod+Up    { focus-window-or-workspace-up; }
     Mod+Right { focus-column-right; }
     Mod+H     { focus-column-left; }
+    Mod+M     { focus-column-left; }
     Mod+J     { focus-window-or-workspace-down; }
     Mod+K     { focus-window-or-workspace-up; }
     Mod+L     { focus-column-right; }
