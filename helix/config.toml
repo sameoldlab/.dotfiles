@@ -23,15 +23,8 @@ newline = "none"
 enable = true
 
 [keys.normal]
-# h = "insert_mode" # Maps `jk` to exit insert mode
 C-s = ":write" # Maps Ctrl-s to save
-# C-f = [":new", ":insert-output yazi --chooser-file=/dev/stdout" , ":theme default", "select_all", "split_selection_on_newline", "goto_file", "goto_last_modified_file", ":buffer-close!", ":theme mignight_boreal", ":redraw"] 
 C-g = [":new", ":insert-output lazygit", ":buffer-close!", ":redraw"]
-# Remapping hjkl to ijkl
-# i = "move_visual_line_up"
-# j = "move_char_left"
-# k = "move_visual_line_down"
-# l = "move_char_right"
 tab = ":buffer-next"
 S-tab = ":buffer-previous"
 # space = { x = [":write:", "buffer-close"]}
@@ -41,21 +34,32 @@ J = "extend_line_down"
 K = "extend_line_up"
 L = "extend_char_right"
 
-W = "extend_next_word_start"
+b = "record_macro"
+B = "replay_macro"
+q   = "move_prev_word_start"
+Q   = "extend_prev_word_start"
+A-q = "move_prev_long_word_start"
+A-Q = "extend_prev_long_word_start"
+
+W   = "extend_next_word_start"
 A-W = "extend_next_long_word_start"
 A-w = "move_next_long_word_start"
-E = "extend_next_word_end"
+
+E   = "extend_next_word_end"
 A-E = "extend_next_long_word_end"
 A-e = "move_next_long_word_end"
-B = "extend_prev_word_start"
-A-B = "extend_prev_long_word_start"
-A-b = "move_prev_long_word_start"
-T = "extend_till_char"
-F = "extend_next_char"
 
 [keys.insert]
 "A-i" = "normal_mode"     # Maps Alt-X to enter normal mode
 "C-s" = ":write" # Maps Ctrl-s to save
-j = { f = "normal_mode" }
+j = { k = "normal_mode" }
 # S-; = {w = ":write"} 
-esc = ["normal_mode", ":update "]
+
+[keys.select]
+b   = "no_op"
+B   = "no_op"
+q   = "extend_prev_word_start"
+
+A-q = "extend_prev_long_word_start"
+A-w = "extend_next_long_word_start"
+A-e = "extend_next_long_word_end"
