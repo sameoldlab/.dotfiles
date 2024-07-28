@@ -13,8 +13,14 @@ end)
 
 local function is_paned(pane)
   -- this is set by the plugin, and unset on ExitPre in Neovim
-  return pane:get_user_vars().ZELLIJ == '0'
-  -- return false
+  -- return pane:get_user_vars().ZELLIJ == 0
+  if pane:get_user_vars().ZELLIJ == '0' then
+    return true
+  end
+  if pane:get_foreground_process_name() == '/usr/lib/helix' then
+  	return true
+	end
+  return false
 end
 
 local direction_keys = {
@@ -35,9 +41,12 @@ local function split_nav(resize_or_move, key)
     mods = resize_or_move == 'resize' and 'CTRL|ALT' or 'CTRL',
     action = wezterm.action_callback(function(win, pane)
       if is_paned(pane) then
-        -- pass the keys through to
+        -- pass the keys through
         win:perform_action({
-          SendKey = { key = key, mods = resize_or_move == 'resize' and 'META' or 'CTRL' },
+          SendKey = { key = 'w', mods = resize_or_move == 'resize' and 'CTRL|ALT' or 'CTRL' },
+        }, pane)
+        win:perform_action({
+          SendKey = { key = key, --[[ mods = resize_or_move == 'resize' and 'META' or 'CTRL' --]] },
         }, pane)
       else
         if resize_or_move == 'resize' then
@@ -78,8 +87,8 @@ return {
     direction = 'Right',
     -- size = {Percent = 50 },
   }, }, --]]
-  { key = 'q', mods = 'ALT',    action = wa.CloseCurrentPane { confirm = false } },
-  { key = 'q', mods = 'LEADER', action = wa.CloseCurrentTab { confirm = true } },
+  { key = 'q', mods = 'LEADER', action = wa.CloseCurrentPane { confirm = false } },
+  { key = 'Q', mods = 'LEADER', action = wa.CloseCurrentTab { confirm = true } },
   { key = "S", mods = "LEADER", action = wa { EmitEvent = "save_session" } },
   { key = "L", mods = "LEADER", action = wa { EmitEvent = "load_session" } },
   { key = "R", mods = "LEADER", action = wa { EmitEvent = "restore_session" } },
@@ -124,8 +133,8 @@ return {
     action = wezterm.action.ActivateCopyMode
   },
   {
-    key = 'F',
-    mods = 'CTRL',
+    key = 'g',
+    mods = 'LEADER',
     action = wa.SplitPane {
       direction = 'Left',
       command = {
