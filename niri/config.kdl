@@ -95,7 +95,7 @@ output "eDP-1" {
     // for the resolution.
     // If the mode is omitted altogether or is invalid, niri will pick one automatically.
     // Run `niri msg outputs` while inside a niri instance to list all outputs and their modes.
-    mode "1920x1080@60"
+    mode "1920x1080@240"
 
     // Position of the output in the global coordinate space.
     // This affects directional monitor actions like "focus-monitor-left", and cursor movement.
@@ -152,7 +152,7 @@ layout {
         // If you enable the border, you probably want to disable the focus ring.
         // off
 
-        width 2
+        width 1
         // active-color 127 200 255 255
         // inactive-color 80 80 80 255
 		active-gradient from="#f5c2e7" to="#89DCEB" angle=135 relative-to="workspace-view"
@@ -177,7 +177,7 @@ layout {
     default-column-width {proportion 0.45; }
 
     // Set gaps around windows in logical pixels.
-    gaps 8
+    gaps 0
 
     // Struts shrink the area occupied by windows, similarly to layer-shell panels.
     // You can think of them as a kind of outer gaps. They are set in logical pixels.
@@ -257,7 +257,7 @@ animations {
 // by setting an empty default-column-width.
 window-rule {
     draw-border-with-background false
-	geometry-corner-radius 8
+	geometry-corner-radius 0
 	clip-to-geometry true
 }
 window-rule {
