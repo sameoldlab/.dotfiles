@@ -1,6 +1,3 @@
 node_modules
-types
-*.bk
-src/*/**.js
 style/*.css
-build
+@girs/
