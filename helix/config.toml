@@ -24,6 +24,7 @@ enable = true
 
 [keys.normal]
 C-s = ":write" # Maps Ctrl-s to save
+C-q = ":buffer-close"
 C-g = [":new", ":insert-output lazygit", ":buffer-close!", ":redraw"]
 tab = ":buffer-next"
 S-tab = ":buffer-previous"
@@ -50,8 +51,8 @@ A-E = "extend_next_long_word_end"
 A-e = "move_next_long_word_end"
 
 [keys.insert]
-"A-i" = "normal_mode"     # Maps Alt-X to enter normal mode
-"C-s" = ":write" # Maps Ctrl-s to save
+A-i = "normal_mode"     # Maps Alt-X to enter normal mode
+C-s = ":write" # Maps Ctrl-s to save
 j = { k = "normal_mode" }
 # S-; = {w = ":write"} 
 
