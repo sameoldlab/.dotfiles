@@ -149,11 +149,12 @@ const batteryLabel = () =>
 		],
 	})
 
-const Tray = () =>
+const Tray = (opts: {vertical: boolean} = {vertical: false}) =>
 	Widget.EventBox({
 		// pass_through: true,
 
 		child: Widget.Box({
+		vertical: opts.vertical,
 		vexpand: true,
 		spacing: 8,
 		vpack: 'center',

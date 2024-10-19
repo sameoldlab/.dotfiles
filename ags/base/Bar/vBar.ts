@@ -1,18 +1,14 @@
 import { notifications } from 'resource:///com/github/Aylur/ags/service/notifications.js'
 import SystemTray from 'resource:///com/github/Aylur/ags/service/systemtray.js'
 import Media from './media.js'
+import { Workspaces, systemTray } from './index.js'
 import SysTray from './systray.js'
 import GLib from 'gi://GLib'
-
-const dayOfWeek = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
-let date = Variable(GLib.DateTime.new_now_local(), {
-	poll: [1000, () => GLib.DateTime.new_now_local()],
-})
 
 export const Clock = () =>
 	Widget.Box({
 		class_name: 'clock',
-		vertical: false,
+		vertical: true,
 		spacing: 4,
 		children: [
 			Widget.Label({
@@ -48,52 +44,6 @@ const Notification = () =>
 		],
 	})
 
-export const systemTray = (opts: {vertical: boolean}) =>
-	Widget.Box({
-		vertical: opts.vertical,
-		children: SystemTray.bind('items').as(items =>
-			items.map(item => Widget.Button({
-				child: Widget.Icon({
-					icon: item.bind('icon'),
-				}),
-				class_name: "tray-icon",
-				on_primary_click: (_, event) => item.activate(event),
-				on_secondary_click: (_, event) => item.openMenu(event),
-				tooltip_markup: item.bind('tooltip_markup'),
-			})
-			)
-		),
-	})
-/*
- */
-
-export const Workspaces = (opts: {vertical: boolean}) => Widget.Box({
-	className: 'workspaces',
-	child: Widget.EventBox({
-		on_scroll_up: () => Utils.execAsync('niri msg action focus-workspace-up'),
-		on_scroll_down: () => Utils.execAsync('niri msg action focus-workspace-down'),
-		// on_scroll_left: ()=> Utils.execAsync('niri msg action focus-column-left'),
-		child: Widget.Box({
-			vertical: opts.vertical,
-			children: [...Array(10)].map((_, i) => {
-				i++
-				return Widget.Button({
-					className: 'occupied',
-					on_clicked: () => Utils.execAsync(`niri msg action focus-workspace ${i}`).catch(print),
-					child: Widget.Label({
-						label: `${i}`,
-						className: 'indicator',
-					}),
-					// connections: [[Hyprland, btn => {
-					// 	btn.toggleClassName('focused', Hyprland.active.workspace.id === i)
-					// 	btn.toggleClassName('occupied', Hyprland.getWorkspace(i)?.windows > 0)
-					// }]]
-				})
-			})
-		})
-	})
-})
-
 const Current = () => {
 	const label = Variable('', {
 		poll: [1800, 'niri msg -j focused-window', (res: string) => {
@@ -110,14 +60,14 @@ const Current = () => {
 // layout of the bar
 const Left = Widget.Box({
 	children: [
-		Workspaces({vertical: false}),
+		Workspaces({vertical: true}),
 	],
 })
 
 export const Center = Widget.Box({
 	children: [
 		// Notification(),
-		Current()
+		// Current()
 	],
 })
 
@@ -125,19 +75,20 @@ export const Right = Widget.Box({
 	hpack: 'end',
 	children: [
 		Media(),
-		systemTray({vertical: false}),
-		SysTray(),
+		systemTray({vertical: true}),
+		SysTray({vertical: true}),
 		Clock(),
 	],
 })
 
 export default Widget.Window({
-	name: `agsBar`,
+	name: `vBar`,
 	class_name: 'bar',
-	anchor: ['top', 'left', 'right'],
+	anchor: ['left', 'top', 'bottom'],
 	// margins: [4],
 	// exclusivity: 'exclusive',
 	child: Widget.CenterBox({
+		vertical: true,
 		start_widget: Left,
 		center_widget: Center,
 		end_widget: Right,
