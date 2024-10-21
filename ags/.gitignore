@@ -4,3 +4,4 @@ types
 src/*/**.js
 style/*.css
 build
+@girs
