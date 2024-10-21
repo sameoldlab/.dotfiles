@@ -5,6 +5,6 @@ import { Bar } from "./base/Bar"
 App.start({
   css: style,
   main() {
-    Bar(0)
+    Bar
   },
 })

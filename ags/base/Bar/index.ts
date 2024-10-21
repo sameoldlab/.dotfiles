@@ -1,40 +1,43 @@
-/*
-import { notifications } from 'resource:///com/github/Aylur/ags/service/notifications.js'
-import SystemTray from 'resource:///com/github/Aylur/ags/service/systemtray.js'
-import Media from './media.js'
-import SysTray from './systray.js'
-import GLib from 'gi://GLib'
+// import { notifications } from 'resource:///com/github/Aylur/ags/service/notifications.js'
+// import SystemTray from 'resource:///com/github/Aylur/ags/service/systemtray.js'
+// import Media from './media.js'
+// import SysTray from './systray.js'
+import { App, Astal, Gtk, Widget } from "astal/gtk3"
+import { bind, Variable } from "astal"
+import * as Utils from 'astal/process'
 
-const dayOfWeek = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
-let date = Variable(GLib.DateTime.new_now_local(), {
-	poll: [1000, () => GLib.DateTime.new_now_local()],
-})
+const date = Variable(new Date(0)).poll(1000, "date -R", (d) => new Date(d))
 
 export const Clock = () =>
-	Widget.Box({
-		class_name: 'clock',
+	new Widget.Box({
+		className: 'clock',
 		vertical: false,
 		spacing: 4,
-		children: [
-			Widget.Label({
-				label: date.bind().as(d => d.format('%a %d ')?.toString() ?? ''),
-				class_name: 'date',
-				// hexpand: true,
-				vexpand: true,
-				// vpack: 'end',
-				justification: 'right',
+	},
+		new Widget.Label({
+			label: bind(date).as(d => {
+				const date = d.toDateString().split(' ')
+				return `${date[0]} ${date[1]} ${date[2]}` ?? ''
 			}),
-			Widget.Label({
-				label: date.bind().as(d => d.format('%I:%M')?.toString() ?? ''),
-				class_name: 'time',
-				justification: 'right',
-				// vpack: 'end',
-				vexpand: true,
-				// hexpand: true,
-			}),
-		],
-	})
+			className: 'date',
+			// hexpand: true,
+			vexpand: true,
+			// vpack: 'end',
+			halign: Gtk.Align.END,
+			// justification: 'right',
+		}),
+		new Widget.Label({
+			label: bind(date).as(d => d.toTimeString().split(' ', 1)[0] ?? ''),
+			className: 'time',
+			halign: Gtk.Align.END,
+			// justification: 'right',
+			// vpack: 'end',
+			vexpand: true,
+			// hexpand: true,
+		}),
+	)
 
+/*
 const Notification = () =>
 	Widget.Box({
 		class_name: 'notification',
@@ -66,20 +69,26 @@ export const systemTray = (opts: {vertical: boolean}) =>
 		),
 	})
 
-export const Workspaces = (opts: {vertical: boolean}) => Widget.Box({
+
+	return Widget.Label({
+		label: label.bind()})
+}
+*/
+
+export const Workspaces = (opts: { vertical: boolean }) => new Widget.Box({
 	className: 'workspaces',
-	child: Widget.EventBox({
-		on_scroll_up: () => Utils.execAsync('niri msg action focus-workspace-up'),
-		on_scroll_down: () => Utils.execAsync('niri msg action focus-workspace-down'),
+	child: new Widget.EventBox({
+		// on_scroll_up: () => Utils.execAsync('niri msg action focus-workspace-up'),
+		// on_scroll_down: () => Utils.execAsync('niri msg action focus-workspace-down'),
 		// on_scroll_left: ()=> Utils.execAsync('niri msg action focus-column-left'),
-		child: Widget.Box({
+		child: new Widget.Box({
 			vertical: opts.vertical,
 			children: [...Array(10)].map((_, i) => {
 				i++
-				return Widget.Button({
+				return new Widget.Button({
 					className: 'occupied',
 					on_clicked: () => Utils.execAsync(`niri msg action focus-workspace ${i}`).catch(print),
-					child: Widget.Label({
+					child: new Widget.Label({
 						label: `${i}`,
 						className: 'indicator',
 					}),
@@ -94,88 +103,63 @@ export const Workspaces = (opts: {vertical: boolean}) => Widget.Box({
 })
 
 const Current = () => {
-	const label = Variable('', {
-		poll: [1800, 'niri msg -j focused-window', (res: string) => {
+	const label = Variable('')
+		.poll(1800, 'niri msg -j focused-window', (res: string) => {
 			// print(res)
 			const focused = JSON.parse(res)
 
-			return `${focused.title.substring(0,24)} | ${focused.app_id}`
-		}]
-	})
-
-	return Widget.Label({
-		label: label.bind()})
+			return `${focused.title.substring(0, 24)} | ${focused.app_id}`
+		})
+	return new Widget.Label({ label: bind(label) })
 }
 // layout of the bar
-const Left = Widget.Box({
+const Left = new Widget.Box({
 	children: [
-		Workspaces({vertical: false}),
+		Workspaces({ vertical: false }),
 	],
 })
 
-export const Center = Widget.Box({
+export const Center = new Widget.Box({
 	children: [
 		// Notification(),
 		Current()
 	],
 })
 
-export const Right = Widget.Box({
-	hpack: 'end',
+export const Right = new Widget.Box({
+	halign: Gtk.Align.END,
+	// hpack: 'end',
 	children: [
+		/*
 		Media(),
 		systemTray({vertical: false}),
-		SysTray(),
+		SysTray(), 
+		*/
 		Clock(),
 	],
 })
+// new Widget.Button({
+// 	onClicked: () => print("hello"),
+// 	halign: Gtk.Align.CENTER
+// },
+// 	new Widget.Label({ label: bind(date) })
+// ),
 
-export default Widget.Window({
-	name: `agsBar`,
-	class_name: 'bar',
-	anchor: ['top', 'left', 'right'],
+export const Bar = new Widget.Window({
+	name: 'agsBar',
+	className: 'bar',
+	monitor: 0,
+	anchor: Astal.WindowAnchor.TOP
+		| Astal.WindowAnchor.LEFT
+		| Astal.WindowAnchor.RIGHT,
+	application: App,
 	// margins: [4],
-	// exclusivity: 'exclusive',
-	child: Widget.CenterBox({
+	// exclusivity={Astal.Exclusivity.EXCLUSIVE},
+},
+	new Widget.CenterBox({
 		start_widget: Left,
 		center_widget: Center,
 		end_widget: Right,
-	}),
-})
-*/
-
-import { App, Astal, Gtk, Widget } from "astal/gtk3"
-import { bind, Variable } from "astal"
-
-const date = Variable("").poll(1000, "date")
-
-export function Bar(monitor = 0) {
-	return new Widget.Window(
-		{
-			className: "Bar",
-			monitor: monitor,
-			// exclusivity={Astal.Exclusivity.EXCLUSIVE}
-			anchor: Astal.WindowAnchor.TOP
-				| Astal.WindowAnchor.LEFT
-				| Astal.WindowAnchor.RIGHT,
-			application: App
-		},
-		new Widget.CenterBox({
-			centerWidget:
-				new Widget.Button({
-					onClicked: "echo hello",
-					halign: Gtk.Align.CENTER
-				},
-					new Widget.Label({ label: 'Welcome to AGS!' })
-				),
-			endWidget:
-				new Widget.Button({
-					onClicked: () => print("hello"),
-					halign: Gtk.Align.CENTER
-				},
-					new Widget.Label({ label: bind(date).as(v => v) })
-				)
-		},
-		)
+	},
 	)
-}
+)
