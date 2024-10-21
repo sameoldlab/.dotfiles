@@ -1,8 +1,12 @@
+@use 'sass:color';
 $aqua: #fff;
-$black: hsl(180, 9%, 6%);
-$white: hsl(0, 0, 89%);
+/* $black: hsl(180, 9%, 6%);
+$white: hsl(0, 0%, 89%);
+$indicator: hsl(220, 64.1%, 77.06%); */
+$black: #222;
+$white: #ccc;
+$indicator: #1e9;
 $text: $white;
-$indicator: hsl(220, 64.1%, 77.06%);
 $background: transparent;
 $foreground: $white;
 $hover: #333;
@@ -212,7 +216,7 @@ highlight {
 
 	.description {
 		font-weight: 400;
-		color: darken($text, 16%);
+		color: color.scale($text, $lightness: -18%);
 	}
 
 	.icon {
@@ -261,24 +265,24 @@ levelbar {
 		}
 
 		&.low {
-			background-color: darken($indicator, 15%);
+			background-color: color.scale($indicator, $lightness: 15%);
 		}
 
 		&.full {
-			background-color: lighten($indicator, 5%);
+			background-color: color.scale($indicator, $lightness: 5%);
 		}
 	}
 }
 
-/* tutorial style 
+/* tutorial style */
 window.Bar {
-	background: transparent;
-	color: @theme_fg_color;
+	background: $background;
+	color: $foreground;
 	font-weight: bold;
 }
 
 window.Bar>centerbox {
-	background: @theme_bg_color;
+	background: $background;
 	border-radius: 10px;
 	margin: 8px;
 }
@@ -288,4 +292,4 @@ window.Bar button {
 	margin: 2px;
 }
 
- tutorial style */
+/* tutorial style */
