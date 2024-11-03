@@ -236,7 +236,7 @@ export const Bar = new Widget.Window({
 		| Astal.WindowAnchor.RIGHT,
 	application: App,
 	// margins: [4],
-	// exclusivity={Astal.Exclusivity.EXCLUSIVE},
+	exclusivity: Astal.Exclusivity.EXCLUSIVE,
 },
 	new Widget.CenterBox({
 		start_widget: Left,
