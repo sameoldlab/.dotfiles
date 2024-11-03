@@ -326,7 +326,7 @@ binds {
     // Suggested bnds for running programs: terminal, app launcher, screen locker.
     // Mod+T { spawn "wezterm"; }
     Mod+Return { spawn "wezterm"; }
-    Mod+B { spawn "brave"; }
+    Mod+B { spawn "zen-browser"; }
     Mod+E { spawn "dolphin"; }
     Mod+C { spawn "code"; }
     Mod+Space { spawn "bash" "-c" "ags -b niri toggle-window poplauncher"; }
