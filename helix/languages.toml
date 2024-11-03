@@ -85,15 +85,15 @@ language-servers = [ "typescript-language-server" , "emmet-ls", "eslint-ls"]
 
 [[language]]
 name = "html"
-auto-format = true
+auto-format = false
 language-servers = [ "vscode-html-language-server" , "emmet-ls", "eslint-ls"]
 
 [[language]]
 name = "css"
-auto-format = true
+auto-format = false
 language-servers = [ "vscode-css-language-server" , "emmet-ls" , "eslint-ls"]
 
 [[language]]
 name = "scss"
-auto-format= true
+auto-format= false
 language-servers = [ "vscode-css-language-server" , "emmet-ls" , "eslint-ls"]
