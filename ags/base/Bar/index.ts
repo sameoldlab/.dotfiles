@@ -162,6 +162,7 @@ export const Workspaces = (opts: { vertical: boolean }) => {
 		)
 	)
 }
+const Seperator = () => new Widget.Label({ label: ' |  ', className: 'seperator' })
 const Current = () => {
 	const niri = Niri.get_default()
 	const active = Variable('')
@@ -183,16 +184,18 @@ const Current = () => {
 		label: bind(active)
 	})
 }
+
 const Left = new Widget.Box({
 	children: [
 		Workspaces({ vertical: false }),
+		Seperator(),
+		Current()
 	],
 })
 
 export const Center = new Widget.Box({
 	children: [
 		// Notification(),
-		Current()
 	],
 })
 
