@@ -213,8 +213,9 @@ export const Right = new Widget.Box({
 		Clock(),
 	],
 })
-export const Bar = new Widget.Window({
-	name: 'agsBar',
+
+export const Bar = () => new Widget.Window({
+	name: 'bar',
 	className: 'bar',
 	monitor: 0,
 	anchor: Astal.WindowAnchor.TOP
