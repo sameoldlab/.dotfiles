@@ -9,7 +9,7 @@ import { App, Astal, Gtk, Gdk, Widget } from "astal/gtk3"
 import { bind, Variable } from "astal"
 import * as Utils from 'astal/process'
 
-const log = (args: Array<any>) => console.log(args)
+const log = (...args: Array<any>) => console.log(...args)
 
 const batteryLabel = () => {
 	const bat = Battery.get_default()
@@ -31,7 +31,7 @@ const date = Variable(new Date(0)).poll(1000, "date -R", (d) => new Date(d))
 let hide = false
 export const Clock = () =>
 	new Widget.Button({
-		onClick(self, event) {
+		onClick(self) {
 			hide = !hide
 			self.toggleClassName('hide', hide)
 		},
@@ -83,23 +83,17 @@ const Notification = () =>
 export const systemTray = (opts: { vertical: boolean }) => {
 	const tray = SystemTray.get_default()
 	const child = bind(tray, 'items').as(items => items.map(item => {
-		let menu = item.create_menu()
+		const menu = item.create_menu()
 		return new Widget.Button({
 			class_name: "tray-icon",
 			tooltip_markup: bind(item, 'tooltip_markup'),
-			onDestroy(self) {
-				menu?.destroy()
-			},
+			onDestroy() { menu?.destroy() },
 			on_click: (btn, event) => {
 				switch (event.button) {
-					case Gdk.BUTTON_PRIMARY:
-						return item.activate(event.x, event.y)
+					case Gdk.BUTTON_PRIMARY: return item.activate(event.x, event.y)
+					case Gdk.BUTTON_MIDDLE: return item.secondary_activate(event.x, event.y)
 					case Gdk.BUTTON_SECONDARY:
-						log('right click')
-						return menu?.popup_at_widget(btn, Gdk.Gravity.NORTH, Gdk.Gravity.SOUTH, null)
-						break
-					case Gdk.BUTTON_MIDDLE:
-						return item.secondary_activate(event.x, event.y)
+						menu?.popup_at_widget(btn, Gdk.Gravity.NORTH, Gdk.Gravity.SOUTH, null)
 				}
 			}
 		},
@@ -116,7 +110,6 @@ export const systemTray = (opts: { vertical: boolean }) => {
 export const Workspaces = (opts: { vertical: boolean }) => {
 	const workspaces: Variable<Niri.Workspace[]> = Variable([])
 	const niri = Niri.get_default()
-	const active = Variable('')
 	niri.connect('event', () => {
 		const ws = niri.get_workspaces()
 		// log(ws.map(w => w.id))
@@ -134,7 +127,7 @@ export const Workspaces = (opts: { vertical: boolean }) => {
 		className: 'workspaces',
 	},
 		new Widget.EventBox({
-			onScroll(self, event) {
+			onScroll(_, event) {
 				if (event.time - lastTime < 150) return
 				lastTime = event.time
 
@@ -159,17 +152,16 @@ export const Workspaces = (opts: { vertical: boolean }) => {
 			new Widget.Box({
 				vertical: opts.vertical
 			},
-				bind(workspaces).as(wksp => wksp.filter((w) => w.is_focused).map((w, i) => new Widget.Button({
+				workspaces(ws => ws.filter((w) => w.is_focused).map((w, i) => new Widget.Button({
 					className: 'occupied indicator',
-					on_clicked: () => Utils.execAsync(`niri msg action focus-workspace ${w.id}`).catch(print),
+					on_clicked: () => Utils.execAsync(`niri msg action focus-workspace ${w.id}`)
+						.catch(printerr),
 				}, w.name
 				)))
 			)
 		)
 	)
 }
-
-
 const Current = () => {
 	const niri = Niri.get_default()
 	const active = Variable('')
@@ -191,7 +183,6 @@ const Current = () => {
 		label: bind(active)
 	})
 }
-// layout of the bar
 const Left = new Widget.Box({
 	children: [
 		Workspaces({ vertical: false }),
@@ -207,7 +198,6 @@ export const Center = new Widget.Box({
 
 export const Right = new Widget.Box({
 	halign: Gtk.Align.END,
-	// hpack: 'end',
 	children: [
 
 		/*
@@ -220,13 +210,6 @@ export const Right = new Widget.Box({
 		Clock(),
 	],
 })
-// new Widget.Button({
-// 	onClicked: () => print("hello"),
-// 	halign: Gtk.Align.CENTER
-// },
-// 	new Widget.Label({ label: bind(date) })
-// ),
-
 export const Bar = new Widget.Window({
 	name: 'agsBar',
 	className: 'bar',
