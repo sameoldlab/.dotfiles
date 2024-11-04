@@ -5,6 +5,9 @@ $white: hsl(0, 0%, 89%);
 $indicator: hsl(220, 64.1%, 77.06%); */
 $black: #222;
 $white: #ccc;
+$surface-0: #313244;
+$overlay-0: #6c7086;
+$accent: #ccc;
 $indicator: #1e9;
 $text: $white;
 $background: transparent;
@@ -25,6 +28,11 @@ $hover: #333;
 	font-weight: 500;
 }
 
+.hide {
+	opacity: 0;
+	transition: opacity 100ms ease-in-out;
+}
+
 .bar {
 	background: rgba(10, 9, 17, 0);
 	background: red;
@@ -35,6 +43,14 @@ button {
 	background: $background;
 	color: $foreground;
 	border: 0;
+}
+
+menu {
+	background: $background;
+	padding: .25em;
+	min-width: 200px;
+	border-radius: .5em;
+	border: 1px solid $overlay-0;
 }
 
 .quick-settings {
