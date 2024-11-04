@@ -15,7 +15,7 @@ export default class Niri extends GObject.Object {
     return this.instance;
   }
 
-  private _connection = () => {
+  #connection = () => {
     const socketPath = GLib.getenv("NIRI_SOCKET");
     if (!socketPath) console.error("Niri not running");
 
@@ -26,7 +26,7 @@ export default class Niri extends GObject.Object {
     );
   };
 
-  private _watchSocket = (
+  #watchSocket = (
     connection: Gio.SocketConnection,
     inputStream: Gio.DataInputStream,
   ) => {
@@ -38,12 +38,12 @@ export default class Niri extends GObject.Object {
     inputStream.read_line_async(0, null, (stream, result) => {
       const [line] = inputStream.read_line_finish_utf8(result);
       this.emit("event", JSON.parse(line));
-      this._watchSocket(connection, stream);
+      this.#watchSocket(connection, stream);
     });
   };
 
   readonly message = (msg: Object) => {
-    const connection = this._connection();
+    const connection = this.#connection();
 
     const inputStream = Gio.DataInputStream.new(connection.input_stream);
     const outputStream = Gio.DataOutputStream.new(connection.output_stream);
@@ -61,9 +61,9 @@ export default class Niri extends GObject.Object {
   constructor() {
     super();
 
-    const connection = this._connection();
+    const connection = this.#connection();
 
-    this._watchSocket(
+    this.#watchSocket(
       connection,
       new Gio.DataInputStream({ baseStream: connection.get_input_stream() }),
     );
