@@ -1,50 +1,43 @@
-import GLib from 'gi://GLib'
-import Gio from 'gi://Gio'
-import Gtk from '../../types/@girs/gtk-3.0/gtk-3.0'
+import GObject, { register, signal } from "astal/gobject"
+import { Gio, GLib } from 'astal'
+import { subprocess } from 'astal/process'
 
-export class LauncherService extends Service {
-	static {
-		Service.register(
-			this,
-			{
-				'new-response': ['jsobject'],
-				'close': ['boolean'],
-			},
-			{
-				'ipc-response': ['jsobject', 'r'],
-			}
-		)
+@register({ GTypeName: "Spring" })
+export default class Spring extends GObject.Object {
+	static instance: Spring
+	static get_default() {
+		if (!this.instance) this.instance = new Spring();
+		return this.instance;
 	}
 
-	#service: Gio.Subprocess
-	#ipcResponse: JsonIPC.Response | null = null
+	@signal(Object)
+	declare ipc_response: (event: Object) => void
 
-	get ipc_response() {
-		return this.#ipcResponse
-	}
+	@signal(Object)
+	declare close: (event: boolean) => void
 
-	constructor(widget: Gtk.Widget | undefined) {
+	private _service: Gio.Subprocess
+	private _ipcResponse: JsonIPC.Response | null = null
+
+	constructor() {
 		super()
 
-		this.#service = Utils.subprocess(
+		this._service = subprocess(
 			['pop-launcher'],
 			(stdout) => {
 				// console.log(stdout)	
-				this.#onResponse(stdout)
+				this._onResponse(stdout)
 			},
 			(stderr) => console.error('problem in stream: ', stderr),
-			widget
 		)
 	}
 
-	#onResponse(response: string) {
+	private _onResponse(response: string) {
 		// console.log("type of message is:", response)
-		if (typeof response === 'string' && response.includes('Close')) {
+		if (typeof response === 'string' && response.indexOf('Close') !== -1) {
 			this.emit('close', true)
 		} else {
-			this.#ipcResponse = JSON.parse(response)
-			this.changed('ipc-response')
-			this.emit('new-response', this.#ipcResponse)
+			this.emit('ipc-response', JSON.parse(response))
 		}
 	}
 
@@ -65,6 +58,7 @@ export class LauncherService extends Service {
 
 	/** Perform a tab completion from the selected item */
 	complete(id: number) {
+		console.log('COMPLETE', id)
 		this.#send({ Complete: id })
 	}
 
@@ -72,7 +66,7 @@ export class LauncherService extends Service {
 	exit() {
 		this.#send('Exit')
 		// this.#service.cancellable.cancel()
-		const service = this.#service
+		const service = this._service
 
 		GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
 			if (service.stdout.has_pending() || service.stdin.has_pending())
@@ -114,11 +108,11 @@ export class LauncherService extends Service {
 		this.#send({ Select: id })
 	}
 
-	#send(object: Object) {
+	private #send(object: Object) {
 		const message = JSON.stringify(object)
-		console.info('launcherIPC send() message = ' + message)
+		// console.info('launcherIPC send() message = ' + message)
 		try {
-			this.#service.write(message + '\n')
+			this._service.write(message + '\n')
 		} catch (why) {
 			console.error(`failed to send request to pop-launcher: ${why}`)
 		}
@@ -128,10 +122,9 @@ export class LauncherService extends Service {
 /** 
  * TODO: move subprocess to somewhere it can be bound to components. Without this changes to desktop entries or installed applications will not register unless ags is restarted
  *
- */ 
-const launcher = new LauncherService()
+ */
+// const launcher = new LauncherService()
 
-export default launcher
 
 /** Launcher types transmitted across the wire as JSON. */
 export namespace JsonIPC {
