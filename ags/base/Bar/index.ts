@@ -54,7 +54,7 @@ export const Clock = () =>
 				// justification: 'right',
 			}),
 			new Widget.Label({
-				label: bind(date).as(d => d.toTimeString().split(' ', 1)[0] ?? ''),
+				label: bind(date).as(d => d.toLocaleTimeString().split(' ', 1)[0] ?? ''),
 				className: 'time',
 				halign: Gtk.Align.END,
 				// justification: 'right',
