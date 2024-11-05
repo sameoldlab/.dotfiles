@@ -1,18 +1,6 @@
 @use 'sass:color';
-$aqua: #fff;
-/* $black: hsl(180, 9%, 6%);
-$white: hsl(0, 0%, 89%);
-$indicator: hsl(220, 64.1%, 77.06%); */
-$black: #222;
-$white: #ccc;
-$surface-0: #313244;
-$overlay-0: #6c7086;
-$accent: #ccc;
-$indicator: #1e9;
-$text: $white;
-$background: transparent;
-$foreground: $white;
-$hover: #333;
+@import "variables";
+@import "spring";
 
 // label {
 // 	font-weight: 600;
@@ -26,6 +14,10 @@ $hover: #333;
 	box-shadow: 0px 0px transparent;
 	font-size: 13px;
 	font-weight: 500;
+}
+
+.red {
+	color: red;
 }
 
 .hide {
