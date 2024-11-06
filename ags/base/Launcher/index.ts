@@ -1,167 +1,166 @@
-import { Gio } from 'astal'
-import { App, Astal, Gtk, Gdk, Widget } from "astal/gtk3"
-import { bind, Variable } from "astal"
+import { Gio, Variable } from 'astal'
+import { App, Astal, Gtk, Gdk, Widget } from 'astal/gtk3'
 import { execAsync } from 'astal/process'
-import Launcher from '../services/launcherIPC.js'
-import type { JsonIPC } from '../services/launcherIPC.js'
-import { ListItem } from './ListItem'
-const WINDOW_NAME = 'poplauncher'
-const launcher = Launcher.get_default()
+import PopLauncher, { type JsonIPC } from '../services/launcherIPC.js'
+import { ListItem } from './ListItem.js'
+const WINDOW_NAME = 'launcher'
 
-let active_id = 0
-
-
-const entries = Variable<JsonIPC.SearchResult[]>([])
-
-const close = () => {
-	console.log('popLauncher: CLOSE')
-	entry.text = ''
-	launcher.interrupt()
-	active_id = 0
-	App.closeWindow(WINDOW_NAME)
-}
-const list = new Widget.Box({
-	vertical: true,
-	children: bind(entries).as(v => v.map(ListItem)),
-	spacing: 0,
-})
-
-const entry = new Widget.Entry({
-	on_accept: () => launcher.activate(active_id),
-	on_change: ({ text }) => {
-		text = text ?? ''
-		launcher.search(text)
-	},
-	placeholder_text: " Type to search apps, or type '?' for more options.",
-	hexpand: true,
-	css: `margin-bottom: ${0}px;`,
-	className: 'applauncher__entry',
-})
-
-launcher.connect(
-	'new-response',
-	(service, res: Exclude<JsonIPC.Response, 'Close'>) => {
-		// console.log('message received is:', res)
-		if ('Update' in res) {
-			entries.setValue(res.Update)
-		} else if ('Fill' in res) {
-			entry.text = res.Fill
-		} else if ('DesktopEntry' in res) {
-			launch(res)
-			close()
-		} else {
-			console.log(
-				"Don't know how to handle context: ",
-				JSON.stringify(res.Context)
-			)
-		}
-	}
+//TODO: Track context to update
+const keyhint = (action: string, bind: string) => new Widget.Button({
+  spacing: 2,
+  vexpand: true,
+},
+  new Widget.Box({},
+    new Widget.Label({ label: action }),
+    new Widget.Label({ className: 'keybind', label: bind })
+  )
 )
-launcher.connect('close', close)
 
-const Applauncher = ({ width = 500, height = 500, spacing = 12 } = {}) =>
-	new Widget.Box({
-		vertical: true,
-		className: 'applauncher',
-		css: `margin: ${spacing * 2}px;`,
-		children: [
-			entry,
-			// wrap the list in a scrollable
-			new Widget.Scrollable({
-				className: 'applauncher__list',
-				hscroll: 'never',
-				css: `
-								min-width: ${width}px;
-								min-height: ${height}px;
-							`,
-				child: list,
+export const active_id = Variable(0)
+export const Launcher = ({ width = 650, height = 320 } = {}) => {
+  const launcher = PopLauncher.get_default()
+  const entries = Variable<JsonIPC.SearchResult[]>([])
 
-			})
-		],
-		setup: self =>
-			self.hook(App, (_, windowName, visible) => {
-				if (windowName !== WINDOW_NAME) return
+  const close = () => {
+    input.set_text('')
+    active_id.set(0)
+    launcher.interrupt()
+    App.toggle_window(WINDOW_NAME)
+    return true
+  }
+  const list = new Widget.Box({
+    name: 'scrollable-box',
+    vertical: true,
+  },
+    entries(v => v.map(ListItem)),
+  )
 
-				// when the applauncher shows up
-				if (visible) {
-					// entry.text = ''
-					// entry.grab_focus()
-					// For nicer default results modify plugin.ron for destop_entries to include query (peristent: true, history: true)
-					launcher.search('')
-				}
-			}),
-	})
-export default new Widget.Window({
-	name: WINDOW_NAME,
-	anchor: Astal.WindowAnchor.BOTTOM,
-	application: App,
-	margin: 100,
-	visible: false,
-	keymode: Astal.Keymode.EXCLUSIVE,
-	child: Applauncher({
-		width: 550,
-		height: 380,
-		spacing: 0,
-	}),
-}).keybind('Escape', close)
+  const input = new Widget.Entry({
+    setup: () => launcher.search(''),
+    onActivate: () => launcher.activate(active_id.get()),
+    secondary_icon_name: entries(e => e.length > 0 && e[0].category_icon
+      ? 'Name' in e[0].category_icon
+        ? e[0].category_icon.Name
+        : Gio.content_type_get_icon(e[0].category_icon.Mime).to_string()
+      : ''),
+    onChanged: (self) => {
+      self.vfunc_move_cursor(Gtk.MovementStep.DISPLAY_LINE_ENDS, 100, false)
+      launcher.search(self.text)
+    },
+    placeholder_text: 'Launch apps and send commands',
+    hexpand: true,
+    onKeyPressEvent: (_, event) => {
+      const key = event.get_keyval()[1]
 
-entry.on('key-press-event', (self, event: Gdk.Event) => {
-	const key = Gdk.keyval_name(Gdk.keyval_to_upper(event.get_keyval()[1]))
-	const is_forward = () => key === 'Down' //|| key === 'J' || key === 'N'
-	const is_backward = () => key === 'Up' || key === 'ISO_Left_Tab' //|| key === 'K' || key === 'P'
+      if (key === Gdk.KEY_Tab) {
+        launcher.complete(active_id.get())
+        return true
+      }
 
-	const select_id = (id: number) => {
-		list.children[active_id]?.toggleClassName('selected', false)
-		active_id = id
-		print(active_id)
-		// console.log)
-		const entry = list.children[active_id]
-		if (entry) {
-			entry.toggleClassName('selected', true)
-			console.log(`${entry.name}: ${entry.class_names}`)
-			// try {
-			// Util.ensureActorVisibleInScrollView(this.scroller, entry)
-			// } catch (_error) {}
-		}
-	}
-	const back = () => {
-		if (0 < active_id) {
-			select_id(active_id - 1)
-		} else if (active_id == 0) {
-			select_id(list.children.length - 1)
-		}
-	}
-	const forward = () => {
-		if (active_id + 1 < list.children.length) {
-			select_id(active_id + 1)
-		} else if (active_id + 1 == list.children.length) {
-			select_id(0)
-		}
-	}
+      const ctrl = event.get_state()[1] === Gdk.ModifierType.CONTROL_MASK
+      const up = key === Gdk.KEY_Up || (ctrl && key === Gdk.KEY_k) || (ctrl && key === Gdk.KEY_p)
+      const down = key === Gdk.KEY_Down || (ctrl && key === Gdk.KEY_j) || (ctrl && key === Gdk.KEY_n)
 
-	if (key === 'Tab') {
-		console.log('tab complete: ', active_id)
-		launcher.complete(active_id)
-		return true
-	}
-	if (is_backward()) {
-		back()
-		return true
-	}
-	if (is_forward()) {
-		forward()
-		return true
-	}
+      const select = (id: number) => {
+        active_id.set(id)
+        const entry = list.get_children()[active_id.get()]
+        if (entry) {
+          // try {
+          // Util.ensureActorVisibleInScrollView(this.scroller, entry)
+          // } catch (_error) {}
+        }
+        return true
+      }
 
-	select_id(active_id)
-})
+      if (up)
+        return (active_id.get() === 0) ? select(list.children.length - 1)
+          : select(active_id.get() - 1)
+      if (down)
+        return (active_id.get() + 1 === list.children.length) ? select(0)
+          : select(active_id.get() + 1)
+    }
+  })
+  launcher.connect('ipc-response',
+    (_, res: Exclude<JsonIPC.Response, 'Close'>) => {
+      // console.log('message received is:', res)
+      if ('Update' in res) entries.set(res.Update)
+      else if ('Fill' in res) input.set_text(res.Fill)
+      else if ('DesktopEntry' in res) {
+        launch(res)
+        close()
+      }
+      else console.warn('unhandled context', JSON.stringify(res.Context))
+    }
+  )
+  launcher.connect('close', close)
+
+  const Applauncher = () =>
+    new Widget.Box({
+      vertical: true,
+      className: 'spring',
+      css: ` min-width: ${width}px; `,
+      // setup: self => self.hook(, (_, windowName, visible) => {
+      //   console.log({ windowName, visible })
+      //   if (windowName !== WINDOW_NAME) return
+      // })
+    },
+      new Widget.Box({ name: 'top' }, input),
+      new Widget.Scrollable({
+        hscroll: Gtk.PolicyType.NEVER,
+        visible: entries(e => e.length !== 0),
+        css: entries((e) => {
+          const h = e.length ? 50 * e.length + 16 : 0
+          return `
+            border: 0;
+            padding: 0;
+            transition: min-height 80ms cubic-bezier(0.76, 0, 0.24, 1);
+            min-height: ${h}px;`
+        }),
+        hexpand: true,
+      },
+        entries(e => {
+          if (e.length === 1 && (e[0].icon?.Name === 'accessories-calculator' || e[0].category_icon?.Name === 'utilities-terminal')) {
+            new Widget.Box({
+              className: 'spotlight'
+            }, new Widget.Label({ label: e[0].name }))
+          }
+          return list
+        })
+        //list
+      ),
+      new Widget.CenterBox({
+        hexpand: false,
+        visible: entries(e => e.length !== 0),
+        start_widget: new Widget.Box({ halign: Gtk.Align.START, }),
+        end_widget: new Widget.Box(
+          { halign: Gtk.Align.END, spacing: 16 },
+          keyhint('Accept', '⤶'),
+          keyhint('Help', '?'),
+        )
+      })
+    )
+
+  return new Widget.Window({
+    name: WINDOW_NAME,
+    anchor: Astal.WindowAnchor.TOP,
+    application: App,
+    margin: 300,
+    visible: true,
+    keymode: Astal.Keymode.EXCLUSIVE,
+    child: Applauncher(),
+    onKeyPressEvent(_, event) {
+      if (event.get_keyval()[0] && event.get_keyval()[1] === Gdk.KEY_Escape)
+        close()
+    }
+  })
+}
 
 function launch(de: JsonIPC.ResponseV.DesktopEntry) {
-	let entry = de.DesktopEntry
-	// console.log(`launching desktop entry ${de}`)
-	const desktop_entry_id = entry.path
-		.substring(entry.path.indexOf('/applications/') + 14)
-		.replace('/', '-')
-	// console.log(`from file: ${desktop_entry_id}`)
-	execAsync(['dex', entry.path])
+  let entry = de.DesktopEntry
+  // console.log(`launching desktop entry ${de}`)
+  // const desktop_entry_id = entry.path
+  //   .substring(entry.path.indexOf('/applications/') + 14)
+  //   .replace('/', '-')
+  // console.log(`from file: ${desktop_entry_id}`)
+  return execAsync(['dex', entry.path])
 }

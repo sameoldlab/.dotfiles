@@ -1,0 +1,85 @@
+@use 'sass:color';
+@import "variables";
+
+window {
+  border-radius: 1rem;
+  background: transparent;
+}
+
+.spring {
+  $border: 1px solid $surface-0;
+  background: $mantle;
+  border: $border;
+  border-radius: 1rem;
+  color: $text;
+  box-shadow: 0 2px 1px 0px $crust;
+
+  #top {
+    padding: .5rem 1rem 0;
+
+    entry {
+      font-size: 1.02rem;
+      background: inherit;
+      padding-bottom: .25em;
+      /* border-bottom: $border; */
+    }
+  }
+
+  scrollbar {
+    background: inherit;
+
+    slider {
+      background: $crust;
+
+    }
+  }
+
+  #scrollable-box {
+    padding: 0 1rem;
+  }
+
+  eventbox:first-child {
+    .applauncher__item {
+      margin-top: .5rem;
+    }
+  }
+
+  .applauncher__item {
+    border-radius: .5rem;
+    background: inherit;
+    padding: .5rem;
+    transition: background-color 100ms ease-in;
+  }
+
+  .applauncher__item.selected {
+    background: $surface-0;
+  }
+
+  .spotlight {
+    padding: 2rem 1rem;
+  }
+
+  &>centerbox:last-child {
+    background: $crust;
+    color: $subtext-1;
+    font-size: .9rem;
+    padding: .5rem 1rem;
+    border-top: $border;
+    border-bottom-left-radius: 1rem;
+    border-bottom-right-radius: 1rem;
+    /* leaves artifacts */
+    /* box-shadow: 0 -4px 12px -1px $crust, */
+    /* 0 -16px 26px 0 $crust; */
+  }
+
+  .keybind {
+    color: $subtext-0;
+    background: $surface-0;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: .7rem;
+    padding: .25em .6em;
+    margin-left: .5rem;
+    border-radius: .25rem;
+    /* box-shadow: 100ms cubic-bezier(0.47, 0, 0.745, 0.715); */
+  }
+}
