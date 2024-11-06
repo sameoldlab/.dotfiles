@@ -331,9 +331,9 @@ binds {
     Mod+B { spawn "brave"; }
     Mod+E { spawn "dolphin"; }
     Mod+C { spawn "code"; }
-    Mod+Space { spawn "bash" "-c" "ags2 -i niri -t poplauncher"; }
+    Mod+Space { spawn "bash" "-c" "ags2 -i niri -t launcher"; }
     // Mod { spawn "bash" "-c" "ags2 -i niri -t poplauncher"; }
-    Mod+Alt+Space { spawn "bash" "-c" "ags2 -i niri -t applauncher"; }
+    Mod+Alt+Space { spawn "bash" "-c" "ags2 -i niri -t launcher"; }
     Mod+Escape { spawn "swaylock"; }
     Mod+R {spawn "bash" "-c" "ags2 -i niri -q && ags2 -i niri";}
     // You can also use a shell:
