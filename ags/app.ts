@@ -12,7 +12,8 @@ App.start({
     declareGlobals()
   },
   requestHandler(request, response) {
-    if (['audio', 'brightness', 'mpris'].indexOf(request.split('.')[0]) === -1)
+    if (['audio', 'brightness', 'mpris'].indexOf(request.split('.')[0]) !== -1)
       App.eval(request).then(console.log).catch(console.error)
+
   }
 })
