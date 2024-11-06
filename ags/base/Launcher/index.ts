@@ -1,19 +1,22 @@
-import Gdk from 'gi://Gdk?version=3.0'
-import Gio from 'gi://Gio'
-import launcher from './services/launcherIPC.js'
-import type { JsonIPC } from './services/launcherIPC.js'
+import { Gio } from 'astal'
+import { App, Astal, Gtk, Gdk, Widget } from "astal/gtk3"
+import { bind, Variable } from "astal"
+import { execAsync } from 'astal/process'
+import Launcher from '../services/launcherIPC.js'
+import type { JsonIPC } from '../services/launcherIPC.js'
 const WINDOW_NAME = 'poplauncher'
+const launcher = Launcher.get_default()
 
 let active_id = 0
 const EntryItem = (res: JsonIPC.SearchResult) =>
-	Widget.EventBox({
+	new Widget.EventBox({
 		on_primary_click: () => launcher.activate(res.id),
-		
+
 		className: 'applauncher__item',
 		name: res.name,
-		child: Widget.Box({
+		child: new Widget.Box({
 			children: [
-				Widget.Icon({
+				new Widget.Icon({
 					icon: res.category_icon
 						? 'Name' in res.category_icon
 							? res.category_icon.Name
@@ -22,7 +25,7 @@ const EntryItem = (res: JsonIPC.SearchResult) =>
 					size: 16,
 					className: 'icon category_icon',
 				}),
-				Widget.Icon({
+				new Widget.Icon({
 					icon: res.icon
 						? 'Name' in res.icon
 							? res.icon.Name
@@ -31,19 +34,19 @@ const EntryItem = (res: JsonIPC.SearchResult) =>
 					size: 28,
 					className: 'icon',
 				}),
-				Widget.Box({
+				new Widget.Box({
 					vertical: true,
 					vpack: 'center',
 					children: [
-						Widget.Label({
+						new Widget.Label({
 							class_name: 'title',
 							label: res.name,
 							xalign: 0,
 							vpack: 'center',
-							truncate: 'end',
+							truncate: true,
 						}),
 						// short circuit if there is no description
-						Widget.Label({
+						new Widget.Label({
 							class_name: 'description',
 							label: res.description || '',
 							wrap: true,
@@ -66,13 +69,13 @@ const close = () => {
 	active_id = 0
 	App.closeWindow(WINDOW_NAME)
 }
-const list = Widget.Box({
+const list = new Widget.Box({
 	vertical: true,
-	children: entries.bind().as(v => v.map(EntryItem)),
+	children: bind(entries).as(v => v.map(EntryItem)),
 	spacing: 0,
 })
 
-const entry = Widget.Entry({
+const entry = new Widget.Entry({
 	on_accept: () => launcher.activate(active_id),
 	on_change: ({ text }) => {
 		text = text ?? ''
@@ -106,14 +109,14 @@ launcher.connect(
 launcher.connect('close', close)
 
 const Applauncher = ({ width = 500, height = 500, spacing = 12 } = {}) =>
-	Widget.Box({
+	new Widget.Box({
 		vertical: true,
 		className: 'applauncher',
 		css: `margin: ${spacing * 2}px;`,
 		children: [
 			entry,
 			// wrap the list in a scrollable
-			Widget.Scrollable({
+			new Widget.Scrollable({
 				className: 'applauncher__list',
 				hscroll: 'never',
 				css: `
@@ -121,7 +124,7 @@ const Applauncher = ({ width = 500, height = 500, spacing = 12 } = {}) =>
 								min-height: ${height}px;
 							`,
 				child: list,
-				
+
 			})
 		],
 		setup: self =>
@@ -137,12 +140,13 @@ const Applauncher = ({ width = 500, height = 500, spacing = 12 } = {}) =>
 				}
 			}),
 	})
-export default Widget.Window({
+export default new Widget.Window({
 	name: WINDOW_NAME,
-	anchor: ['bottom'],
-	margins: [100],
+	anchor: Astal.WindowAnchor.BOTTOM,
+	application: App,
+	margin: 100,
 	visible: false,
-	keymode: 'exclusive',
+	keymode: Astal.Keymode.EXCLUSIVE,
 	child: Applauncher({
 		width: 550,
 		height: 380,
@@ -208,5 +212,5 @@ function launch(de: JsonIPC.ResponseV.DesktopEntry) {
 		.substring(entry.path.indexOf('/applications/') + 14)
 		.replace('/', '-')
 	// console.log(`from file: ${desktop_entry_id}`)
-	Utils.execAsync(['dex', entry.path])
+	execAsync(['dex', entry.path])
 }
