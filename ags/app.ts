@@ -1,5 +1,6 @@
 import { App } from "astal/gtk3"
 import style from "./style/index.scss"
+import { Launcher } from './base/Launcher'
 import { Bar } from "./base/Bar"
 import { declareGlobals } from './base/globals'
 App.start({
@@ -7,6 +8,7 @@ App.start({
   instanceName: 'niri',
   main() {
     Bar()
+    Launcher()
     declareGlobals()
   },
   requestHandler(request, response) {
