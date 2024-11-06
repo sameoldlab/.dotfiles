@@ -30,11 +30,16 @@ export const declareGlobals = () => {
   }
   globalThis.mpris = {
     playPause: () => {
-      const players = mpris.get_players().filter((p) => p.get_length())
+      const players = mpris.get_players().filter((p) => p.length > 0 && p.playback_status !== Mpris.PlaybackStatus.STOPPED)
+      console.log(players.map(p => ({
+        name: p.get_bus_name(),
+        len: p.get_length(),
+        status: p.get_playback_status()
+      })))
       const player = players[0]
       if (!player) throw new Error('no players available')
       player.play_pause()
-      return player.get_playback_status()
+      return player.get_playback_status() === Mpris.PlaybackStatus.PAUSED
     },
     stop: () => {
       const players = mpris.get_players().filter((p) => p.get_length())
