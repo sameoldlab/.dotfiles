@@ -145,7 +145,7 @@ export const Launcher = ({ width = 650, height = 320 } = {}) => {
     anchor: Astal.WindowAnchor.TOP,
     application: App,
     margin: 300,
-    visible: true,
+    visible: false,
     keymode: Astal.Keymode.EXCLUSIVE,
     child: Applauncher(),
     onKeyPressEvent(_, event) {
