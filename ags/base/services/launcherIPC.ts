@@ -23,7 +23,7 @@ export default class Spring extends GObject.Object {
 		super()
 
 		this._service = subprocess(
-			['pop-launcher'],
+			['bash', '-c', 'cd && pop-launcher'],
 			(stdout) => {
 				// console.log(stdout)	
 				this._onResponse(stdout)
