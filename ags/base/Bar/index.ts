@@ -141,6 +141,7 @@ export const Workspaces = (opts: { vertical: boolean }) => {
 						if (isVerical) {
 							if (event.delta_y < 0)
 								return Utils.execAsync('niri msg action focus-workspace-up')
+							// return niri.message({ Action: { FocusColumnLeft: {} } })
 							return Utils.execAsync('niri msg action focus-workspace-down')
 						}
 						if (event.delta_x < 0)
@@ -165,26 +166,10 @@ export const Workspaces = (opts: { vertical: boolean }) => {
 const Seperator = () => new Widget.Label({ label: ' |  ', className: 'seperator' })
 const Current = () => {
 	const niri = Niri.get_default()
-	const active = Variable('')
-	niri.connect('window-focus-changed', (_, w) => {
-		w && active.set(w.title)
-		w?.connect('changed', () => {
-			w && active.set(w.title)
-		})
-	})
-	niri.connect('window-opened', (_, w) => {
-		w && active.set(w.title)
-		w?.connect('changed', () => {
-			w && active.set(w.title)
-		})
-	})
-
 	return new Widget.Label({
-		onDestroy: () => active.drop(),
-		label: bind(active)
+		label: bind(niri, 'focused_window_id').as(w => niri.get_window(w)?.get_title() ?? '')
 	})
 }
-
 const Left = new Widget.Box({
 	children: [
 		Workspaces({ vertical: false }),
