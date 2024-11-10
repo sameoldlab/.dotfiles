@@ -5,6 +5,38 @@ modmap:
         held: LeftCtrl
         alone: Esc
         alone_timeout_millis: 300
+      # a+j:
+      #   alone: a
+      #   held: LeftMeta
+      #   alone_timeout_millis: 800
+      # s:
+      #   alone: s
+      #   held: LeftAlt
+      #   alone_timeout_millis: 800
+      # d:
+      #   alone: d
+      #   held: LeftShift
+      #   alone_timeout_millis: 800
+      # f:
+      #   alone: f
+      #   held: LeftCtrl
+      #   alone_timeout_millis: 800
+      # semicolon:
+      #   alone: semicolon
+      #   held: LeftMeta
+      #   alone_timeout_millis: 800
+      # l:
+      #   alone: l
+      #   held: LeftAlt
+      #   alone_timeout_millis: 800
+      # k:
+      #   alone: k
+      #   held: LeftShift
+      #   alone_timeout_millis: 800
+      # j:
+      #   alone: j
+      #   held: LeftCtrl
+      #   alone_timeout_millis: 800
          
 keymap: 
   - name: default
