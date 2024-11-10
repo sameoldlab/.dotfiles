@@ -46,6 +46,7 @@ language-servers = ["zk" ]
 
 [[language]]
 name = "rust"
+auto-format = false
 
 [[language]]
 name = "svelte"

@@ -1,11 +1,6 @@
-$aqua: #fff;
-$black: hsl(180, 9%, 6%);
-$white: hsl(0, 0, 89%);
-$text: $white;
-$indicator: hsl(220, 64.1%, 77.06%);
-$background: transparent;
-$foreground: $white;
-$hover: #333;
+@use 'sass:color';
+@import "variables";
+@import "spring";
 
 // label {
 // 	font-weight: 600;
@@ -21,6 +16,15 @@ $hover: #333;
 	font-weight: 500;
 }
 
+.red {
+	color: red;
+}
+
+.hide {
+	opacity: 0;
+	transition: opacity 100ms ease-in-out;
+}
+
 .bar {
 	background: rgba(10, 9, 17, 0);
 	background: red;
@@ -31,6 +35,14 @@ button {
 	background: $background;
 	color: $foreground;
 	border: 0;
+}
+
+menu {
+	background: $background;
+	padding: .25em;
+	min-width: 200px;
+	border-radius: .5em;
+	border: 1px solid $overlay-0;
 }
 
 .quick-settings {
@@ -212,7 +224,7 @@ highlight {
 
 	.description {
 		font-weight: 400;
-		color: darken($text, 16%);
+		color: color.scale($text, $lightness: -18%);
 	}
 
 	.icon {
@@ -261,11 +273,31 @@ levelbar {
 		}
 
 		&.low {
-			background-color: darken($indicator, 15%);
+			background-color: color.scale($indicator, $lightness: 15%);
 		}
 
 		&.full {
-			background-color: lighten($indicator, 5%);
+			background-color: color.scale($indicator, $lightness: 5%);
 		}
 	}
 }
+
+/* tutorial style */
+window.Bar {
+	background: $background;
+	color: $foreground;
+	font-weight: bold;
+}
+
+window.Bar>centerbox {
+	background: $background;
+	border-radius: 10px;
+	margin: 8px;
+}
+
+window.Bar button {
+	border-radius: 8px;
+	margin: 2px;
+}
+
+/* tutorial style */

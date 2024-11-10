@@ -2,6 +2,7 @@ node_modules
 types
 *.bk
 src/*/**.js
+build
 style/*.css
 build
 @girs

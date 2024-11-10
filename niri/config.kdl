@@ -7,7 +7,7 @@
 
 spawn-at-startup "swaybg" "-i" "/home/ibro/Pictures/bg.png"
 spawn-at-startup "xremap" "/home/ibro/.config/xremap/config.yml"
-spawn-at-startup "ags" "-b" "niri"
+spawn-at-startup "ags2" "-i" "niri"
 spawn-at-startup "udiskie" "&"
 spawn-at-startup "iwgtk" "-i"
 spawn-at-startup "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"
@@ -15,10 +15,12 @@ spawn-at-startup "swayidle"
 spawn-at-startup "xwayland-satellite" ":11"
 spawn-at-startup "udiskie" "-sna"
 
-workspace "1"
-workspace "2"
-workspace "3"
-workspace "9"
+workspace "main"
+workspace "research"
+workspace "burner"
+workspace "config"
+workspace "LAB"
+workspace "media"
 
 input {
     keyboard {
@@ -329,27 +331,27 @@ binds {
     Mod+B { spawn "zen-browser"; }
     Mod+E { spawn "dolphin"; }
     Mod+C { spawn "code"; }
-    Mod+Space { spawn "bash" "-c" "ags -b niri toggle-window poplauncher"; }
-    // Mod { spawn "bash" "-c" "ags -b niri toggle-window poplauncher"; }
-    Mod+Alt+Space { spawn "bash" "-c" "ags -b niri toggle-window applauncher"; }
+    Mod+Space { spawn "bash" "-c" "ags2 -i niri -t launcher"; }
+    // Mod { spawn "bash" "-c" "ags2 -i niri -t poplauncher"; }
+    Mod+Alt+Space { spawn "bash" "-c" "ags2 -i niri -t launcher"; }
     Mod+Escape { spawn "swaylock"; }
-    Mod+Shift+R {spawn "bash" "-c" "ags -b niri -q && ags -b niri";}
+    Mod+R {spawn "bash" "-c" "ags2 -i niri -q && ags2 -i niri";}
     // You can also use a shell:
     // Mod+T { spawn "bash" "-c" "notify-send hello && exec alacritty"; }
 
     // Media Keys
-    XF86AudioRaiseVolume cooldown-ms=5 { spawn "bash" "-c" "ags -b niri -r 'audio.speaker.volume += 0.05; indicator.speaker()'"; }
-    XF86AudioLowerVolume  { spawn "bash" "-c" "ags -b niri -r 'audio.speaker.volume -= 0.05; indicator.speaker()'"; }
-    XF86AudioMute         { spawn "bash" "-c" "ags -b niri -r 'audio.speaker.isMuted = !audio.speaker.isMuted; indicator.speaker()'"; }
+    XF86AudioRaiseVolume cooldown-ms=5 { spawn "bash" "-c" "ags2 -i niri -m 'audio.setVolume(.05)'"; }
+    XF86AudioLowerVolume  { spawn "bash" "-c" "ags2 -i niri -m 'audio.setVolume(-.05)'"; }
+    XF86AudioMute         { spawn "bash" "-c" "ags2 -i niri -m 'audio.toggleMute()'"; }
     
-    XF86MonBrightnessUp   { spawn "bash" "-c" "ags -b niri -r 'brightness.screen_value += 0.05; indicator.display()'"; }
-    XF86MonBrightnessDown { spawn "bash" "-c" "ags -b niri -r 'brightness.screen_value -= 0.05; indicator.display()'"; }
+    XF86MonBrightnessUp   { spawn "bash" "-c" "ags2 -i niri -m 'brightness.set(.05)'"; }
+    XF86MonBrightnessDown { spawn "bash" "-c" "ags2 -i niri -m 'brightness.set(-.05)'"; }
     
-    XF86AudioPlay  { spawn "bash" "-c" "ags -b niri -r 'mpris.players[mpris.players.length - 1].playPause()'" ; }
-    XF86AudioPause { spawn "bash" "-c" "ags -b niri -r 'mpris.players[mpris.players.length - 1].playPause()'"; }
-    XF86AudioStop  { spawn "bash" "-c" "ags -b niri -r 'mpris.players[mpris.players.length - 1].stop()'"; }
-    XF86AudioPrev  { spawn "bash" "-c" "ags -b niri -r 'mpris.players[mpris.players.length - 1].previous()'"; }
-    XF86AudioNext  { spawn "bash" "-c" "ags -b niri -r 'mpris.players[mpris.players.length - 1].next()'"; }
+    XF86AudioPlay  { spawn "bash" "-c" "ags2 -i niri -m 'mpris.playPause()'" ; }
+    XF86AudioPause { spawn "bash" "-c" "ags2 -i niri -m 'mpris.playPause()'"; }
+    XF86AudioStop  { spawn "bash" "-c" "ags2 -i niri -m 'mpris.stop()'"; }
+    XF86AudioPrev  { spawn "bash" "-c" "ags2 -i niri -m 'mpris.previous()'"; }
+    XF86AudioNext  { spawn "bash" "-c" "ags2 -i niri -m 'mpris.next()'"; }
 
     Mod+Q { close-window; }
 
@@ -519,7 +521,7 @@ binds {
     // Mod+BracketLeft  { consume-or-expel-window-left; }
     // Mod+BracketRight { consume-or-expel-window-right; }
 
-    Mod+R { switch-preset-column-width; }
+    // Mod+R { switch-preset-column-width; }
     Mod+F { maximize-column; }
     Mod+Shift+F { fullscreen-window; }
     Mod+Shift+C { center-column; }
