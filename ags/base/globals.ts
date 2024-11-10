@@ -19,7 +19,8 @@ export const declareGlobals = () => {
       const speaker = media?.defaultSpeaker
       if (!speaker) return
       speaker.set_mute(!speaker.mute)
-      return speaker.mute + 0
+      // coerce boolean to number
+      return (speaker.mute as unknown as number) + 0
     }
   }
   globalThis.brightness = {
