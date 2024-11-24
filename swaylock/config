@@ -1,31 +1,34 @@
 # indicator
 clock
 ignore-empty-password
-image=~/Pictures/bg.jpg
-ring-color=6356F477
-ring-ver-color=E6821577
-#ring-wrong-color=89384E77
-indicator-thickness=8
-font=Liberation Sans
-indicator-radius=240
-
+image=~/Pictures/bg.png
+font=Inter
 effect-blur=24x4
 fade-in=1
 
-text-color=FFFFFF
-text-clear-color=FFFFFF
-text-wrong-color=FFFFFF
-text-ver-color=FFFFFF
+# indicator default
+ring-color=181825
+# indicator verifying
+ring-ver-color=313244
+# indicator erase
+bs-hl-color=eba0ac
+# indicator key pressed
+key-hl-color=74c7ec
+ring-wrong-color=f38ba8
+indicator-thickness=8
+indicator-radius=240
 
-line-color=00000000
-line-wrong-color=00000000
+text-color=D9E0EE
+text-clear-color=D9E0EE
+text-wrong-color=f38ba8
+text-ver-color=313244
 
-separator-color=00000000
+line-color=D9E0EE00
+line-wrong-color=D9E0EE00
 
-inside-color=00000000
-inside-ver-color=00000000
-inside-clear-color=00000000
-inside-wrong-color=00000000
+separator-color=D9E0EE00
 
-bs-hl-color=BA1E8C
-key-hl-color=7CB5D6
+inside-color=D9E0EE00
+inside-ver-color=D9E0EE00
+inside-clear-color=D9E0EE00
+inside-wrong-color=D9E0EE00
