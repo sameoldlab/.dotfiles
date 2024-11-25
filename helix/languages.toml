@@ -5,6 +5,9 @@ args = ["lsp"]
 [language-server.rust-analyzer]
 command = "rust-analyzer"
 
+[language-server.vala-language-server]
+command = "vala-language-server"
+
 # [language-server.rust-analyzer.config]
 
 [language-server.astro-ls]
@@ -43,6 +46,11 @@ nodePath = ""
 [[language]]
 name = "markdown"
 language-servers = ["zk" ]
+
+[[language]]
+name = "vala"
+language-servers = ["vala-language-server" ]
+roots = ["meson.build"]
 
 [[language]]
 name = "rust"
