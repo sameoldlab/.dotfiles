@@ -89,9 +89,10 @@ return {
   }, }, --]]
   { key = 'q', mods = 'LEADER', action = wa.CloseCurrentPane { confirm = false } },
   { key = 'Q', mods = 'LEADER', action = wa.CloseCurrentTab { confirm = true } },
-  { key = "S", mods = "LEADER", action = wa { EmitEvent = "save_session" } },
-  { key = "L", mods = "LEADER", action = wa { EmitEvent = "load_session" } },
-  { key = "R", mods = "LEADER", action = wa { EmitEvent = "restore_session" } },
+  { key = 'n', mods = 'LEADER', action = wa.SpawnTab 'CurrentPaneDomain' },
+  { key = "s", mods = "LEADER", action = wa{ EmitEvent = "save_session" } },
+  { key = "l", mods = "LEADER", action = wa{ EmitEvent = "load_session" } },
+  { key = "r", mods = "LEADER", action = wa{ EmitEvent = "restore_session" } },
   {
     key    = "v",
     mods   = "LEADER",
