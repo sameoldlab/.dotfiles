@@ -1,4 +1,5 @@
 local wezterm = require("wezterm")
+local projects = require 'projects'
 local wa = wezterm.action
 
 wezterm.on("toggle-opacity", function(window)
@@ -90,9 +91,9 @@ return {
   { key = 'q', mods = 'LEADER', action = wa.CloseCurrentPane { confirm = false } },
   { key = 'Q', mods = 'LEADER', action = wa.CloseCurrentTab { confirm = true } },
   { key = 'n', mods = 'LEADER', action = wa.SpawnTab 'CurrentPaneDomain' },
-  { key = "s", mods = "LEADER", action = wa{ EmitEvent = "save_session" } },
-  { key = "l", mods = "LEADER", action = wa{ EmitEvent = "load_session" } },
-  { key = "r", mods = "LEADER", action = wa{ EmitEvent = "restore_session" } },
+  -- { key = "s", mods = "LEADER", action = wa({ EmitEvent = "save_session" }) },
+  -- { key = "l", mods = "LEADER", action = wa({ EmitEvent = "load_session" }) },
+  -- { key = "R", mods = "LEADER|SHIFT", action = wa({ EmitEvent = "restore_session" }) },
   {
     key    = "v",
     mods   = "LEADER",
@@ -145,4 +146,39 @@ return {
   },
   -- Yazi integration
   yazi_pane('f'),
+  --[[ {
+    key = 'a',
+    mods = 'LEADER',
+    action = wa.AttachDomain 'unix',
+  },
+
+  -- Detach from muxer
+  {
+    key = 'd',
+    mods = 'LEADER',
+    action = wa.DetachDomain { DomainName = 'unix' },
+  }, --]]
+ {
+    key = 'r',
+    mods = 'LEADER',
+    action = wa.PromptInputLine {
+      description = 'Enter new name for session',
+      action = wezterm.action_callback(
+        function(window, pane, line)
+          if line then
+            wezterm.mux.rename_workspace(
+              window:mux_window():get_workspace(),
+              line
+            )
+          end
+        end
+      ),
+    },
+  },
+  {
+    key = 'w',
+    mods = 'LEADER',
+    action = wezterm.action.ShowLauncherArgs { flags = 'FUZZY|WORKSPACES' },
+  },
+  { key = 'p', mods = 'LEADER', action = projects.choose_project(), },
 }

@@ -1,9 +1,13 @@
 local wezterm = require 'wezterm'
+local mux = wezterm.mux
 
 -- local session_manager = require 'wezterm-session-manager/session-manager'
--- wezterm.on("update-right-status", function(window, pane)
---   window:set_right_status(window:active_workspace())
--- end)
+wezterm.on("update-right-status", function(window, pane)
+  window:set_right_status(window:active_workspace())
+end)
+wezterm.on('gui-startup', function(cmd)
+  mux.set_active_workspace 'default'
+end)
 -- wezterm.on("save_session", function(window) session_manager.save_state(window) end)
 -- wezterm.on("load_session", function(window) session_manager.load_state(window) end)
 -- wezterm.on("restore_session", function(window) session_manager.restore_state(window) end)
@@ -26,13 +30,15 @@ config.window_padding = {
   left = "0",
 }
 
-unix_domains = {
-
+config.unix_domains = {
+ {
+   name = 'unix'
+ }
 }
-
+config.default_gui_startup_args = { 'connect', 'unix'}
 config.use_fancy_tab_bar = false
 config.tab_bar_at_bottom = true
-config.hide_tab_bar_if_only_one_tab = true
+config.hide_tab_bar_if_only_one_tab = false
 
 config.colors = {
   tab_bar = {
