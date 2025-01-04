@@ -2,8 +2,8 @@ fpath+=( /home/ibro/.cache/antidote/mattmc3/zephyr/plugins/completion )
 source /home/ibro/.cache/antidote/mattmc3/zephyr/plugins/completion/completion.plugin.zsh
 fpath+=( /home/ibro/.cache/antidote/mattmc3/zephyr/plugins/color )
 source /home/ibro/.cache/antidote/mattmc3/zephyr/plugins/color/color.plugin.zsh
-source $ZDOTDIR/.aliases
-source $ZDOTDIR/.exports
+source $ZDOTDIR/aliases
+source $ZDOTDIR/exports
 source $ZDOTDIR/plugins/history.zsh
 if ! (( $+functions[zsh-defer] )); then
   fpath+=( /home/ibro/.cache/antidote/romkatv/zsh-defer )

@@ -8,9 +8,9 @@ mattmc3/zephyr path:plugins/color
 # belak/zsh-utils path:editor # Conflict with substring search :(
 # jirutka/zsh-shift-select
 
-$ZDOTDIR/.aliases
-$ZDOTDIR/.exports
-# $ZDOTDIR/.functions
+$ZDOTDIR/aliases
+$ZDOTDIR/exports
+# $ZDOTDIR/function
 
 $ZDOTDIR/plugins/history.zsh
 $ZDOTDIR/plugins/fzf-tab-completions.zsh kind:defer
