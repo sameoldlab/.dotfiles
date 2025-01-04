@@ -166,10 +166,18 @@ export const Workspaces = (opts: { vertical: boolean }) => {
 const Seperator = () => new Widget.Label({ label: ' |  ', className: 'seperator' })
 const Current = () => {
 	const niri = Niri.get_default()
-	return new Widget.Label({
-		label: bind(niri, 'focused_window_id').as(w => niri.get_window(w)?.get_title() ?? '')
+	const current_title: Variable<Niri.Window['title']> = Variable('')
+	niri.connect('window-focus-changed', (niri, w) => {
+		const window = niri.focused_window
+		if (!window) return
+		current_title.set(window.title)
+		window.connect('changed', (_) => {
+			current_title.set(window.title)
+		})
 	})
+	return new Widget.Label({ label: current_title() })
 }
+
 const Left = new Widget.Box({
 	children: [
 		Workspaces({ vertical: false }),
