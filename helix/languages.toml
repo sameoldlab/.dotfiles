@@ -39,6 +39,10 @@ run = "onType"
 problems = { shortenToSingleLine = false }
 nodePath = ""
 
+[language-server.tailwindcss]
+command = "tailwindcss-language-server"
+args = ["--stdio"]
+
 ###          ###
 ### LANGUAGE ###
 ###          ###
@@ -58,13 +62,14 @@ auto-format = false
 
 [[language]]
 name = "svelte"
-auto-format = true
-language-servers = ["svelteserver", "eslint-ls"]
+auto-format = false
+language-servers = [ "tailwindcss","svelteserver","eslint-ls"]
+comment-token = "//"
 
 [[language]]
 name = "astro"
 auto-format = true
-language-servers = [ "astro-ls" ]
+language-servers = [ "astro-ls", "tailwindcss"]
 scope = "source.astro"
 injection-regex = "astro"
 file-types = ["astro"]
@@ -85,17 +90,17 @@ language-servers = [ "typescript-language-server", "emmet-ls", "eslint-ls"]
 [[language]]
 name = "jsx"
 auto-format = true
-language-servers = [ "typescript-language-server", "emmet-ls", "eslint-ls"]
+language-servers = [ "typescript-language-server", "tailwindcss","emmet-ls", "eslint-ls"]
 
 [[language]]
 name = "tsx"
 auto-format = true
-language-servers = [ "typescript-language-server" , "emmet-ls", "eslint-ls"]
+language-servers = [ "typescript-language-server" ,"tailwindcss", "emmet-ls", "eslint-ls"]
 
 [[language]]
 name = "html"
 auto-format = false
-language-servers = [ "vscode-html-language-server" , "emmet-ls", "eslint-ls"]
+language-servers = [ "vscode-html-language-server" , "tailwindcss", "emmet-ls", "eslint-ls"]
 
 [[language]]
 name = "css"
