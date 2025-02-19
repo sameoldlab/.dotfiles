@@ -156,6 +156,7 @@ plugins {
     strider { path "strider"; }
     compact-bar { path "compact-bar"; }
     session-manager { path "session-manager"; }
+    session-manager { path "zjstatus"; }
 }
 
 // Choose what to do when zellij receives SIGTERM, SIGINT, SIGQUIT or SIGHUP
@@ -244,7 +245,7 @@ theme "catppuccin-mocha"
 // The name of the default layout to load on startup
 // Default: "default"
 //
-default_layout "compact"
+default_layout "new"
 
 // Choose the mode that zellij uses when starting up.
 // Default: normal
@@ -306,11 +307,11 @@ scrollback_editor "/usr/bin/helix"
 
 // The folder in which Zellij will look for layouts
 //
-// layout_dir "/path/to/my/layout_dir"
+layout_dir "/home/ibro/.config/zellij/layout"
 
 // The folder in which Zellij will look for themes
 //
-// theme_dir "/path/to/my/theme_dir"
+theme_dir "/home/ibro/.config/zellij/themes"
 
 // Enable or disable the rendering of styled and colored underlines (undercurl).
 // May need to be disabled for certain unsupported terminals
