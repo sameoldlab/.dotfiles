@@ -47,5 +47,6 @@ bindkey -M isearch " " self-insert
 eval "$(starship init zsh)"  
 eval "$(zoxide init zsh)"  
 eval "$(fzf --zsh)"
+eval "$(atuin init zsh)"
 
 typeset -gU path fpath

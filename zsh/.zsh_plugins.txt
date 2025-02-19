@@ -1,5 +1,6 @@
 mattmc3/zephyr path:plugins/completion
 mattmc3/zephyr path:plugins/color
+# atuinsh/atuin
 # zsh-users/zsh-completions path:src kind:fpath
 
 # olets/zsh-abbr kind:defer
