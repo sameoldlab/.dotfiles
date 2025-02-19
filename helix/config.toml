@@ -5,6 +5,7 @@ scrolloff = 2
 bufferline = "multiple"
 auto-save = true
 line-number = "relative"
+end-of-line-diagnostics = "hint"
 
 [editor.cursor-shape]
 insert = "bar"
@@ -13,6 +14,9 @@ select = "underline"
 
 [editor.file-picker]
 hidden = false
+
+[editor.inline-diagnostics]
+cursor-line = "error"
 
 [editor.whitespace.render]
 space = "none"
