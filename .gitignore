@@ -31,3 +31,4 @@
 hypr/plugins/*
 zsh/antidote/*
 zsh/functions/*
+helix/runtime/grammars/sources
