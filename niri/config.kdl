@@ -336,11 +336,12 @@ binds {
     XF86MonBrightnessUp   { spawn "bash" "-c" "ags2 -i niri -m 'brightness.set(.05)'"; }
     XF86MonBrightnessDown { spawn "bash" "-c" "ags2 -i niri -m 'brightness.set(-.05)'"; }
     
-    XF86AudioPlay  { spawn "bash" "-c" "ags2 -i niri -m 'mpris.playPause()'" ; }
-    XF86AudioPause { spawn "bash" "-c" "ags2 -i niri -m 'mpris.playPause()'"; }
-    XF86AudioStop  { spawn "bash" "-c" "ags2 -i niri -m 'mpris.stop()'"; }
-    XF86AudioPrev  { spawn "bash" "-c" "ags2 -i niri -m 'mpris.previous()'"; }
-    XF86AudioNext  { spawn "bash" "-c" "ags2 -i niri -m 'mpris.next()'"; }
+    XF86AudioPause { spawn "bash" "-c" "ags2 -i niri -m 'mpris.run(0)'"; }
+    XF86AudioPlay  { spawn "bash" "-c" "ags2 -i niri -m 'mpris.run(1)'" ; }
+    Ctrl+XF86AudioPlay  { spawn "bash" "-c" "ags2 -i niri -m 'mpris.run(2)'" ; }
+    XF86AudioStop  { spawn "bash" "-c" "ags2 -i niri -m 'mpris.run(2)'"; }
+    XF86AudioPrev  { spawn "bash" "-c" "ags2 -i niri -m 'mpris.run(3)'"; }
+    XF86AudioNext  { spawn "bash" "-c" "ags2 -i niri -m 'mpris.run(4)'"; }
 
     Mod+Q { close-window; }
 

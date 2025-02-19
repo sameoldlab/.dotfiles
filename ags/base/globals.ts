@@ -29,8 +29,15 @@ export const declareGlobals = () => {
       return execAsync(`brightnessctl set ${val > 0 ? `+${val * 100}%` : `${Math.abs(val) * 100}%-`} `)
     }
   }
+  const playSignal = Object.freeze({
+    0: 'pause',
+    1: 'play',
+    2: 'stop',
+    3: 'previous',
+    4: 'next',
+  })
   globalThis.mpris = {
-    playPause: () => {
+    run: (signal: keyof typeof playSignal) => {
       const players = mpris.get_players().filter((p) => p.length > 0 && p.playback_status !== Mpris.PlaybackStatus.STOPPED)
       console.log(players.map(p => ({
         name: p.get_bus_name(),
@@ -39,27 +46,21 @@ export const declareGlobals = () => {
       })))
       const player = players[0]
       if (!player) throw new Error('no players available')
-      player.play_pause()
-      return player.get_playback_status() === Mpris.PlaybackStatus.PAUSED
-    },
-    stop: () => {
-      const players = mpris.get_players().filter((p) => p.get_length())
-      const player = players[0]
-      if (!player) throw new Error('no players available')
-      return player.stop()
-    },
-    previous: () => {
-      const players = mpris.get_players().filter((p) => p.get_length())
-      const player = players[0]
-      if (!player) throw new Error('no players available')
-      return player.previous()
-    },
-    next: () => {
-      const players = mpris.get_players().filter((p) => p.get_length())
-      const player = players[0]
-      if (!player) throw new Error('no players available')
-      return player.next()
-    },
+
+      switch (signal) {
+        case 0:
+          return players.map(p => p.pause());
+        case 1:
+          return player.play_pause()
+        case 2:
+          return players.filter(p => p.playback_status === Mpris.PlaybackStatus.PLAYING)[0].stop();
+        case 3:
+          return player.previous();
+        case 4:
+          return player.next();
+      }
+      // return player.get_playback_status() === Mpris.PlaybackStatus.PAUSED
+    }
   }
 
 }
