@@ -83,17 +83,17 @@ const Notification = () =>
 export const systemTray = (opts: { vertical: boolean }) => {
 	const tray = SystemTray.get_default()
 	const child = bind(tray, 'items').as(items => items.map(item => {
-		const menu = item.create_menu()
+		const menu = item.menu_model
 		return new Widget.Button({
-			class_name: "tray-icon",
+			className: "tray-icon",
 			tooltip_markup: bind(item, 'tooltip_markup'),
-			onDestroy() { menu?.destroy() },
+			onDestroy() { menu?.run_dispose() },
 			on_click: (btn, event) => {
 				switch (event.button) {
 					case Gdk.BUTTON_PRIMARY: return item.activate(event.x, event.y)
 					case Gdk.BUTTON_MIDDLE: return item.secondary_activate(event.x, event.y)
 					case Gdk.BUTTON_SECONDARY:
-						menu?.popup_at_widget(btn, Gdk.Gravity.NORTH, Gdk.Gravity.SOUTH, null)
+					// menu?popup_at_widget(btn, Gdk.Gravity.NORTH, Gdk.Gravity.SOUTH, null)
 				}
 			}
 		},
@@ -112,7 +112,6 @@ export const Workspaces = (opts: { vertical: boolean }) => {
 	const niri = Niri.get_default()
 	niri.connect('event', () => {
 		const ws = niri.get_workspaces()
-		// log(ws.map(w => w.id))
 		workspaces.set(ws)
 	})
 
@@ -166,16 +165,15 @@ export const Workspaces = (opts: { vertical: boolean }) => {
 const Seperator = () => new Widget.Label({ label: ' |  ', className: 'seperator' })
 const Current = () => {
 	const niri = Niri.get_default()
-	const current_title: Variable<Niri.Window['title']> = Variable('')
-	niri.connect('window-focus-changed', (niri, w) => {
-		const window = niri.focused_window
-		if (!window) return
-		current_title.set(window.title)
-		window.connect('changed', (_) => {
-			current_title.set(window.title)
-		})
-	})
-	return new Widget.Label({ label: current_title() })
+	const current_title: Variable<string> = Variable(niri.get_window(niri.focused_window_id)?.title ?? '')
+	niri.connect('window-focus-changed', (niri, w_id) => current_title
+		.set(niri.get_window(w_id)?.title ?? ''))
+	return new Widget.Label({ label: current_title().as(t => t.slice(0, 150)) })
+}
+
+const Active = () => {
+	const niri = Niri.get_default()
+	return new Widget.Label({ label: niri.focused_window.title().as(t => t.slice(0, 150)) })
 }
 
 const Left = new Widget.Box({
@@ -195,7 +193,6 @@ export const Center = new Widget.Box({
 export const Right = new Widget.Box({
 	halign: Gtk.Align.END,
 	children: [
-
 		/*
 		Media(),
 		SysTray(),
@@ -207,21 +204,25 @@ export const Right = new Widget.Box({
 	],
 })
 
-export const Bar = () => new Widget.Window({
-	name: 'bar',
-	className: 'bar',
-	monitor: 0,
-	anchor: Astal.WindowAnchor.TOP
-		| Astal.WindowAnchor.LEFT
-		| Astal.WindowAnchor.RIGHT,
-	application: App,
-	// margins: [4],
-	exclusivity: Astal.Exclusivity.EXCLUSIVE,
-},
-	new Widget.CenterBox({
-		start_widget: Left,
-		center_widget: Center,
-		end_widget: Right,
+export const Bar = (monitor: Gdk.Monitor) => {
+	const rect = monitor.get_geometry()
+	console.log('monitor: ', rect.height, rect.x, rect.y, rect.width)
+	return new Widget.Window({
+		name: 'bar',
+		className: 'bar',
+		monitor: 0,
+		anchor: Astal.WindowAnchor.TOP
+			| Astal.WindowAnchor.LEFT
+			| Astal.WindowAnchor.RIGHT,
+		application: App,
+		// margins: [4],
+		exclusivity: Astal.Exclusivity.EXCLUSIVE,
 	},
+		new Widget.CenterBox({
+			start_widget: Left,
+			center_widget: Center,
+			end_widget: Right,
+		},
+		)
 	)
-)
+}

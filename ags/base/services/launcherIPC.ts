@@ -1,5 +1,5 @@
 import GObject, { register, signal } from "astal/gobject"
-import { Gio, GLib } from 'astal'
+import { AstalIO, Gio, GLib } from 'astal'
 import { subprocess } from 'astal/process'
 
 @register({ GTypeName: "Spring" })
@@ -13,17 +13,17 @@ export default class Spring extends GObject.Object {
 	@signal(Object)
 	declare ipc_response: (event: Object) => void
 
-	@signal(Object)
+	@signal(Boolean)
 	declare close: (event: boolean) => void
 
-	private _service: Gio.Subprocess
+	private _service: AstalIO.Process
 	private _ipcResponse: JsonIPC.Response | null = null
 
 	constructor() {
 		super()
 
 		this._service = subprocess(
-			['bash', '-c', 'cd && pop-launcher'],
+			['bash', '-c', 'cd ~/ && pop-launcher'],
 			(stdout) => {
 				// console.log(stdout)	
 				this._onResponse(stdout)
