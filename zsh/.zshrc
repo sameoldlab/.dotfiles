@@ -1,12 +1,23 @@
+#!/bin/zsh
+#
+# .zshrc - Zsh file loaded on interactive shell sessions.
+#
 typeset -U path cdpath fpath manpath
 
 # Use emacs keymap as the default.
 bindkey -e
 
 # Loading Antidote START
-source ${ZDOTDIR}/antidote/antidote.zsh
-zstyle ':antidote:bundle' use-friendly-names 'yes'
-antidote load
+zsh_plugins=${ZDOTDIR:-$HOME}/.zsh_plugins
+if [[ ! ${zsh_plugins}.zsh -nt ${zsh_plugins}.txt ]]; then
+  (
+  source ${ZDOTDIR}/antidote/antidote.zsh
+  zstyle ':antidote:bundle' use-friendly-names 'yes'
+  antidote bundle <${zsh_plugins}.txt >${zsh_plugins}.zsh
+)
+fi
+source ${zsh_plugins}.zsh
+
 
 setopt extendedglob
 unsetopt BEEP
