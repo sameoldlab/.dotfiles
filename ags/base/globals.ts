@@ -12,6 +12,7 @@ export const declareGlobals = () => {
       const speaker = media?.defaultSpeaker
       if (!speaker) return
       const vol = () => speaker.get_volume()
+      if (val > 0) speaker.set_mute(false)
       speaker.set_volume(vol() + val)
       return vol()
     },
