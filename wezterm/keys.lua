@@ -1,6 +1,7 @@
 local wezterm = require("wezterm")
 local projects = require 'projects'
 local wa = wezterm.action
+local workspace_switcher = wezterm.plugin.require("https://github.com/MLFlexer/smart_workspace_switcher.wezterm")
 
 wezterm.on("toggle-opacity", function(window)
   local overrides = window:get_config_overrides() or {}
@@ -176,7 +177,17 @@ return {
     },
   },
   {
-    key = 'w',
+    key = "w",
+    mods = "ALT",
+    action = workspace_switcher.switch_workspace(),
+  },
+  {
+    key = "t",
+    mods = "LEADER",
+    action = workspace_switcher.switch_to_prev_workspace(),
+  },
+  {
+    key = 'b',
     mods = 'LEADER',
     action = wezterm.action.ShowLauncherArgs { flags = 'FUZZY|WORKSPACES' },
   },
