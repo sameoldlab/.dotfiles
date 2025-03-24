@@ -59,5 +59,6 @@ eval "$(starship init zsh)"
 eval "$(zoxide init zsh)"  
 eval "$(fzf --zsh)"
 eval "$(atuin init zsh)"
+eval "$(direnv hook zsh)"
 
 typeset -gU path fpath

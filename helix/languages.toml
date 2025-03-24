@@ -5,6 +5,14 @@ args = ["lsp"]
 [language-server.rust-analyzer]
 command = "rust-analyzer"
 
+[language-server.noir-lsp]
+command = "nargo"
+args = ["lsp"]
+
+[language-server.nomicfoundation-solidity-language-server]
+command = "nomicfoundation-solidity-language-server"
+args = ["--stdio"]
+
 [language-server.vala-language-server]
 command = "vala-language-server"
 
@@ -59,6 +67,19 @@ roots = ["meson.build"]
 [[language]]
 name = "rust"
 auto-format = false
+
+[[language]]
+name = "noir"
+auto-format = false
+scope = "source.nr"
+language-servers = [ "noir-lsp"]
+roots = ["Nargo.toml"]
+file-types = ["nr"]
+
+[[language]]
+name = "solidity"
+language-servers = [ "nomicfoundation-solidity-language-server"]
+file-types = ["sol", "solidity"]
 
 [[language]]
 name = "svelte"
