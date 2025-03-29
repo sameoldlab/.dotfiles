@@ -204,9 +204,7 @@ export const Right = new Widget.Box({
 	],
 })
 
-export const Bar = (monitor: Gdk.Monitor) => {
-	const rect = monitor.get_geometry()
-	console.log('monitor: ', rect.height, rect.x, rect.y, rect.width)
+export const Bar = () => {
 	return new Widget.Window({
 		name: 'bar',
 		className: 'bar',
