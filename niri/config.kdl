@@ -5,7 +5,7 @@
 // Note that running niri as a session supports xdg-desktop-autostart,
 // which may be more convenient to use.
 
-spawn-at-startup "swaybg" "-i" "/home/ibro/Pictures/bg.png"
+spawn-at-startup "swaybg" "-i" "/home/ibro/Pictures/bg"
 spawn-at-startup "xremap" "/home/ibro/.config/xremap/config.yml"
 spawn-at-startup "ags2" "-i" "niri"
 spawn-at-startup "udiskie" "&"
@@ -209,8 +209,8 @@ layout {
 cursor {
     // Change the theme and size of the cursor as well as set the
     // `XCURSOR_THEME` and `XCURSOR_SIZE` env variables.
-    xcursor-theme "Bibata-Modern"
-    xcursor-size 20
+    xcursor-theme "capitaine-cursors"
+    xcursor-size 31
 }
 
 // You can change the path where screenshots are saved.
