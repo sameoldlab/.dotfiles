@@ -7,25 +7,53 @@ keybinds {
         // bind "Alt c" { Copy; }
     }
     locked {
-        bind "Alt g" { SwitchToMode "Normal"; }
-        unbind "Ctrl g"
+        bind "Ctrl g" { SwitchToMode "Normal"; }
     }
-    shared_except "locked" {
-        bind "Alt g" { SwitchToMode "Locked"; }
-        bind "Ctrl q" { Quit; }
-        bind "Alt n" { NewPane; }
-        bind "Alt h" "Alt Left" { MoveFocusOrTab "Left"; }
-        bind "Alt l" "Alt Right" { MoveFocusOrTab "Right"; }
-        bind "Alt j" "Alt Down" { MoveFocus "Down"; }
-        bind "Alt k" "Alt Up" { MoveFocus "Up"; }
+    normal clear-defaults=true {
+        bind "Ctrl g" { SwitchToMode "Locked"; }
+        bind "Alt s" { SwitchToMode "Tmux"; }
+        bind "Ctrl Alt /" { SwitchToMode "EnterSearch"; }
+        bind "Ctrl Alt q" { Quit; }
+
         bind "Alt =" "Alt +" { Resize "Increase"; }
         bind "Alt -" { Resize "Decrease"; }
         bind "Alt [" { PreviousSwapLayout; }
         bind "Alt ]" { NextSwapLayout; }
-        unbind "Ctrl h"
-        unbind "Ctrl n"
-        unbind "Ctrl o"
-        unbind "Ctrl g"
+
+        bind "Alt h" { MoveFocusOrTab "Left"; }
+        bind "Alt l" { MoveFocusOrTab "Right"; }
+        bind "Alt j" { MoveFocus "Down"; }
+        bind "Alt k" { MoveFocus "Up"; }
+        
+        // Resize
+        bind "Ctrl Alt h" { Resize "Left"; }
+        bind "Ctrl Alt j" { Resize "Down"; }
+        bind "Ctrl Alt k" { Resize "Up"; }
+        bind "Ctrl Alt l" { Resize "Right"; }
+        // Decrease
+        bind "Ctrl Alt H" { Resize "Decrease Right"; }
+        bind "Ctrl Alt J" { Resize "Decrease Up"; }
+        bind "Ctrl Alt K" { Resize "Decrease Down"; }
+        bind "Ctrl Alt L" { Resize "Decrease Left"; }
+    }
+    tmux clear-defaults=true {
+        bind "Alt a" "Esc" { SwitchToMode "Normal"; }
+        bind "p" { SwitchToMode "Pane"; }
+        bind "t" { SwitchToMode "Tab"; }
+        bind "r" { SwitchToMode "Resize"; }
+        bind "s" { SwitchToMode "Scroll"; }
+        bind "m" { SwitchToMode "Move"; }
+        bind "/" { SwitchToMode "EnterSearch"; }
+
+        bind "q" { CloseFocus; SwitchToMode "Normal"; }
+        bind "Q" { CloseTab; SwitchToMode "Normal"; }
+        bind "n" { NewTab; SwitchToMode "Normal"; }
+        bind "v" { NewPane "Right"; SwitchToMode "Normal"; }
+        bind "h" { NewPane "Down"; SwitchToMode "Normal"; }
+        bind "Alt m" { ToggleFocusFullscreen; SwitchToMode "Normal"; }
+        bind "g" { NewPane "Right"; SwitchToMode "Normal"; }
+        // bind "g" { SplitPane with lazygit }
+        // { mods = "LEADER", key = "Space", action = wezterm.action.RotatePanes "Clockwise" },
     }
     pane {
         bind "Ctrl p" { SwitchToMode "Normal"; }
@@ -43,25 +71,6 @@ keybinds {
         bind "p" { ToggleFloatingPanes; SwitchToMode "Normal"; }
         bind "f" { TogglePaneEmbedOrFloating; SwitchToMode "Normal"; }
         bind "r" { SwitchToMode "RenamePane"; PaneNameInput 0;}
-
-        // Move
-        // bind "Ctrl p" { MovePaneBackwards; }
-        bind "Ctrl h" "Left" { MovePane "Left"; }
-        bind "Ctrl j" "Down" { MovePane "Down"; }
-        bind "Ctrl k" "Up" { MovePane "Up"; }
-        bind "Ctrl l" "Right" { MovePane "Right"; }
-
-        // Resize
-        bind "Alt h" "Alt Left" { Resize "Increase Left"; }
-        bind "Alt j" "Alt Down" { Resize "Increase Down"; }
-        bind "Alt k" "Alt Up" { Resize "Increase Up"; }
-        bind "Alt l" "Alt Right" { Resize "Increase Right"; }
-        bind "Alt H" { Resize "Decrease Left"; }
-        bind "Alt J" { Resize "Decrease Down"; }
-        bind "Alt K" { Resize "Decrease Up"; }
-        bind "Alt L" { Resize "Decrease Right"; }
-        bind "=" "+" { Resize "Increase"; }
-        bind "-" { Resize "Decrease"; }
 
         // Session
         bind "Ctrl d" { Detach; }
@@ -123,8 +132,8 @@ keybinds {
         bind "Ctrl c" { ScrollToBottom; SwitchToMode "Normal"; }
         bind "j" "Down" { ScrollDown; }
         bind "k" "Up" { ScrollUp; }
-        bind "Ctrl f" "PageDown" "Right" "l" { PageScrollDown; }
-        bind "Ctrl b" "PageUp" "Left" "h" { PageScrollUp; }
+        bind "PageDown" "Right" "l" { PageScrollDown; }
+        bind "PageUp" "Left" "h" { PageScrollUp; }
         bind "d" { HalfPageScrollDown; }
         bind "u" { HalfPageScrollUp; }
         bind "n" { Search "down"; }
@@ -158,6 +167,12 @@ plugins {
     session-manager { path "session-manager"; }
     session-manager { path "zjstatus"; }
 }
+
+layout_dir "/home/ibro/.config/zellij/layout"
+theme_dir "/home/ibro/.config/zellij/themes"
+
+theme "ansi"
+default_layout "new"
 
 // Choose what to do when zellij receives SIGTERM, SIGINT, SIGQUIT or SIGHUP
 // eg. when terminal window with an active zellij session is closed
@@ -208,13 +223,13 @@ pane_frames false
 // Options:
 //   - true
 //   - false (default)
-// serialize_pane_viewport true
+serialize_pane_viewport true
 
 // Scrollback lines to serialize along with the pane viewport when serializing sessions, 0
 // defaults to the scrollback size. If this number is higher than the scrollback size, it will
 // also default to the scrollback size. This does nothing if `serialize_pane_viewport` is not true.
 //
-// scrollback_lines_to_serialize 10000
+scrollback_lines_to_serialize 0
 
 // Define color themes for Zellij
 // For more examples, see: https://github.com/zellij-org/zellij/tree/main/example/themes
@@ -236,16 +251,6 @@ pane_frames false
 //     }
 // }
 
-// Choose the theme that is specified in the themes section.
-// Default: default
-//
-theme "catppuccin-mocha"
-// theme "pale-boreal"
-
-// The name of the default layout to load on startup
-// Default: "default"
-//
-default_layout "new"
 
 // Choose the mode that zellij uses when starting up.
 // Default: normal
@@ -267,7 +272,7 @@ default_layout "new"
 // Valid values: positive integers
 // Default value: 10000
 //
-// scroll_buffer_size 10000
+scroll_buffer_size 20000
 
 // Provide a command to execute when copying text. The text will be piped to
 // the stdin of the program to perform the copy. This can be used with
@@ -296,7 +301,7 @@ default_layout "new"
 // Path to the default editor to use to edit pane scrollbuffer
 // Default: $EDITOR or $VISUAL
 //
-scrollback_editor "/usr/bin/helix"
+// scrollback_editor "/usr/bin/helix"
 
 // When attaching to an existing session with other users,
 // should the session be mirrored (true)
@@ -304,14 +309,6 @@ scrollback_editor "/usr/bin/helix"
 // Default: false
 //
 // mirror_session true
-
-// The folder in which Zellij will look for layouts
-//
-layout_dir "/home/ibro/.config/zellij/layout"
-
-// The folder in which Zellij will look for themes
-//
-theme_dir "/home/ibro/.config/zellij/themes"
 
 // Enable or disable the rendering of styled and colored underlines (undercurl).
 // May need to be disabled for certain unsupported terminals
