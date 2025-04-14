@@ -39,8 +39,8 @@ J = "extend_line_down"
 K = "extend_line_up"
 L = "extend_char_right"
 
-b = "record_macro"
-B = "replay_macro"
+B = "record_macro"
+b = "replay_macro"
 q   = "move_prev_word_start"
 Q   = "extend_prev_word_start"
 A-q = "move_prev_long_word_start"
@@ -53,6 +53,8 @@ A-w = "move_next_long_word_start"
 E   = "extend_next_word_end"
 A-E = "extend_next_long_word_end"
 A-e = "move_next_long_word_end"
+ret = ["open_below", "normal_mode"]
+S-ret = ["open_above", "normal_mode"]
 
 [keys.insert]
 A-i = "normal_mode"     # Maps Alt-X to enter normal mode

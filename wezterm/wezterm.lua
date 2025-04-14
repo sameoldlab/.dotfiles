@@ -1,19 +1,8 @@
 local wezterm = require 'wezterm'
-local mux = wezterm.mux
-
--- local session_manager = require 'wezterm-session-manager/session-manager'
-wezterm.on("update-right-status", function(window, pane)
-  window:set_right_status(window:active_workspace())
-end)
-wezterm.on('gui-startup', function(cmd)
-  mux.set_active_workspace 'default'
-end)
--- wezterm.on("save_session", function(window) session_manager.save_state(window) end)
--- wezterm.on("load_session", function(window) session_manager.load_state(window) end)
--- wezterm.on("restore_session", function(window) session_manager.restore_state(window) end)
 
 local config = wezterm.config_builder()
 
+config.default_workspace = "home"
 config.enable_wayland = true
 config.color_scheme = 'Catppuccin Mocha'
 -- color_scheme = 'Batman',
@@ -30,12 +19,7 @@ config.window_padding = {
   left = "0",
 }
 
-config.unix_domains = {
- {
-   name = 'unix'
- }
-}
-config.default_gui_startup_args = { 'connect', 'unix'}
+-- config.default_gui_startup_args = { 'start', '--always-new-process'}
 config.use_fancy_tab_bar = false
 config.tab_bar_at_bottom = true
 config.hide_tab_bar_if_only_one_tab = false
@@ -57,5 +41,35 @@ config.text_background_opacity = 1.0
 
 config.leader = { key = 'a', mods = 'ALT', timeout_milliseconds = 1300 }
 config.keys = require("keys")
+
+config.unix_domains = {
+  { name = 'unix',
+  }, }
+
+-- uncomment to autoconnect to unix domain
+-- config.default_gui_startup_args = {'connect', 'unix'}
+
+local resurrect = wezterm.plugin.require("https://github.com/MLFlexer/resurrect.wezterm")
+resurrect.periodic_save()
+
+wezterm.on("smart_workspace_switcher.workspace_switcher.created", function(window, path, label)
+  local workspace_state = resurrect.workspace_state
+  workspace_state.restore_workspace(resurrect.load_state(label, "workspace"), {
+    window = window,
+    relative = true,
+    restore_text = true,
+    on_pane_restore = resurrect.tab_state.default_on_pane_restore,
+  })
+end)
+
+wezterm.on("smart_workspace_switcher.workspace_switcher.selected", function(window, path, label)
+  local workspace_state = resurrect.workspace_state
+  resurrect.save_state(workspace_state.get_workspace_state())
+end)
+
+-- local session_manager = require 'wezterm-session-manager/session-manager'
+wezterm.on("update-right-status", function(window)
+  window:set_right_status(window:active_workspace())
+end)
 
 return config

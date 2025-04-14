@@ -94,7 +94,7 @@ swap_floating_layout name="spread" {
         pane size=1 borderless=true {
             plugin location="file:~/.config/zellij/plugins/zjstatus.wasm" {
                 format_left   "{mode}{tabs}"
-                format_center "#[fg=#6C7086,bg=#11111b] {datetime}  {command_battery}"
+                format_center "{datetime}"
                 format_right  "{command_git_branch}#[fg=#89B4FA,bg=#11111b,bold]{session} "
                 format_space   "#[bg=#11111b]"
 
@@ -103,33 +103,25 @@ swap_floating_layout name="spread" {
                 border_format   "#[fg=#a6e3a1]{char}"
                 border_position "top"
 
-                mode_normal        ""
-                mode_resize        "#[bg=blue] "
-                mode_move          "#[bg=blue] "
-                mode_tmux          "#[bg=red] "
-                mode_scroll        "#[fg=green] "
-                mode_search        "#[fg=green] "
-                mode_enter_search  "#[fg=green] "
-                mode_pane          "#[fg=yellow] P"
-                mode_tab           "#[fg=cyan] T"
+                mode_normal  ""
+                mode_resize  "#[bg=blue] "
+                mode_locked  "#[bg=black]🔒"
+                mode_move    "#[bg=blue] "
+                mode_tmux    "#[bg=red] "
 
-                tab_normal   "#[fg=#11111b]█#[fg=#cdd6f4,bg=#11111b]{index}#[fg=#11111b]█"
-                tab_normal_sync   "#[fg=#11111b]█#[fg=#cdd6f4,bg=#11111b]{index} [S]#[fg=#11111b]█"
-                tab_normal_fullscreen   "#[fg=#11111b]█#[fg=#cdd6f4,bg=#11111b]{index} [F]#[fg=#11111b]█"
-                tab_active   "#[fg=#F5C2E7]█#[fg=#11111b,bg=#F5C2E7]{index}#[fg=#F5C2E7]█"
-                tab_active_sync   "#[fg=#F5C2E7]█#[fg=#11111b,bg=#F5C2E7]{index} [S]#[fg=#F5C2E7]█"
-                tab_active_fullscreen   "#[fg=#F5C2E7]█#[fg=#11111b,bg=#F5C2E7]{index} [F]#[fg=#F5C2E7]█"
+                mode_pane    "#[fg=yellow] {name} "
+                mode_tab     "#[fg=green] {name} "
+                mode_scroll  "#[fg=cyan] {name} "
+
+                tab_normal   "#[fg=#11111b]█#[fg=#cdd6f4,bg=#11111b]{name}#[fg=#11111b]█"
+                tab_active   "#[fg=#F5C2E7]█#[fg=#11111b,bg=#F5C2E7]{name}#[fg=#F5C2E7]█"
 
                 command_git_branch_command     "git rev-parse --abbrev-ref HEAD"
                 command_git_branch_format      "#[fg=#6C7086,bg=#11111b] {stdout} "
                 command_git_branch_interval    "10"
                 command_git_branch_rendermode  "static"
 
-                command_battery_command  "cat /sys/class/power_supply/BAT0/capacity"
-                command_battery_format   "󰁹{stdout}%"
-                command_battery_interval "8"
-
-                datetime        "{format}"
+                datetime        "#[fg=#6C7086,bg=#11111b] {format} "
                 datetime_format "%d %b, %R"
                 datetime_timezone "Europe/Berlin"
             }

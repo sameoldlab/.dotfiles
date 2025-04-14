@@ -5,15 +5,15 @@
 // Note that running niri as a session supports xdg-desktop-autostart,
 // which may be more convenient to use.
 
+spawn-at-startup "xwayland-satellite" ":11"
+spawn-at-startup "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"
 spawn-at-startup "swaybg" "-i" "/home/ibro/Pictures/bg"
 spawn-at-startup "xremap" "/home/ibro/.config/xremap/config.yml"
-spawn-at-startup "udiskie" "&"
 spawn-at-startup "ags" "run"
 spawn-at-startup "iwgtk" "-i"
-spawn-at-startup "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"
 spawn-at-startup "swayidle"
-spawn-at-startup "xwayland-satellite" ":11"
 spawn-at-startup "udiskie" "-sna"
+spawn-at-startup "DISPLAY=:11" "gauntlet" "--minimized"
 
 workspace "main"
 workspace "research"
@@ -51,7 +51,6 @@ input {
         // dwt
         // dwtp
         natural-scroll
-        accel-speed 0.5
         accel-profile "adaptive"
         // tap-button-map "left-middle-right"
     }
@@ -111,13 +110,8 @@ output "eDP-1" {
     // position x=1280 y=0
 }
 
-// Uncomment this line to ask the clients to omit their client-side decorations if possible.
-// If the client will specifically ask for CSD, the request will be honored.
-// Additionally, clients will be informed that they are tiled, removing some rounded corners.
 prefer-no-csd
 
-// Settings that influence how windows are positioned and sized.
-// Find more information on the wiki:
 // https://github.com/YaLTeR/niri/wiki/Configuration:-Layout
 layout {
     // By default focus ring and border are rendered as a solid background rectangle
@@ -128,32 +122,24 @@ layout {
     // Niri will draw focus ring and border *around* windows that agree to omit their
     // client-side decorations.
 
-    // You can change how the focus ring looks.
     focus-ring {
-        // Uncomment this line to disable the focus ring.
-       off
-
+        off
         // How many logical pixels the ring extends out from the windows.
         width 2
 
         // Color of the ring on the active monitor: red, green, blue, alpha.
-
 		// #070238 #080137
 
         // active-color "#6356F4"
         // inactive-color "#ff0000"
 		// active-gradient from="#7A7168" to="#080137" angle=135 relative-to="workspace-view"
-				
+
 	    // Color of the ring on inactive monitors: red, green, blue, alpha.
-				
 	}
 			
 	// You can also add a border. It's similar to the focus ring, but always visible.
 	border {
-		// The settings are the same as for the focus ring.
-        // If you enable the border, you probably want to disable the focus ring.
         // off
-
         width 1
         // active-color 127 200 255 255
         // inactive-color 80 80 80 255
@@ -205,6 +191,16 @@ layout {
     center-focused-column "never"
 }
 
+layer-rule {
+    match namespace="^ags$"
+    
+    shadow {
+        on
+    }
+
+    // Fuzzel defaults to 10 px rounded corners.
+    geometry-corner-radius 10
+}
 
 cursor {
     // Change the theme and size of the cursor as well as set the
@@ -347,6 +343,7 @@ binds {
     Mod+Alt+E { spawn "bash" "-c" "footclient -e -a froot broot"; }
     Mod+I { toggle-column-tabbed-display; }
     Mod+Space { spawn "bash" "-c" "ags -i niri toggle launcher"; }
+    Alt+Space { spawn "gauntlet"; }
     Mod+Escape { spawn "swaylock"; }
     Mod+Shift+R {spawn "bash" "-c" "ags quit -i niri && ags run";}
 
