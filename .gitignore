@@ -34,4 +34,7 @@ zsh/antidote/*
 zsh/functions/*
 helix/runtime/grammars/sources
 broot/launcher/installed-v4
+mpv/fonts
+mpv/scripts/uosc
+mpv/scripts-opts
 broot/launcher/bash/br
