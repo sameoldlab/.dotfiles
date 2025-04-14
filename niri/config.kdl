@@ -282,6 +282,14 @@ window-rule {
     default-column-width {}
 }
 window-rule {
+    match app-id="foot"
+    default-column-width { proportion 0.33; }
+}
+window-rule {
+    match app-id="froot"
+    default-column-width { proportion 0.25; }
+}
+window-rule {
     match app-id="tauon"
     open-on-workspace "media"
 }
@@ -290,7 +298,6 @@ window-rule {
     match title=r#"^Rabby Wallet Notification$"#
     max-width 400
 }
-
 
 // Example: block out two password managers from screen capture.
 // (This example rule is commented out with a "/-" in front.)
@@ -334,11 +341,10 @@ binds {
     Mod+Alt+3 {set-column-width "66.666%";}
     Mod+Alt+4 {expand-column-to-available-width; }
     // Suggested bnds for running programs: terminal, app launcher, screen locker.
-    // Mod+T { spawn "wezterm"; }
-    Mod+Return { spawn "wezterm"; }
+    Mod+Return { spawn "footclient"; }
     Mod+B { spawn "zen-browser"; }
     Mod+E { spawn "dolphin"; }
-    Mod+C { spawn "code"; }
+    Mod+Alt+E { spawn "bash" "-c" "footclient -e -a froot broot"; }
     Mod+I { toggle-column-tabbed-display; }
     Mod+Space { spawn "bash" "-c" "ags -i niri toggle launcher"; }
     Mod+Escape { spawn "swaylock"; }

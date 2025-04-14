@@ -33,3 +33,5 @@ hypr/plugins/*
 zsh/antidote/*
 zsh/functions/*
 helix/runtime/grammars/sources
+broot/launcher/installed-v4
+broot/launcher/bash/br
