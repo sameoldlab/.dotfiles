@@ -345,10 +345,10 @@ binds {
     Mod+Space { spawn "bash" "-c" "ags -i niri toggle launcher"; }
     Alt+Space { spawn "gauntlet"; }
     Mod+Escape { spawn "swaylock"; }
-    Mod+Shift+R {spawn "bash" "-c" "ags quit -i niri && ags run";}
+    Mod+Shift+R {spawn "bash" "-c" "ags quit -i niri; ags run";}
 
     // Media Keys
-    XF86AudioRaiseVolume cooldown-ms=5 { spawn "bash" "-c" "ags -i niri -m 'audio.setVolume(.05)'"; }
+    XF86AudioRaiseVolume  { spawn "bash" "-c" "ags -i niri request 'audio.setVolume(.05)'"; }
     XF86AudioLowerVolume  { spawn "bash" "-c" "ags -i niri request 'audio.setVolume(-.05)'"; }
     XF86AudioMute         { spawn "bash" "-c" "ags -i niri request 'audio.toggleMute()'"; }
     

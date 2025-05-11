@@ -13,7 +13,9 @@ App.start({
   },
   requestHandler(request, response) {
     if (['audio', 'brightness', 'mpris'].indexOf(request.split('.')[0]) !== -1)
-      App.eval(request).then(console.log).catch(console.error)
-
+      App.eval(request).then(res => {
+        console.log(res)
+        response(res)
+      }).catch(response)
   }
 })

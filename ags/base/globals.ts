@@ -8,20 +8,18 @@ export const declareGlobals = () => {
 
   globalThis.audio = {
     setVolume(val: number) {
-      if (typeof val !== 'number') return
+      if (typeof val !== 'number') return typeof val
       const speaker = media?.defaultSpeaker
-      if (!speaker) return
-      const vol = () => speaker.get_volume()
+      if (!speaker) return 'no speaker'
       if (val > 0) speaker.set_mute(false)
-      speaker.set_volume(vol() + val)
-      return vol()
+      speaker.set_volume(speaker.get_volume() + val)
+      return speaker.get_volume()
     },
     toggleMute() {
       const speaker = media?.defaultSpeaker
       if (!speaker) return
       speaker.set_mute(!speaker.mute)
-      // coerce boolean to number
-      return (speaker.mute as unknown as number) + 0
+      return speaker.mute
     }
   }
   globalThis.brightness = {
