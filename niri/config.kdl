@@ -192,14 +192,11 @@ layout {
 }
 
 layer-rule {
-    match namespace="^ags$"
+    match namespace="gtk-layer-shell"
     
     shadow {
         on
     }
-
-    // Fuzzel defaults to 10 px rounded corners.
-    geometry-corner-radius 10
 }
 
 cursor {
@@ -266,7 +263,8 @@ window-rule {
     default-floating-position x=32 y=32 relative-to="bottom-right"
 }
 window-rule {
-    match title="iwgtk"
+    // match title=r#"^iwgtk$"#
+    match app-id="org.twosheds.iwgtk"
     open-floating true
     max-width  300
     default-floating-position x=64 y=10 relative-to="top-right"
