@@ -7,13 +7,12 @@
 
 spawn-at-startup "xwayland-satellite" ":11"
 spawn-at-startup "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"
-spawn-at-startup "swaybg" "-i" "/home/ibro/Pictures/bg"
+// spawn-at-startup "swaybg" "-i" "/home/ibro/Pictures/bg"
 spawn-at-startup "xremap" "/home/ibro/.config/xremap/config.yml"
-spawn-at-startup "ags" "run"
 spawn-at-startup "iwgtk" "-i"
-spawn-at-startup "swayidle"
+spawn-at-startup "ags" "run" "--gtk" "3"
+// spawn-at-startup "swayidle"
 spawn-at-startup "udiskie" "-sna"
-spawn-at-startup "DISPLAY=:11" "gauntlet" "--minimized"
 
 workspace "main"
 workspace "research"
@@ -107,7 +106,7 @@ output "eDP-1" {
     // so to put another output directly adjacent to it on the right, set its x to 1920.
     // If the position is unset or results in an overlap, the output is instead placed
     // automatically.
-    // position x=1280 y=0
+    position x=0 y=0
 }
 
 prefer-no-csd
@@ -122,6 +121,7 @@ layout {
     // Niri will draw focus ring and border *around* windows that agree to omit their
     // client-side decorations.
 
+    background-color "oklch(0.2134, 0.0255, 291.1182)";
     focus-ring {
         off
         // How many logical pixels the ring extends out from the windows.
@@ -193,10 +193,16 @@ layout {
 
 layer-rule {
     match namespace="gtk-layer-shell"
+    match namespace="Gauntlet"
     
     shadow {
         on
     }
+}
+
+layer-rule {
+    match namespace="wallpaper"
+    place-within-backdrop true
 }
 
 cursor {
@@ -252,22 +258,27 @@ animations {
 // https://github.com/YaLTeR/niri/wiki/Configuration:-Window-Rules
 window-rule {
     draw-border-with-background false
-	geometry-corner-radius 2
+	geometry-corner-radius 4
 	clip-to-geometry true
 }
 window-rule {
+    match title="Yazi Chooser"
     match title="^Picture-in-Picture$"
-
+    match app-id="org.twosheds.iwgtk"
+    match app-id="blueberry.py"
     open-floating true
+    default-floating-position x=16 y=16 relative-to="bottom-right"
+}
+
+window-rule {
+    match title="^Picture-in-Picture$"
     default-column-width { proportion 0.3; }
-    default-floating-position x=32 y=32 relative-to="bottom-right"
 }
 window-rule {
-    // match title=r#"^iwgtk$"#
     match app-id="org.twosheds.iwgtk"
-    open-floating true
     max-width  300
-    default-floating-position x=64 y=10 relative-to="top-right"
+    default-column-width { fixed 300; }
+    default-floating-position x=16 y=16 relative-to="bottom-right"
 }
 // Work around WezTerm's initial configure bug
 // by setting an empty default-column-width.
@@ -277,7 +288,7 @@ window-rule {
 }
 window-rule {
     match app-id="foot"
-    default-column-width { proportion 0.33; }
+    default-column-width { proportion 0.35; }
 }
 window-rule {
     match app-id="froot"
@@ -340,10 +351,10 @@ binds {
     Mod+E { spawn "dolphin"; }
     Mod+Alt+E { spawn "bash" "-c" "footclient -e -a froot broot"; }
     Mod+I { toggle-column-tabbed-display; }
-    Mod+Space { spawn "bash" "-c" "ags -i niri toggle launcher"; }
-    Alt+Space { spawn "gauntlet"; }
+    Alt+Space { spawn "bash" "-c" "ags -i niri toggle launcher"; }
+    Mod+Space { spawn "gauntlet"; }
     Mod+Escape { spawn "swaylock"; }
-    Mod+Shift+R {spawn "bash" "-c" "ags quit -i niri; ags run";}
+    Mod+Shift+R {spawn "bash" "-c" "ags quit -i niri; ags run --gtk 3";}
 
     // Media Keys
     XF86AudioRaiseVolume  { spawn "bash" "-c" "ags -i niri request 'audio.setVolume(.05)'"; }
@@ -551,6 +562,7 @@ environment {
 	QT_QPA_PLATFORM "wayland"
 	QT_QPA_PLATFORMTHEME "qt6ct"
 	QT_ENABLE_HIGHDPI_SCALING "1"
+	TERMINAL "foot"
 	
 	// brings back default applications in dolphin
 	XDG_MENU_PREFIX "arch-"
