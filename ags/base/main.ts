@@ -2,20 +2,23 @@ import PopLauncher from './popLauncher.js'
 import Bar from './Bar/index.js'
 import osiNotify from './osiNotify.js'
 import { globalServices } from './services/index.js'
+import app from 'ags/gtk4/app'
+import { exec, execAsync } from 'ags/process'
+import { monitorFile } from 'ags/file'
 
 globalServices()
-const scss = App.configDir + '/style/index.scss'
-const css = App.configDir + '/style/index.css'
-Utils.execAsync(`sassc ${scss} ${css}`)
+const scss = app.configDir + '/style/index.scss'
+const css = app.cconfigDir + '/style/index.css'
+execAsync(`sassc ${scss} ${css}`)
 
-Utils.monitorFile(scss, () => {
-		Utils.exec(`sassc ${scss} ${css}`)
-		App.resetCss()
-		App.applyCss(css)
-	}
+monitorFile(scss, () => {
+	exec(`sassc ${scss} ${css}`)
+	app.reset_css()
+	app.apply_css(css)
+}
 )
 
-App.config({
+app.config({
 	notificationPopupTimeout: 3000, // milliseconds
 	notificationForceTimeout: true,
 	cacheNotificationActions: true,

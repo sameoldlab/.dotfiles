@@ -1,4 +1,6 @@
 import onScreenIndicator from './services/onScreenIndicator.js'
+import { Widget } from "astal/gtk3"
+import { bind, Variable } from "astal"
 
 const indicator = Variable({
 	visible: false,
@@ -6,11 +8,11 @@ const indicator = Variable({
 	value: -1,
 })
 
-const osi = () => {
-	const service = Widget.Icon({
+export const osi = () => {
+	const service = new Widget.Icon({
 		size: 24
 	})
-	const level = Widget.LevelBar({
+	const level = new Widget.LevelBar({
 		className: "osi_level",
 		width_request: 100,
 		max_value: 1,
@@ -18,21 +20,21 @@ const osi = () => {
 		css: 'min-width: 0px',
 		value: onScreenIndicator.bind('value')
 	})
-	
+
 	onScreenIndicator.connect('popup', (_, value: number, icon: string) => {
 		service.icon = icon
 		// level.value = (value)
-	// console.log("osi value: ", icon)
+		// console.log("osi value: ", icon)
 	})
 
-	return Widget.Window({
+	return new Widget.Window({
 		name: 'osiNotify',
 		setup(self) { self.visible = false },
 		visible: onScreenIndicator.bind('visible'),
 		margins: [128, 0],
 		anchor: ['bottom'],
 		layer: 'overlay',
-		child: Widget.Box({
+		child: new Widget.Box({
 			class_names: ['sys-toast'],
 			vertical: false,
 			margin: 4,

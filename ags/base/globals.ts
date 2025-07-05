@@ -1,6 +1,6 @@
 import Mpris from 'gi://AstalMpris'
 import Media from 'gi://AstalWp'
-import { execAsync } from 'astal/process'
+import { execAsync } from 'ags/process'
 
 export const declareGlobals = () => {
   const mpris = Mpris.get_default()
