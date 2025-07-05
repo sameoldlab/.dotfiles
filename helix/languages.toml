@@ -2,11 +2,12 @@
 command = "zk"
 args = ["lsp"]
 
-[language-server.rust-analyzer]
-command = "rust-analyzer"
 [language-server.qmlls]
 command = "/usr/lib/qt6/bin/qmlls"
 args = ["-E"]
+
+# [language-server.rust-analyzer]
+# command = "rust-analyzer"
 
 [language-server.noir-lsp]
 command = "nargo"
@@ -24,7 +25,7 @@ command = "vala-language-server"
 [language-server.astro-ls]
 command = "astro-ls"
 args = ["--stdio"]
-config = {typescript = {tsdk = "/home/ibro/.local/share/pnpm/global/5/node_modules/typescript/lib"}}
+config = { typescript = { tsdk = "/home/ibro/.local/share/pnpm/global/5/node_modules/typescript/lib" } }
 
 [language-server.typescript-language-server.config.typescript]
 tsdk = "/home/ibro/.local/share/pnpm/global/5/node_modules/typescript/lib"
@@ -32,11 +33,11 @@ tsdk = "/home/ibro/.local/share/pnpm/global/5/node_modules/typescript/lib"
 [[language-server.typescript-language-server.config.plugins]]
 name = "@astrojs/ts-plugin"
 location = "/home/ibro/.local/share/pnpm/global/5/node_modules/@astrojs/ts-plugin"
-languages = [ "astro" ]
+languages = ["astro"]
 
 [language-server.emmet-ls]
 args = ["--stdio"]
-command="emmet-language-server"
+command = "emmet-language-server"
 
 [language-server.eslint-ls]
 args = ["--stdio"]
@@ -60,14 +61,15 @@ args = ["--stdio"]
 
 [[language]]
 name = "markdown"
-language-servers = ["zk" ]
+language-servers = ["zk"]
+
 [[language]]
 name = "qml"
 language-servers = ["qmlls"]
 
 [[language]]
 name = "vala"
-language-servers = ["vala-language-server" ]
+language-servers = ["vala-language-server"]
 roots = ["meson.build"]
 
 [[language]]
@@ -78,25 +80,29 @@ auto-format = false
 name = "noir"
 auto-format = false
 scope = "source.nr"
-language-servers = [ "noir-lsp"]
+language-servers = ["noir-lsp"]
 roots = ["Nargo.toml"]
 file-types = ["nr"]
 
 [[language]]
 name = "solidity"
-language-servers = [ "nomicfoundation-solidity-language-server"]
+language-servers = ["nomicfoundation-solidity-language-server"]
 file-types = ["sol", "solidity"]
 
 [[language]]
 name = "svelte"
 auto-format = false
-language-servers = [ "tailwindcss","svelteserver","eslint-ls"]
+language-servers = [
+  "tailwindcss",
+  "svelteserver",
+  "eslint-ls",
+]
 comment-token = "//"
 
 [[language]]
 name = "astro"
 auto-format = true
-language-servers = [ "astro-ls", "tailwindcss"]
+language-servers = ["astro-ls", "tailwindcss"]
 scope = "source.astro"
 injection-regex = "astro"
 file-types = ["astro"]
@@ -107,34 +113,49 @@ roots = ["package.json", "astro.config.mjs"]
 [[language]]
 name = "typescript"
 auto-format = true
-language-servers = [ "typescript-language-server", "emmet-ls", "eslint-ls"]
- 
+language-servers = ["typescript-language-server", "emmet-ls", "eslint-ls"]
+
 [[language]]
 name = "javascript"
 auto-format = true
-language-servers = [ "typescript-language-server", "emmet-ls", "eslint-ls"]
+language-servers = ["typescript-language-server", "emmet-ls", "eslint-ls"]
 
 [[language]]
 name = "jsx"
 auto-format = true
-language-servers = [ "typescript-language-server", "tailwindcss","emmet-ls", "eslint-ls"]
+language-servers = [
+  "typescript-language-server",
+  "tailwindcss",
+  "emmet-ls",
+  "eslint-ls",
+]
 
 [[language]]
 name = "tsx"
 auto-format = true
-language-servers = [ "typescript-language-server" ,"tailwindcss", "emmet-ls", "eslint-ls"]
+language-servers = [
+  "typescript-language-server",
+  "tailwindcss",
+  "emmet-ls",
+  "eslint-ls",
+]
 
 [[language]]
 name = "html"
 auto-format = false
-language-servers = [ "vscode-html-language-server" , "tailwindcss", "emmet-ls", "eslint-ls"]
+language-servers = [
+  "vscode-html-language-server",
+  "tailwindcss",
+  "emmet-ls",
+  "eslint-ls",
+]
 
 [[language]]
 name = "css"
 auto-format = false
-language-servers = [ "vscode-css-language-server" , "emmet-ls" , "eslint-ls"]
+language-servers = ["vscode-css-language-server", "emmet-ls", "eslint-ls"]
 
 [[language]]
 name = "scss"
-auto-format= false
-language-servers = [ "vscode-css-language-server" , "emmet-ls" , "eslint-ls"]
+auto-format = false
+language-servers = ["vscode-css-language-server", "emmet-ls", "eslint-ls"]
