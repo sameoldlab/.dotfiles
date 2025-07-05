@@ -141,10 +141,11 @@ layout {
 	border {
         // off
         width 1
-        // active-color 127 200 255 255
-        // inactive-color 80 80 80 255
-		active-gradient from="#f5c2e777" to="#89DCEB77" angle=135 relative-to="workspace-view"
-		inactive-gradient from="#7A716877" to="#08013777" angle=135 relative-to="workspace-view"
+        active-color 108 112 134 255
+        inactive-color 69 71 90 180
+         // 80 80 255
+		// active-gradient from="#f5c2e7" to="#89DCEB" angle=135 relative-to="workspace-view"
+		// inactive-gradient from="#7A716877" to="#08013777" angle=135 relative-to="workspace-view"
     }
     shadow {
         on

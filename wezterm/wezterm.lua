@@ -22,7 +22,7 @@ config.window_padding = {
 -- config.default_gui_startup_args = { 'start', '--always-new-process'}
 config.use_fancy_tab_bar = false
 config.tab_bar_at_bottom = true
-config.hide_tab_bar_if_only_one_tab = false
+config.hide_tab_bar_if_only_one_tab = true
 
 config.colors = {
   tab_bar = {
