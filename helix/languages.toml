@@ -4,6 +4,9 @@ args = ["lsp"]
 
 [language-server.rust-analyzer]
 command = "rust-analyzer"
+[language-server.qmlls]
+command = "/usr/lib/qt6/bin/qmlls"
+args = ["-E"]
 
 [language-server.noir-lsp]
 command = "nargo"
@@ -58,6 +61,9 @@ args = ["--stdio"]
 [[language]]
 name = "markdown"
 language-servers = ["zk" ]
+[[language]]
+name = "qml"
+language-servers = ["qmlls"]
 
 [[language]]
 name = "vala"
