@@ -1,5 +1,18 @@
 @use 'sass:color';
-@import "variables";
+@use "./theme";
+
+$aqua: #fff;
+/* $black: hsl(180, 9%, 6%);
+$white: hsl(0, 0%, 89%);
+$indicator: hsl(220, 64.1%, 77.06%); */
+$black: theme.$base;
+$white: #ccc;
+$accent: #ccc;
+$indicator: theme.$peach;
+$text: theme.$text;
+$background: transparent;
+$foreground: $text;
+$hover: #333;
 
 window {
   border-radius: 1rem;
@@ -7,12 +20,12 @@ window {
 }
 
 .spring {
-  $border: 1px solid $surface-0;
-  background: $mantle;
+  $border: 1px solid theme.$highlight-mid;
+  background: $black;
   border: $border;
   border-radius: 1rem;
   color: $text;
-  box-shadow: 0 2px 1px 0px $crust;
+  box-shadow: 0 2px 1px 0px $black;
 
   #top {
     padding: .5rem 1rem 0;
@@ -29,7 +42,7 @@ window {
     background: inherit;
 
     slider {
-      background: $crust;
+      background: theme.$surface;
 
     }
   }
@@ -52,7 +65,7 @@ window {
   }
 
   .applauncher__item.selected {
-    background: $surface-0;
+    background: theme.$surface;
   }
 
   .spotlight {
@@ -60,8 +73,8 @@ window {
   }
 
   &>centerbox:last-child {
-    background: $crust;
-    color: $subtext-1;
+    background: theme.$surface;
+    color: $text;
     font-size: .9rem;
     padding: .5rem 1rem;
     border-top: $border;
@@ -73,8 +86,8 @@ window {
   }
 
   .keybind {
-    color: $subtext-0;
-    background: $surface-0;
+    color: $text;
+    background: theme.$overlay;
     font-family: 'Courier New', Courier, monospace;
     font-size: .7rem;
     padding: .25em .6em;

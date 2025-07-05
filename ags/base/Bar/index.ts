@@ -4,15 +4,20 @@
 // import SysTray from './systray.js'
 import SystemTray from 'gi://AstalTray'
 import Battery from 'gi://AstalBattery'
-import Niri from 'gi://AstalNiri'
+// import Application from 'gi://AstalApplication'
+import Niri, { msg } from 'gi://AstalNiri'
+import Gio from 'gi://Gio?version=2.0'
 import { App, Astal, Gtk, Gdk, Widget } from "astal/gtk3"
 import { bind, Variable } from "astal"
 import * as Utils from 'astal/process'
+import AstalApps from 'gi://AstalApps?version=0.1'
 
 const log = (...args: Array<any>) => console.log(...args)
 
+
 const batteryLabel = () => {
 	const bat = Battery.get_default()
+
 	return new Widget.Box({
 		spacing: 2,
 		vexpand: true,
@@ -37,7 +42,7 @@ export const Clock = () =>
 		},
 	},
 		new Widget.Box({
-			className: 'clock',
+			className: 'clock semibold',
 			vertical: false,
 			spacing: 4,
 		},
@@ -46,7 +51,7 @@ export const Clock = () =>
 					const date = d.toDateString().split(' ')
 					return `${date[0]} ${date[1]} ${date[2]}` ?? ''
 				}),
-				className: 'date',
+				className: 'date semibold',
 				// hexpand: true,
 				vexpand: true,
 				// vpack: 'end',
@@ -55,7 +60,7 @@ export const Clock = () =>
 			}),
 			new Widget.Label({
 				label: bind(date).as(d => d.toLocaleTimeString().split(' ', 1)[0] ?? ''),
-				className: 'time',
+				className: 'time semibold',
 				halign: Gtk.Align.END,
 				// justification: 'right',
 				// vpack: 'end',
@@ -97,7 +102,7 @@ export const systemTray = (opts: { vertical: boolean }) => {
 				}
 			}
 		},
-			new Widget.Icon({ g_icon: bind(item, 'gicon') })
+			new Widget.Icon({ icon: bind(item, 'icon_name').as(i => i ?? "") }),
 		)
 	}))
 
@@ -110,6 +115,7 @@ export const systemTray = (opts: { vertical: boolean }) => {
 export const Workspaces = (opts: { vertical: boolean }) => {
 	const workspaces: Variable<Niri.Workspace[]> = Variable([])
 	const niri = Niri.get_default()
+	niri.overview
 	niri.connect('event', () => {
 		const ws = niri.get_workspaces()
 		workspaces.set(ws)
@@ -121,6 +127,7 @@ export const Workspaces = (opts: { vertical: boolean }) => {
 	const BACK = 32768
 	const FORWARD = 65536
 
+	Gio._promisify(Niri.msg, 'pick_color', 'pick_color_finish')
 	let lastTime = 0
 	return new Widget.Box({
 		className: 'workspaces',
@@ -131,15 +138,23 @@ export const Workspaces = (opts: { vertical: boolean }) => {
 				lastTime = event.time
 
 				switch (event.direction) {
-					case Gdk.ScrollDirection.UP: return Utils.execAsync('niri msg action focus-workspace-up')
-					case Gdk.ScrollDirection.DOWN: return Utils.execAsync('niri msg action focus-workspace-down')
-					case Gdk.ScrollDirection.LEFT: return Utils.execAsync('niri msg action focus-column-left')
-					case Gdk.ScrollDirection.RIGHT: return Utils.execAsync('niri msg action focus-column-right')
+					case Gdk.ScrollDirection.UP: return niri.msg.send({ Action: { FocusWorkspaceUp: {} } })
+					// case Gdk.ScrollDirection.UP: return Utils.execAsync('niri msg action focus-workspace-up')
+					// case Gdk.ScrollDirection.DOWN: return Utils.execAsync('niri msg action focus-workspace-down')
+					// case Gdk.ScrollDirection.LEFT: return Utils.execAsync('niri msg action focus-column-left')
+					// case Gdk.ScrollDirection.RIGHT: return Utils.execAsync('niri msg action focus-column-right')
 					case Gdk.ScrollDirection.SMOOTH:
 						const isVerical = Math.abs(event.delta_y) === Math.max(Math.abs(event.delta_x), Math.abs(event.delta_y))
 						if (isVerical) {
-							if (event.delta_y < 0)
-								return Utils.execAsync('niri msg action focus-workspace-up')
+							if (event.delta_y < 0) {
+								return Niri.msg.focus_workspace_up()
+								// Gio._promisify(Niri.Message.prototype, 'send_async')
+							}
+
+
+
+
+							// return Utils.execAsync('niri msg action focus-workspace-up')
 							// return niri.message({ Action: { FocusColumnLeft: {} } })
 							return Utils.execAsync('niri msg action focus-workspace-down')
 						}
@@ -149,7 +164,13 @@ export const Workspaces = (opts: { vertical: boolean }) => {
 				}
 			},
 		},
-			new Widget.Box({
+			bind(niri, "focused_workspace").as((w) => w
+				? new Widget.Label({
+					className: "semibold px-4 bg-accent txt-mantle",
+					label: bind(w, 'name').as(name => `${w.idx} ${name}`)
+				})
+				: '')
+			/* new Widget.Box({
 				vertical: opts.vertical
 			},
 				workspaces(ws => ws.filter((w) => w.is_focused).map((w, i) => new Widget.Button({
@@ -158,34 +179,104 @@ export const Workspaces = (opts: { vertical: boolean }) => {
 						.catch(printerr),
 				}, w.name
 				)))
-			)
+			) */
 		)
 	)
 }
-const Seperator = () => new Widget.Label({ label: ' |  ', className: 'seperator' })
+const Seperator = (label = ' |  ') => new Widget.Label({ label, className: 'seperator' })
 const Current = () => {
 	const niri = Niri.get_default()
 	const current_title: Variable<string> = Variable(niri.get_window(niri.focused_window_id)?.title ?? '')
-	niri.connect('window-focus-changed', (niri, w_id) => current_title
-		.set(niri.get_window(w_id)?.title ?? ''))
+	niri.connect('window-focus-changed', (niri, w_id) => {
+		current_title.set(niri.get_window(w_id)?.title ?? '')
+	})
 	return new Widget.Label({ label: current_title().as(t => t.slice(0, 150)) })
 }
 
-const Active = () => {
-	const niri = Niri.get_default()
-	return new Widget.Label({ label: niri.focused_window.title().as(t => t.slice(0, 150)) })
+const Current2 = () => {
+	const niri = Niri.get_default();
+	return new Widget.Label({
+		className: "bg-surface px-4",
+		label: bind(niri, "focused_window").as((win) => (win ? win.title : "")),
+	});
+};
+function WorkspaceButton({ ws }: { ws: Niri.Workspace }) {
+	const clients = bind(ws, "windows").as((clients) =>
+		clients.sort((a, b) => a.id - b.id),
+	);
+
+	console.log(clients)
+	return Widget.Box({
+
+	})
 }
 
-const Left = new Widget.Box({
+const Testing = (monitor: Gdk.Monitor) => {
+	const niri = Niri.get_default();
+	const apps = new AstalApps.Apps();
+
+	return bind(niri, "focused_workspace").as(wk =>
+		wk && new Widget.Box({
+			children: bind(wk, 'windows').as(wins => wins.map(w => new Widget.Button({
+				onClick() {
+					Niri.msg.focus_window(w.id)
+				},
+				label: bind(w, 'title').as(name => ` ${name} |`),
+				className: bind(w, 'is_focused').as(f => f ? "txt-accent" : "txt-"),
+				// child: new Widget.Icon({ icon: (apps.fuzzy_query(w.app_id) ?? []).shift()?.icon_name })
+			})))
+		},
+			// if (!current) return new Widget.Label({ label: "not found" })
+			// return new Widget.Label({ label: bind(current, "name").as(n => ` ${n} `) })
+		)
+	)
+};
+
+const Current3 = () => {
+	const niri = Niri.get_default();
+	return bind(niri, 'focused_window').as(fw =>
+		new Widget.Label({
+			label: fw && bind(fw, "title").as((t) => (t ?? ""))
+		})
+	)
+};
+
+const Demo = () => {
+	const niri = Niri.get_default();
+	return [
+		new Widget.Button({
+			onClick: async () => {
+				try {
+
+					let res = await niri.msg(JSON.stringify({
+						Action: { FocusWorkspace: { reference: { Index: 2 } } }
+					}))
+					console.log("res:", res)
+				} catch (e) {
+					console.error(e)
+				}
+				console.log('hello workd')
+			},
+			label: 'X'
+		})
+
+	]
+};
+
+
+const Left = (monitor: Gdk.Monitor) => new Widget.Box({
 	children: [
-		Workspaces({ vertical: false }),
-		Seperator(),
-		Current()
+		// Workspaces({ vertical: false }),
+		// Current2(),
+		Testing(monitor)
+		// Current3()
 	],
 })
 
 export const Center = new Widget.Box({
 	children: [
+		Clock(),
+		// ...Demo()
 		// Notification(),
 	],
 })
@@ -200,15 +291,15 @@ export const Right = new Widget.Box({
 		systemTray({ vertical: false }),
 		// sysTray(),
 		batteryLabel(),
-		Clock(),
 	],
 })
 
-export const Bar = () => {
+export const Bar = (monitor: Gdk.Monitor) => {
+
 	return new Widget.Window({
 		name: 'bar',
 		className: 'bar',
-		monitor: 0,
+		monitor,
 		anchor: Astal.WindowAnchor.TOP
 			| Astal.WindowAnchor.LEFT
 			| Astal.WindowAnchor.RIGHT,
@@ -217,7 +308,7 @@ export const Bar = () => {
 		exclusivity: Astal.Exclusivity.EXCLUSIVE,
 	},
 		new Widget.CenterBox({
-			start_widget: Left,
+			start_widget: Left(monitor),
 			center_widget: Center,
 			end_widget: Right,
 		},

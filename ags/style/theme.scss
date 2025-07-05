@@ -1,0 +1,51 @@
+/*
+ $rose: rgb(25, 23, 36); 
+ $flamingo: rgb(242, 205, 205);
+ $pink: rgb(245, 194, 231);
+ $mauve: rgb(203, 166, 247);
+ $red: rgb(243, 139, 168);
+ $maroon: rgb(235, 160, 172);
+ $peach: rgb(250, 179, 135);
+ $yellow: rgb(249, 226, 175);
+ $green: rgb(166, 227, 161);
+ $teal: rgb(148, 226, 213);
+ $sky: rgb(137, 220, 235);
+ $sapphire: rgb(116, 199, 236);
+ $blue: rgb(137, 180, 250);
+ $lavender: rgb(180, 190, 254);
+ $text: rgb(205, 214, 244);
+ $subtext-1: rgb(186, 194, 222);
+ $subtext-0: rgb(166, 173, 200);
+ $overlay-2: rgb(147, 153, 178);
+ $overlay-1: rgb(127, 132, 156);
+ $overlay-0: rgb(108, 112, 134);
+ $surface-2: rgb(88, 91, 112);
+ $surface-1: rgb(69, 71, 90);
+ $surface-0: rgb(49, 50, 68);
+ $base: rgb(25, 23, 36);
+*/
+
+$mantle: rgb(20, 20, 35);
+$crust: rgb(17, 17, 27);
+
+$base: rgb(25, 23, 36);
+$surface: rgb(31, 29, 46);
+$overlay: rgb(38, 35, 58);
+$muted: rgb(110, 106, 134);
+$subtle: rgb(144, 140, 170);
+$text: rgb(224, 222, 244);
+$red: rgb(235, 111, 146);
+$yellow: rgb(246, 193, 119);
+$peach: rgb(235, 188, 186);
+$green: rgb(49, 116, 143);
+$teal: rgb(156, 207, 216);
+$purple: rgb(196, 167, 231);
+$highlight-low: rgb(33, 32, 46);
+$highlight-mid: rgb(64, 61, 82);
+$highlight-high: rgb(82, 79, 103);
+
+/* $subtext-1: rgb(186, 194, 222); */
+/* $subtext-0: rgb(166, 173, 200); */
+
+$subtext-1: $muted;
+$subtext-0: $subtle;

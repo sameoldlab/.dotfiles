@@ -1,6 +1,20 @@
 @use 'sass:color';
-@import "variables";
-@import "spring";
+@use './spring.scss';
+@use "./theme";
+
+$aqua: #fff;
+/* $black: hsl(180, 9%, 6%);
+$white: hsl(0, 0%, 89%);
+$indicator: hsl(220, 64.1%, 77.06%); */
+$black: theme.$base;
+$white: theme.$subtext-1;
+$accent: theme.$yellow;
+$indicator: theme.$teal;
+$text: theme.$text;
+$background: theme.$crust;
+$foreground: theme.$text;
+$hover: theme.$subtext-0;
+
 
 // label {
 // 	font-weight: 600;
@@ -13,11 +27,60 @@
 	padding: 0;
 	box-shadow: 0px 0px transparent;
 	font-size: 13px;
-	font-weight: 500;
+	font-weight: 600;
 }
 
-.red {
-	color: red;
+.bg-mantle {
+	background: theme.$mantle;
+}
+.bg-accent {
+	background: $accent;
+}
+.txt-accent {
+	color: $accent;
+}
+
+.txt-mantle {
+	color: theme.$mantle;
+}
+
+.bg-crust {
+	background: theme.$crust;
+}
+
+.txt-crust {
+	color: theme.$crust;
+}
+
+.bg-base {
+	background: theme.$base;
+}
+
+.txt-base {
+	color: theme.$base;
+}
+
+.bg-surface {
+	background: theme.$surface;
+}
+
+.txt-surface {
+	color: theme.$surface;
+}
+
+.bg-overlay {
+	background: theme.$overlay;
+}
+
+.txt-overlay {
+	color: theme.$overlay;
+}
+.p-4 {
+	padding: .5rem;
+}
+.px-4 {
+	padding-left: .5rem;
+	padding-right: .5rem;
 }
 
 .hide {
@@ -26,8 +89,6 @@
 }
 
 .bar {
-	background: rgba(10, 9, 17, 0);
-	background: red;
 	background: $background;
 }
 
@@ -42,7 +103,7 @@ menu {
 	padding: .25em;
 	min-width: 200px;
 	border-radius: .5em;
-	border: 1px solid $overlay-0;
+	border: 1px solid theme.$overlay;
 }
 
 .quick-settings {
@@ -58,8 +119,13 @@ menu {
 	margin: 0 .75em;
 }
 
+.workspaces {
+	color: $accent;
+	/* padding: 0 0.5em; */
+	font-weight: 800;
+}
+
 .workspaces button {
-	padding: 0 0.5em;
 	// font-size: svw;
 	background-color: $background;
 	font-weight: 400;
@@ -110,17 +176,12 @@ menu {
 	margin: 0 6px;
 }
 
-.clock {
-	font-weight: 600;
-	margin: 0.25em 1em;
-	/* font-size: 0.95em; */
-	/* justify: "right"; */
+.bold {
+	font-weight: 800;
 }
 
-.date {
-	font-weight: 400;
-	/* font-size: 0.85em; */
-	color: #eee;
+.semibold {
+	font-weight: 600;
 }
 
 progress,
@@ -224,7 +285,7 @@ highlight {
 
 	.description {
 		font-weight: 400;
-		color: color.scale($text, $lightness: -18%);
+		color: theme.$subtle;
 	}
 
 	.icon {
@@ -301,3 +362,9 @@ window.Bar button {
 }
 
 /* tutorial style */
+
+.niri-demo {
+	background: $black;
+	min-width: 30px;
+	font-family: monospace;
+}

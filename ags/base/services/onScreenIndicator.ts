@@ -1,5 +1,5 @@
 import icons from '../utils/icons.js'
-import Audio from 'resource:///com/github/Aylur/ags/service/audio.js'
+import Audio from 'gi://AstalMpris'
 import Brightness from './brightness.js'
 
 const getAudioTypeIcon = (icon: string | null): string => {
@@ -34,11 +34,11 @@ class Indicator extends Service {
 	#visible = false
 	#icon = ''
 	#value = 0
-	
+
 	get icon() {
 		return this.#icon
 	}
-		get visible() {
+	get visible() {
 		return this.#visible
 	}
 	get value() {
@@ -49,7 +49,7 @@ class Indicator extends Service {
 	#delay = 0
 	singleton = 0
 	async close(id = 0) {
-		if(id < this.singleton) return
+		if (id < this.singleton) return
 		this.#delay--
 		if (this.#delay > 0 && this.#visible === true) {
 			await new Promise(res => setTimeout(res, 100)) /* delay * 100ms = 1.5s */
@@ -69,7 +69,7 @@ class Indicator extends Service {
 		this.notify('value')
 		this.notify('visible')
 		this.emit('popup', value, this.#icon)
-		
+
 		this.#delay = 15
 		this.singleton++
 		this.close(this.singleton)
