@@ -1,3 +1,7 @@
+/* ==================================== 
+ * SPDX-License-Identifier: MPL-2.0
+ * ==================================== */
+
 // import { notifications } from 'resource:///com/github/Aylur/ags/service/notifications.js'
 // import SystemTray from 'resource:///com/github/Aylur/ags/service/systemtray.js'
 // import Media from './media.js'
