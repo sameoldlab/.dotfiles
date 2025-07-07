@@ -1,9 +1,17 @@
 import { Brightness } from '../services/index.js'
 // import Network from '../services/network.js'
-import Audio from 'resource:///com/github/Aylur/ags/service/audio.js'
-import Battery from 'resource:///com/github/Aylur/ags/service/battery.js'
+import Audio from 'gi://AstalWp'
+import Battery from 'gi://AstalBattery?version=0.1'
+import { Gtk } from 'ags/gtk4'
+import { createBinding } from 'ags'
+import { createPoll } from 'ags/time'
 
-const volume = () => {
+const VolumeLbl = () => {
+
+	const audio = Audio.get_default()
+	const speaker = audio?.defaultSpeaker
+	if (!speaker) return <box />
+
 	const icons = {
 		101: 'overamplified',
 		67: 'high',
@@ -11,71 +19,65 @@ const volume = () => {
 		1: 'low',
 		0: 'muted',
 	}
-	function getIcon() {
-		const icon = Audio.speaker.is_muted
+	function getIcon(speaker: Audio.Endpoint) {
+
+		const icon = speaker.mute
 			? 0
-			: [101, 67, 34, 1, 0].find(
-				threshold => threshold <= Audio.speaker.volume * 100
+			: ([101, 67, 34, 1, 0] as const).find(
+				threshold => threshold <= speaker.volume * 100
 			)!
 
 		return `audio-volume-${icons[icon]}-symbolic`
 	}
+	const volume_lvl = createBinding(speaker, 'volume').as(v => `${Math.round(v * 100)}`)
 
-	const icon = Widget.Icon({
-		icon: Utils.watch(getIcon(), Audio.speaker, getIcon),
-		vexpand: true,
-		vpack: 'center'
-	})
-
-	return Widget.Button({
-		class_name: 'volume tray-icon',
-
-		on_scroll_down: () => {
-			if (!Audio.speaker) return
-			const { volume } = Audio.speaker
-			Audio.speaker.volume = volume - 0.01
-		},
-		on_scroll_up: () => {
+	return <button
+		class='volume tray-icon'
+		onScrollDown={() => {
+			if (!speaker) return
+			const { volume } = speaker
+			speaker.volume = volume - 0.01
+		}}
+		onScrollUp={() => {
 			print(50)
-			if (!Audio.speaker) return
-			const { volume } = Audio.speaker
-			Audio.speaker.volume = volume + 0.01
-		},
-		// css: 'min-width: 180px',
-		child: Widget.Box({
-			vpack: 'center',
-			vexpand: true,
-			spacing: 2,
-			children: [
-				icon,
-				Widget.Label({ label: Audio.speaker.bind('volume').as(
-					v => `${Math.round(v * 100)}`
-				)})
-			]
-		})
-	})
+			if (!speaker) return
+			speaker.volume += 0.01
+		}}
+		css={'min-width: 180px'}
+	>
+		<box
+			valign={Gtk.Align.CENTER}
+			vexpand={true}
+			spacing={2}
+		>
+			<image
+				icon_name={getIcon(speaker)}
+				vexpand={true}
+				valign={Gtk.Align.CENTER}
+			/>
+			<label label={volume_lvl} />
+		</box>
+	</button>
 }
 
-const brightnessLabel = () =>
-	Widget.EventBox({
-		on_scroll_up: () => {
+const BrightnessLbl = () =>
+	<eventbox
+		on_scroll_up={() => {
 			Brightness.screen_value += 0.011
-		},
-		on_scroll_down: () => {
+		}}
+		on_scroll_down={() => {
 			Brightness.screen_value -= 0.01
-		},
-		class_name: 'battery tray-icon',
-		child: Widget.Box({
-			spacing: 2,
-			vexpand:true,
-			children: [
-				Widget.Icon('display-brightness-symbolic'),
-				Widget.Label({label: Brightness.bind('screen_value').as(
-					v => `${Math.round(v * 100)}`
-				)}),
-			]
-		}) 
-	})
+		}}
+		class={'battery tray-icon'}
+	>
+		<box
+			spacing={2}
+			vexpand={true}
+		>
+			<image icon_name={'display-brightness-symbolic'} />
+			<label label={createBinding(Brightness, 'screen_value').as(v => `${Math.round(v * 100)}`)} />
+		</box>
+	</eventbox>
 // try {
 // 	Network.connect(undefined, (a, b) => {
 // 		console.log(a)
@@ -86,35 +88,26 @@ const brightnessLabel = () =>
 // }
 
 const wifi = () => {
-	const signal = Variable('offline', {
-		poll: [
-			1000,
-			[
-				'bash',
-				'-c',
-				`iwctl station wlan0 show \
+	const signal = createPoll('offline',
+		1000,
+		[
+			'bash',
+			'-c',
+			`iwctl station wlan0 show \
 				| grep 'Connected network' \
 				| sd '            Connected network     ' ''`,
-			],
-			val => {
-				// console.log(val)
-				if (val === '') return 'offline'
-				return 'good'
-			},
-		],
-	})
-	return Widget.Box({
-		class_name: 'wifi tray-icon',
-		children: [
-			Widget.Stack({
-				children: {
-					good: Widget.Icon('network-wireless-signal-good-symbolic'),
-					offline: Widget.Icon('network-wireless-offline-symbolic'),
-				},
-				shown: signal.bind(),
-			}),
-		],
-	})
+		]).as(val => {
+			// console.log(val)
+			if (val === '') return 'offline'
+			return 'good'
+		})
+
+	return <box class={'wifi tray-icon'} >
+		<stack shown={signal} >
+			good: Widget.Icon('network-wireless-signal-good-symbolic'),
+			offline: Widget.Icon('network-wireless-offline-symbolic'),
+		</stack>
+	</box>
 }
 
 const naturalTime = (s: number) => {
@@ -133,39 +126,35 @@ const naturalTime = (s: number) => {
 	return `${m}m ${s}s`
 }
 
-const batteryLabel = () =>
-	Widget.Box({
-		spacing: 2,
-		vexpand:true,
-		class_name: 'battery tray-icon',
-		tooltip_text: Battery.bind('time_remaining').as(s => naturalTime(s)),
-		children: [
-			Widget.Icon({
-				icon: Battery.bind('icon_name'),
-			}),
-			Widget.Label({
-				label: Battery.bind('percent').as(v => `${v}%`),
-			}),
-		],
-	})
+const BatteryLbl = () => {
+	const battery = Battery.get_default()
+	const timeLeft = createBinding(battery, 'time_to_empty').as(s => naturalTime(s))
+	const percent = createBinding(battery, 'percentage').as(v => `${v}%`)
+	const icon_name = createBinding(battery, 'icon_name')
+	return <box
+		spacing={2}
+		vexpand={true}
+		class={'battery tray-icon'}
+		tooltip_text={timeLeft}
+	>
+		<image
+			icon_name={icon_name}
+		/>
+		<label label={percent} />
+	</box>
+}
 
-const Tray = (opts: {vertical: boolean} = {vertical: false}) =>
-	Widget.EventBox({
-		// pass_through: true,
+const Tray = (opts: { vertical: boolean } = { vertical: false }) =>
+	// Widget.EventBox({
+	// 	// pass_through: true,
+	// revealer,
+	// wifi(),
 
-		child: Widget.Box({
-		vertical: opts.vertical,
-		vexpand: true,
-		spacing: 8,
-		vpack: 'center',
-			children: [
-				brightnessLabel(),
-				// revealer,
-				// wifi(),
-				volume(),
-				batteryLabel(),
-			],
-		}),
-	})
+	<box
+		orientation={opts.vertical ? Gtk.Orientation.VERTICAL : Gtk.Orientation.HORIZONTAL} vexpand={true} spacing={8} valign={Gtk.Align.CENTER}>
+		<BrightnessLbl />
+		<VolumeLbl />
+		<BatteryLbl />
+	</box>
 
 export default Tray
