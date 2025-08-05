@@ -1,23 +1,24 @@
 mattmc3/ez-compinit
-zsh-users/zsh-completions kind:fpath path:src 
-aloxaf/fzf-tab
+zsh-users/zsh-completions
+aloxaf/fzf-tab kind:defer
 # atuinsh/atuin
 
 # belak/zsh-utils path:completion
 
-mattmc3/zephyr path:plugins/color
+mattmc3/zephyr path:plugins/color kind:defer
 # olets/zsh-abbr kind:defer
 # sindresorhus/pure
-# romkatv/powerlevel10k 
+# romkatv/powerlevel10k
 # belak/zsh-utils path:editor # Conflict with substring search :(
 # jirutka/zsh-shift-select
 
+mroth/evalcache
 $ZDOTDIR/aliases
 $ZDOTDIR/exports
 # $ZDOTDIR/function
 
 $ZDOTDIR/plugins/history.zsh
-$ZDOTDIR/plugins/fzf-tab-completions.zsh kind:defer
+# $ZDOTDIR/plugins/fzf-tab-completions.zsh kind:defer
 $ZDOTDIR/plugins/dirstack.zsh 
 $ZDOTDIR/plugins/editor.zsh 
 

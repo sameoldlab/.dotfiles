@@ -7,7 +7,6 @@
 alias n="pnpm"
 alias nd="pnpm dev"
 alias ni="pnpm i"
-alias hx="helix"
 alias ll="eza --hyperlink -la"
 
 alias push="git push"

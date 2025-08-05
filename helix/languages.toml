@@ -97,7 +97,6 @@ language-servers = [
   "svelteserver",
   "eslint-ls",
 ]
-comment-token = "//"
 
 [[language]]
 name = "astro"

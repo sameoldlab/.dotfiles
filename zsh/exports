@@ -12,9 +12,7 @@ export FZF_ALT_C_COMMAND="fd --type d --no-ignore-vcs --exclude node_modules --e
 export FZF_ALT_C_OPTS="
     --preview 'dust -D {}'
 "
-export EDITOR="helix"
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  
+export EDITOR="hx"
 export PNPM_HOME="$HOME/.local/share/pnpm"
 export RUSTC_WRAPPER="/usr/bin/sccache"
 export GOPATH="$HOME/go"

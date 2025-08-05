@@ -2,6 +2,7 @@
 #
 # .zshrc - Zsh file loaded on interactive shell sessions.
 #
+# zmodload zsh/zprof
 typeset -U path cdpath fpath manpath
 
 # Use emacs keymap as the default.
@@ -19,15 +20,22 @@ fi
 source ${zsh_plugins}.zsh
 
 
-# # Called before prompt(?)
+# Called before prompt(?)
 function precmd {
     # Set window title
     print -Pn "\e]0;zsh%L %(1j,%j job%(2j|s|); ,)%\e\\"
+    # emit OSC-133;A sequence (allows jumping between promts)
+    print -Pn "\e]133;A\e\\"
+
+    if ! builtin zle; then
+        print -n "\e]133;D\e\\"
+    fi
 }
 
-# # Called when executing a command
+# Called when executing a command
 function preexec {
     print -Pn "\e]0;${(q)1}\e\\"
+    print -n "\e]133;A\e\\"
 }
 
 function current_dir() {
@@ -79,6 +87,21 @@ typeset -Ag abbreviations=(
   # 'gs' 'git status -uno'
 )
 
+# Spawn new terminal in the same directory
+# https://codeberg.org/dnkl/foot/wiki#user-content-spawning-new-terminal-instances-in-the-current-working-directory
+
+function osc7-pwd() {
+    emulate -L zsh # also sets localoptions for us
+    setopt extendedglob
+    local LC_ALL=C
+    printf '\e]7;file://%s%s\e\' $HOST ${PWD//(#m)([^@-Za-z&-;_~])/%${(l:2::0:)$(([##16]#MATCH))}}
+}
+
+function chpwd-osc7-pwd() {
+    (( ZSH_SUBSHELL )) || osc7-pwd
+}
+add-zsh-hook -Uz chpwd chpwd-osc7-pwd
+
 magic-abbrev-expand() {
     local MATCH
     LBUFFER=${LBUFFER%%(#m)[_a-zA-Z0-9]#}
@@ -103,10 +126,12 @@ bindkey " " magic-abbrev-expand
 bindkey "^x " no-magic-abbrev-expand
 bindkey -M isearch " " self-insert
 
-eval "$(starship init zsh)"  
-eval "$(zoxide init zsh)"  
-eval "$(fzf --zsh)"
-eval "$(atuin init zsh)"
-eval "$(direnv hook zsh)"
+_evalcache starship init zsh
+_evalcache zoxide init zsh  
+_evalcache fzf --zsh
+_evalcache atuin init zsh
+_evalcache direnv hook zsh
+_evalcache fnm env --use-on-cd --shell zsh
 
 typeset -gU path fpath
+# zprof
