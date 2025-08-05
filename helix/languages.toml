@@ -95,8 +95,9 @@ auto-format = false
 language-servers = [
   "tailwindcss",
   "svelteserver",
-  "eslint-ls",
+  # "eslint-ls",
 ]
+roots = ["package.json"]
 
 [[language]]
 name = "astro"

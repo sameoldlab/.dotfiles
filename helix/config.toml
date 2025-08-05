@@ -23,6 +23,9 @@ space = "none"
 tab = "all"
 newline = "none"
 
+[editor.statusline]
+merge-with-commandline = true
+
 [editor.soft-wrap]
 enable = true
 
@@ -56,11 +59,15 @@ A-e = "move_next_long_word_end"
 ret = ["open_below", "normal_mode"]
 S-ret = ["open_above", "normal_mode"]
 
+# [keys.normal."`"]
+# l = "switch_to_lowercase"
+# u = "switch_to_uppercase"
+# s = "@s[A-Z]<ret>`li_<esc>miw"
+# c = "@s_<ret><A-d>`umiw"
+
 [keys.insert]
-A-i = "normal_mode"     # Maps Alt-X to enter normal mode
 C-s = ":write" # Maps Ctrl-s to save
 j = { k = "normal_mode" }
-# S-; = {w = ":write"} 
 
 [keys.select]
 b   = "no_op"
