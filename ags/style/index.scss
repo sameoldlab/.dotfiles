@@ -348,6 +348,11 @@ window.Bar {
 	background: $background;
 	color: $foreground;
 	font-weight: bold;
+	opacity: 0.01;
+	transition: opacity 80ms ease-in;
+	&:hover {
+		opacity: 1;
+	}
 }
 
 window.Bar>centerbox {

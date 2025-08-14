@@ -2,7 +2,7 @@ theme = "rose_pine"
 
 [editor]
 scrolloff = 2
-bufferline = "multiple"
+# bufferline = "multiple"
 auto-save = true
 line-number = "relative"
 end-of-line-diagnostics = "hint"

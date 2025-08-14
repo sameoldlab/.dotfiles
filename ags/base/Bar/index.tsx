@@ -72,7 +72,7 @@ export const Bar = (monitor: Gdk.Monitor) => <window
 	name="bar"
 	class="Bar"
 	gdkmonitor={monitor}
-	exclusivity={Astal.Exclusivity.EXCLUSIVE}
+	exclusivity={Astal.Exclusivity.NORMAL}
 	anchor={Astal.WindowAnchor.RIGHT | Astal.WindowAnchor.TOP | Astal.WindowAnchor.LEFT}
 	application={app}
 >
