@@ -295,6 +295,7 @@ window-rule {
 }
 window-rule {
     match app-id="foot"
+    match app-id="wezterm"
     default-column-width { proportion 0.35; }
 }
 window-rule {
@@ -353,7 +354,7 @@ binds {
     // Mod+Alt+3 {set-column-width "66.666%";}
     Mod+Alt+3 {expand-column-to-available-width; }
     // Suggested bnds for running programs: terminal, app launcher, screen locker.
-    Mod+Return { spawn "footclient"; }
+    Mod+Return { spawn "wezterm"; }
     Mod+B { spawn "zen-browser"; }
     Mod+E { spawn "dolphin"; }
     Mod+Alt+E { spawn "bash" "-c" "footclient -e -a froot broot"; }
@@ -571,7 +572,7 @@ environment {
 	QT_QPA_PLATFORM "wayland"
 	QT_QPA_PLATFORMTHEME "qt6ct"
 	QT_ENABLE_HIGHDPI_SCALING "1"
-	TERMINAL "foot"
+	TERMINAL "wezterm"
 	
 	// brings back default applications in dolphin
 	XDG_MENU_PREFIX "arch-"

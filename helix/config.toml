@@ -32,7 +32,7 @@ enable = true
 [keys.normal]
 C-s = ":write" # Maps Ctrl-s to save
 C-q = ":buffer-close"
-C-g = [":new", ":insert-output lazygit", ":buffer-close!", ":redraw"]
+# C-g = [":new", ":insert-output lazygit", ":buffer-close!", ":redraw"]
 tab = ":buffer-next"
 S-tab = ":buffer-previous"
 # space = { x = [":write:", "buffer-close"]}

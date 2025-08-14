@@ -4,7 +4,9 @@ local config = wezterm.config_builder()
 
 config.default_workspace = "home"
 config.enable_wayland = true
-config.color_scheme = 'Catppuccin Mocha'
+config.color_scheme = 'Rose Pine'
+config.color_schemes = require('colors')
+-- config.colors = theme.colors()
 -- color_scheme = 'Batman',
 config.font = wezterm.font "Fira Code"
 config.font_size = 10.0
