@@ -97,7 +97,7 @@ language-servers = [
   "svelteserver",
   # "eslint-ls",
 ]
-roots = ["package.json"]
+roots = ["package.json", "svelte.config.ts"]
 
 [[language]]
 name = "astro"

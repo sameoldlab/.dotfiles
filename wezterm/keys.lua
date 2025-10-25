@@ -136,6 +136,11 @@ return {
     action = wezterm.action.ActivateCopyMode
   },
   {
+    key = 'Enter',
+    mods = 'ALT',
+    action = wezterm.action.DisableDefaultAssignment
+  },
+  {
     key = 'g',
     mods = 'LEADER',
     action = wa.SplitPane {

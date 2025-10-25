@@ -11,7 +11,7 @@
 
       -- Send the "open" command with file path(s) to the pane
       local file_path = tostring(h.url):gsub(" ", "\\ ")
-      os.execute('wezterm cli send-text --pane-id "$(wezterm cli get-pane-direction Right)" "open ' .. file_path .. '"')
+      os.execute('wezterm cli send-text --pane-id "$(wezterm cli get-pane-direction Right)" "o ' .. file_path .. '"')
 
       -- Simulate 'Enter' key to execute the command
       os.execute 'printf "\r" | wezterm cli send-text --pane-id "$(wezterm cli get-pane-direction Right)" --no-paste'

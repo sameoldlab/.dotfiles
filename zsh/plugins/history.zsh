@@ -6,7 +6,7 @@
 HISTSIZE="50000"
 SAVEHIST="50000"
 
-HISTFILE="$HOME/.zsh_history"
+HISTFILE="$HOME/.local/share/zsh/zsh_history"
 mkdir -p "$(dirname "$HISTFILE")"
 
 setopt HIST_FCNTL_LOCK
