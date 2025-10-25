@@ -1,9 +1,8 @@
+import Gio from 'gi://Gio'
 import PopLauncher, { type JsonIPC } from '../services/launcherIPC.js'
-import { Widget, Gtk } from "astal/gtk3"
-import { Gio } from 'astal'
 import { active_id } from './index.js'
 
-export const ListItem = (res: JsonIPC.SearchResult, i: number) => {
+export const ListItem = ({ res, i }: { res: JsonIPC.SearchResult, i: number }) => {
   const launcher = PopLauncher.get_default()
   return new Widget.EventBox({
     on_click: () => launcher.activate(res.id),

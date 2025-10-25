@@ -1,12 +1,12 @@
 import { Gtk } from "ags/gtk4";
-import AstalNiri from "gi://AstalNiri";
+import Niri from "gi://AstalNiri";
 import AstalApps from "gi://AstalApps?version=0.1";
-import { createBinding, createComputed, createState, For } from "ags";
-const niri = AstalNiri.get_default();
+import { createBinding, For } from "ags";
+const niri = Niri.get_default();
 
 type AppButtonProps = {
   app?: AstalApps.Application;
-  client: AstalNiri.Window;
+  client: Niri.Window;
 };
 
 const application = new AstalApps.Apps();
@@ -22,7 +22,7 @@ function AppButton({ app, client }: AppButtonProps) {
 
   return (
     <button
-      onClicked={() => AstalNiri.msg.focus_window(client.id)}
+      onClicked={() => Niri.msg.focus_window(client.id)}
       cssClasses={classes}
     >
       <overlay>
@@ -32,21 +32,22 @@ function AppButton({ app, client }: AppButtonProps) {
   );
 }
 
-function WorkspaceButton({ ws }: { ws: AstalNiri.Workspace }) {
-  const clients = createBinding(ws, "windows").as(ws => ws.sort((i, j) => i.id - j.id))
+function WorkspaceButton({ ws }: { ws: Niri.Workspace }) {
+  const clients = createBinding(ws, "windows")
   return (
     <box class={"classNames"}>
       <button
         class={"workspace-button"}
         onClicked={() => {
-          print(clients.get().length)
+          ws.focus()
         }}
       >
         <label label={ws.idx.toString()} />
       </button>
       <box>
         <For each={clients}>
-          {(client: AstalNiri.Window) => {
+          {(client: Niri.Window) => {
+            // console.log(`${ws.name}: ${client.app_id} pos ${client.layout.pos_in_scrolling_layout[0]}`)
             for (const app of application.list) {
               if (
                 client.app_id &&

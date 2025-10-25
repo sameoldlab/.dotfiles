@@ -72,26 +72,26 @@ export const Bar = (monitor: Gdk.Monitor) => <window
 	name="bar"
 	class="Bar"
 	gdkmonitor={monitor}
-	exclusivity={Astal.Exclusivity.NORMAL}
+	exclusivity={Astal.Exclusivity.EXCLUSIVE}
 	anchor={Astal.WindowAnchor.RIGHT | Astal.WindowAnchor.TOP | Astal.WindowAnchor.LEFT}
 	application={app}
 >
 	<centerbox>
-		<box $type="start" >
-			<Workspaces />
+		<box class="centerbox box__start" $type="start" >
 		</box>
-		<box $type="center" >
-			<Clock />
+		<box $type="center" class="centerbox box__center">
+			<Workspaces />
 			{/*
 					<Demo/>
 					<Notification/>
 				*/}
 		</box>
-		<box $type="end"
+		<box $type="end" class="centerbox box__end"
 			halign={Gtk.Align.END}
 		>
 			<StatusNotifierItems />
 			<BatteryLabel />
+			<Clock />
 			{/*
 					<Media/>
 					<SysTray vertical={false} />

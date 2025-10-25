@@ -3,7 +3,7 @@ import Media from 'gi://AstalWp'
 import { execAsync } from 'ags/process'
 
 export const declareGlobals = () => {
-  const mpris = Mpris.get_default()
+  // const mpris = Mpris.
   const media = Media.get_default()?.audio
 
   globalThis.audio = {
@@ -35,7 +35,7 @@ export const declareGlobals = () => {
     3: 'previous',
     4: 'next',
   })
-  globalThis.mpris = {
+  /* globalThis.mpris = {
     run: (signal: keyof typeof playSignal) => {
       const players = mpris.get_players().filter((p) => p.length > 0 && p.playback_status !== Mpris.PlaybackStatus.STOPPED)
       console.log(players.map(p => ({
@@ -60,6 +60,6 @@ export const declareGlobals = () => {
       }
       // return player.get_playback_status() === Mpris.PlaybackStatus.PAUSED
     }
-  }
+  } */
 
 }

@@ -1,20 +1,19 @@
 /* ==================================== 
  * SPDX-License-Identifier: MPL-2.0
- * Incompatible With Secondary Licenses
  * ==================================== */
 
 import app from "ags/gtk4/app"
 // import { Launcher } from './base/Launcher'
-// import { Bar } from "./base/Bar"
 // import { Demo } from "./base/Demo"
 import style from "./style/index.scss"
 import { declareGlobals } from './base/globals'
 // import { osi } from "./base/osiNotify"
-import Bar from "./base/Bar4"
+import { Bar } from "./base/Bar"
+import { Launcher } from "./base/nL"
 
 app.start({
   css: style,
-  // instanceName: 'niri',
+  instanceName: 'niri',
   main() {
     app.get_monitors().map(Bar)
 

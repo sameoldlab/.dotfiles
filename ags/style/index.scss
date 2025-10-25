@@ -11,6 +11,7 @@ $white: theme.$subtext-1;
 $accent: theme.$yellow;
 $indicator: theme.$teal;
 $text: theme.$text;
+$background: transparent;
 $background: theme.$crust;
 $foreground: theme.$text;
 $hover: theme.$subtext-0;
@@ -26,16 +27,20 @@ $hover: theme.$subtext-0;
 	margin: 0;
 	padding: 0;
 	box-shadow: 0px 0px transparent;
-	font-size: 13px;
+	font-size: 11px;
 	font-weight: 600;
+	line-height: 0;
+	min-height: 0;
 }
 
 .bg-mantle {
 	background: theme.$mantle;
 }
+
 .bg-accent {
 	background: $accent;
 }
+
 .txt-accent {
 	color: $accent;
 }
@@ -75,9 +80,11 @@ $hover: theme.$subtext-0;
 .txt-overlay {
 	color: theme.$overlay;
 }
+
 .p-4 {
 	padding: .5rem;
 }
+
 .px-4 {
 	padding-left: .5rem;
 	padding-right: .5rem;
@@ -96,6 +103,8 @@ button {
 	background: $background;
 	color: $foreground;
 	border: 0;
+	padding: 0;
+	margin: 0;
 }
 
 menu {
@@ -139,24 +148,22 @@ menu {
 
 .workspaces button :hover,
 .media :hover {
-	background-color: rgba(255, 255, 255, 0.1);
-	background: #eee;
-	color: #efefef;
-	color: #222;
-	box-shadow: none;
+	/* background: theme.$muted; */
+	/* color: #efefef; */
+	/* color: #222; */
+	/* box-shadow: none; */
 }
 
 .workspaces button :active,
 .media :active {
-	background-color: rgb(255, 255, 255);
-	background: white;
-
-	color: #fff;
+	/* background: white; */
+	/* color: #fff; */
 }
 
 .workspaces button.focused {
 	color: #e7a013;
-	background: #eee;
+	background: theme.$muted;
+	border-radius: 0;
 	/* color: #efefef; */
 	color: #111;
 	font-weight: 800;
@@ -289,8 +296,8 @@ highlight {
 	}
 
 	.icon {
-		margin: 0.5em;
-		font-size: 1.1rem;
+		margin: 0 2.5em;
+		font-size: 1rem;
 
 		&.category_icon {
 			opacity: 0.8;
@@ -299,7 +306,10 @@ highlight {
 		}
 	}
 }
-
+.taskbar-button {
+	background-color: $background;
+	margin: 0 .2rem;
+}
 #osiNotify {
 	background-color: $background;
 	// border-radius: 0.75rem;
@@ -342,28 +352,26 @@ levelbar {
 		}
 	}
 }
-
 /* tutorial style */
 window.Bar {
 	background: $background;
+	padding: 2px;
 	color: $foreground;
 	font-weight: bold;
-	opacity: 0.01;
 	transition: opacity 80ms ease-in;
-	&:hover {
-		opacity: 1;
-	}
-}
 
-window.Bar>centerbox {
-	background: $background;
-	border-radius: 10px;
-	margin: 8px;
+	.centerbox {
+		background: $background;
+		/* opacity: .01; */
+		transition: opacity 80ms ease;
+		&:hover {
+			opacity: 1;
+		}
+	}
 }
 
 window.Bar button {
 	border-radius: 8px;
-	margin: 2px;
 }
 
 /* tutorial style */

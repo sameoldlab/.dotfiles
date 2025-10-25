@@ -1,6 +1,7 @@
-import GObject, { register, signal } from "astal/gobject"
-import { AstalIO, Gio, GLib } from 'astal'
-import { subprocess } from 'astal/process'
+import GObject, { register, signal } from "ags/gobject"
+import { subprocess } from 'ags/process'
+import AstalIO from "gi://AstalIO";
+import GLib from "gi://GLib";
 
 @register({ GTypeName: "Spring" })
 export default class Spring extends GObject.Object {
