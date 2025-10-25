@@ -1,0 +1,115 @@
+[language-server.zk]
+command = "zk"
+args = ["lsp"]
+
+[language-server.rust-analyzer]
+command = "rust-analyzer"
+
+[language-server.vala-language-server]
+command = "vala-language-server"
+
+[language-server.nomicfoundation-solidity-language-server]
+command = "nomicfoundation-solidity-language-server"
+args = ["--stdio"]
+location = "/ust/bin/nomicfoundation-solidity-language-server"
+
+[language-server.astro-ls]
+command = "astro-ls"
+args = ["--stdio"]
+config = {typescript = {tsdk = "/home/ibro/.local/share/pnpm/global/5/node_modules/typescript/lib"}}
+
+[language-server.typescript-language-server.config.typescript]
+tsdk = "/home/ibro/.local/share/pnpm/global/5/node_modules/typescript/lib"
+
+[[language-server.typescript-language-server.config.plugins]]
+name = "@astrojs/ts-plugin"
+location = "/home/ibro/.local/share/pnpm/global/5/node_modules/@astrojs/ts-plugin"
+languages = [ "astro" ]
+
+[language-server.emmet-ls]
+args = ["--stdio"]
+command="emmet-language-server"
+
+[language-server.eslint-ls]
+args = ["--stdio"]
+command = "vscode-eslint-language-server"
+
+[language-server.eslint-ls.config]
+validate = "on"
+experimental = { useFlatConfig = false }
+rulesCustomizations = []
+run = "onType"
+problems = { shortenToSingleLine = false }
+nodePath = ""
+
+###          ###
+### LANGUAGE ###
+###          ###
+
+[[language]]
+name = "markdown"
+language-servers = ["zk" ]
+
+[[language]]
+name = "vala"
+language-servers = ["vala-language-server"]
+
+[[language]]
+name = "rust"
+auto-format = false
+
+[[language]]
+name = "solidity"
+language-servers = ["nomicfoundation-solidity-language-server"]
+file-types = ["sol", "solidity"]
+
+[[language]]
+name = "svelte"
+auto-format = true
+language-servers = ["svelteserver", "eslint-ls"]
+
+[[language]]
+name = "astro"
+auto-format = true
+language-servers = [ "astro-ls" ]
+scope = "source.astro"
+injection-regex = "astro"
+file-types = ["astro"]
+roots = ["package.json", "astro.config.mjs"]
+# # formatter = { command = "pnpm", args = ["prettier", "--plugin", "prettier-plugin-astro", "--config", ".prettierrc.js", "--parser", "astro"] }
+# # formatter = { command = "pnpm prettier --write" }
+
+[[language]]
+name = "typescript"
+auto-format = true
+language-servers = [ "typescript-language-server", "emmet-ls", "eslint-ls"]
+ 
+[[language]]
+name = "javascript"
+auto-format = true
+language-servers = [ "typescript-language-server", "emmet-ls", "eslint-ls"]
+
+[[language]]
+name = "jsx"
+auto-format = true
+language-servers = [ "typescript-language-server", "emmet-ls", "eslint-ls"]
+
+[[language]]
+name = "tsx"
+auto-format = true
+language-servers = [ "typescript-language-server" , "emmet-ls", "eslint-ls"]
+
+[[language]]
+name = "html"
+auto-format = false
+language-servers = [ "vscode-html-language-server" , "emmet-ls", "eslint-ls"]
+
+[[language]]
+name = "css"
+auto-format = false
+language-servers = [ "vscode-css-language-server" , "emmet-ls" , "eslint-ls"]
+
+[[language]]
+name = "scss"
+auto-format= false
+language-servers = [ "vscode-css-language-server" , "emmet-ls" , "eslint-ls"]

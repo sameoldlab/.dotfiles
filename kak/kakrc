@@ -1,0 +1,159 @@
+# https://frog.ski/blog/writing-your-first-kakrc
+# Plugins
+source "%val{config}/bundle/wezterm/wezterm.kak"
+# wezterm-integration-enable
+eval %sh{ kak-tree-sitter -dks --with-text-objects --with-highlighting --client $kak_session }
+eval %sh{ kak-lsp --kakoune -s $kak_session}
+lsp-enable
+
+hook global KakEnd .* lsp-exit
+
+colorscheme catppuccin_mocha
+set-option global tabstop 2
+set-option global indentwidth 2
+set-option global scrolloff 1,3
+set-option global ui_options ncurses_status_un_top=true
+set-option global ui_options terminal_assistant=none
+
+# Highlight trailing whitespace
+# add-highlighter global/ regex \h+$ 0:Error
+add-highlighter global/ wrap -word -indent
+add-highlighter global/ show-matching
+add-highlighter global/ number-lines -hlcursor -relative -separator "  " -min-digits 3
+
+# exit edit mode with `jk`
+hook global InsertChar k %{ try %{
+  exec -draft hH <a-k>jk<ret> d
+  exec <esc>
+}}
+
+hook global ModeChange pop:insert:.* %{
+  write
+}
+
+# tabs for autocomplete
+hook global InsertCompletionShow .* %{
+  try %{
+    # this command temporarily removes cursors preceded by whitespace;
+    # if there are no cursors left, it raises an error, does not
+    # continue to execute the mapping commands, and the error is eaten
+    # by the `try` command so no warning appears.
+    execute-keys -draft 'h<a-K>\h<ret>'
+    map window insert <tab> <c-n>
+    map window insert <s-tab> <c-p>
+    hook -once -always window InsertCompletionHide .* %{
+      unmap window insert <tab> <c-n>
+      unmap window insert <s-tab> <c-p>
+    }
+  }
+}
+
+# swap q and b
+map global normal <q> "b"
+map global normal <Q> "B"
+map global normal <b> "q"
+map global normal <B> "Q"
+
+map global normal <esc> ";,"
+map global normal <c-v> ":comment-line<ret>"
+define-command -docstring "open file" o -params .. %{ edit %arg{1} }
+define-command -docstring "new buffer" n "new"
+
+map -docstring "enter-user-mode" global normal <space> ":enter-user-mode<space>user<ret>"
+#map -docstring "buffer next" global goto n ":bn<ret>"
+#map -docstring "buffer previous" global goto p ":bp<ret>"
+
+# Clipboard management mappings
+map -docstring "yank to system clipboard" global user y "<a-|>wl-copy<ret>"
+map -docstring "paste to system clipboard" global user p "<a-!>wl-paste<ret>"
+map -docstring "save current buffer" global user s ":write<ret>"
+
+# https://github.com/kakoune-lsp/kak-lsp 
+map global user l %{:enter-user-mode lsp<ret>} -docstring "LSP mode"
+map global insert <tab> '<a-;>:try lsp-snippets-select-next-placeholders catch %{ execute-keys -with-hooks <lt>tab> }<ret>' -docstring 'Select next snippet placeholder'
+map global object a '<a-semicolon>lsp-object<ret>' -docstring 'LSP any symbol'
+map global object <a-a> '<a-semicolon>lsp-object<ret>' -docstring 'LSP any symbol'
+map global object f '<a-semicolon>lsp-object Function Method<ret>' -docstring 'LSP function or method'
+map global object t '<a-semicolon>lsp-object Class Interface Struct<ret>' -docstring 'LSP class interface or struct'
+map global object d '<a-semicolon>lsp-diagnostic-object --include-warnings<ret>' -docstring 'LSP errors and warnings'
+map global object D '<a-semicolon>lsp-diagnostic-object<ret>' -docstring 'LSP errors'
+
+hook global BufSetOption filetype=vala %{
+  set-option buffer lsp_servers %{
+      [vala-language-server]
+      root_globs = ["meson.build"]
+  }
+}
+hook global BufSetOption filetype=rust %{
+  set-option buffer lsp_servers %{
+      [rust-analyzer]
+      root_globs = ["Cargo.toml"]
+      command = "sh"
+      args = [
+          "-c",
+          """
+              if path=$(rustup which rust-analyzer 2>/dev/null); then
+                  exec "$path"
+              else
+                  exec rust-analyzer
+              fi
+          """,
+      ]
+      # [rust-analyzer.experimental]
+      # commands.commands = ["rust-analyzer.runSingle"]
+      # hoverActions = true
+      [rust-analyzer.settings.rust-analyzer]
+      # See https://rust-analyzer.github.io/manual.html#configuration
+      # cargo.features = []
+      check.command = "clippy"
+  }
+}
+
+hook -group lsp-filetype-svelte global BufSetOption filetype=svelte %{
+    set-option buffer lsp_servers %{
+        [svelteserver]
+        root_globs = ["package.json", "tsconfig.json", "jsconfig.json", ".git", ".hg"]
+        args = ["--stdio"]
+    }
+}
+
+hook -group lsp-language-id global BufSetOption filetype=solidity %{
+  set-option buffer lsp_servers %{
+    [nomicfoundation-solidity-language-server]
+    args = ["--stdio"]
+    root_globs = ["Foundry.toml", ".sol", ",git"]
+  }
+  set-option buffer lsp_language_id nomicfoundation-solidity-language-server
+}
+# hook -group lsp-language-id global BufCreate .*[.]sol %{
+#     hook -group lsp-language-id buffer BufSetOption filetype=solidity %{
+#       set-option buffer lsp_language_id nomicfoundation-solidity-language-server
+#     }
+# }
+
+hook -group lsp-filetype-markdown global BufSetOption filetype=markdown %{
+     set-option buffer lsp_servers %{
+         [zk]
+         root_globs = [".zk"]
+         args = ["lsp"]
+     }
+}
+hook -group lsp-language-id global BufSetOption filetype=javascript %{
+    set-option buffer lsp_language_id javascript
+}
+hook -group lsp-language-id global BufCreate .*[.]jsx %{
+    hook -group lsp-language-id buffer BufSetOption filetype=javascript %{
+        set-option buffer lsp_language_id javascriptreact
+    }
+}
+hook -group lsp-language-id global BufSetOption filetype=sh %{
+    set-option buffer lsp_language_id shellscript
+}
+hook -group lsp-language-id global BufSetOption filetype=typescript %{
+    set-option buffer lsp_language_id typescript
+}
+hook -group lsp-language-id global BufCreate .*[.]tsx %{
+    hook -group lsp-language-id buffer BufSetOption filetype=typescript %{
+        set-option buffer lsp_language_id typescriptreact
+    }
+}
