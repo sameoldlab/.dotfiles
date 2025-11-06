@@ -323,7 +323,7 @@ binds {
     Mod+Alt+E { spawn "bash" "-c" "foot -e -a froot broot"; }
     Mod+I { toggle-column-tabbed-display; }
     Alt+Space { spawn "bash" "-c" "ags -i niri toggle launcher"; }
-    Mod+Space repeat=false { spawn "gauntlet"; }
+    Mod+Space repeat=false { spawn "vicinae" "toggle"; }
     // Mod+Escape { spawn "swaylock"; }
     Mod+Shift+R {spawn "bash" "-c" "ags quit -i niri; ags run";}
     // Mod+Alt+G {spawn "bash" "-c" "foot -D $PWD lazygit";}
