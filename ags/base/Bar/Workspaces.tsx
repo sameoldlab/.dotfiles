@@ -47,7 +47,6 @@ function WorkspaceButton({ ws }: { ws: Niri.Workspace }) {
       <box>
         <For each={clients}>
           {(client: Niri.Window) => {
-            // console.log(`${ws.name}: ${client.app_id} pos ${client.layout.pos_in_scrolling_layout[0]}`)
             for (const app of application.list) {
               if (
                 client.app_id &&

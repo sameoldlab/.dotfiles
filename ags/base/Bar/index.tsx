@@ -7,10 +7,11 @@ import SysTray from './Systray.js'
 import AstalTray from 'gi://AstalTray'
 import Battery from 'gi://AstalBattery'
 import { Astal, Gdk, Gtk } from "ags/gtk4";
-import { createBinding, For } from "ags";
+import { createBinding, createState, For } from "ags";
 import app from 'ags/gtk4/app'
 import Clock from './Clock'
 import Workspaces from './Workspaces'
+import AstalNiri from 'gi://AstalNiri';
 
 
 const BatteryLabel = () => {
@@ -66,37 +67,42 @@ export const StatusNotifierItems = () => {
 }
 
 const Seperator = (label = ' |  ') => label
+export const Bar = (monitor: Gdk.Monitor) => {
+	let [visible, setVisible] = createState(false)
+	const niri = AstalNiri.get_default()
+	niri.connect('overview-opened-or-closed', (_, o) => { setVisible(o) })
 
-export const Bar = (monitor: Gdk.Monitor) => <window
-	visible
-	name="bar"
-	class="Bar"
-	gdkmonitor={monitor}
-	exclusivity={Astal.Exclusivity.EXCLUSIVE}
-	anchor={Astal.WindowAnchor.RIGHT | Astal.WindowAnchor.TOP | Astal.WindowAnchor.LEFT}
-	application={app}
->
-	<centerbox>
-		<box class="centerbox box__start" $type="start" >
-		</box>
-		<box $type="center" class="centerbox box__center">
-			<Workspaces />
-			{/*
+	return <window
+		visible={visible}
+		name="bar"
+		class="Bar"
+		gdkmonitor={monitor}
+		exclusivity={Astal.Exclusivity.NORMAL}
+		anchor={Astal.WindowAnchor.RIGHT | Astal.WindowAnchor.TOP | Astal.WindowAnchor.LEFT}
+		application={app}
+	>
+		<centerbox>
+			<box class="centerbox box__start" $type="start" >
+
+			</box>
+			<box $type="center" class="centerbox box__center">
+				<Workspaces />
+				{/*
 					<Demo/>
 					<Notification/>
 				*/}
-		</box>
-		<box $type="end" class="centerbox box__end"
-			halign={Gtk.Align.END}
-		>
-			<StatusNotifierItems />
-			<BatteryLabel />
-			<Clock />
-			{/*
+			</box>
+			<box $type="end" class="centerbox box__end"
+				halign={Gtk.Align.END}
+			>
+				<StatusNotifierItems />
+				<BatteryLabel />
+				<Clock />
+				{/*
 					<Media/>
 					<SysTray vertical={false} />
 				*/}
-		</box>
-	</centerbox>
-</window>
-
+			</box>
+		</centerbox>
+	</window>
+}
