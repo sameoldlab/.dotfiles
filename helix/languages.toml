@@ -77,6 +77,10 @@ name = "rust"
 auto-format = false
 
 [[language]]
+name = "odin"
+auto-format = false
+
+[[language]]
 name = "noir"
 auto-format = false
 scope = "source.nr"
