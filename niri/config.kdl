@@ -44,13 +44,14 @@ input {
         // dwt
         // dwtp
         natural-scroll
+        accel-speed 0.3
         accel-profile "adaptive"
         // tap-button-map "left-middle-right"
     }
 
     mouse {
         // natural-scroll
-        accel-speed 0.5
+        accel-speed 0.9
         accel-profile "adaptive"
     }
 
@@ -87,7 +88,7 @@ output "eDP-1" {
     // for the resolution.
     // If the mode is omitted altogether or is invalid, niri will pick one automatically.
     // Run `niri msg outputs` while inside a niri instance to list all outputs and their modes.
-    mode "1920x1080@240"
+    mode "1920x1080@60"
 
     // Position of the output in the global coordinate space.
     // This affects directional monitor actions like "focus-monitor-left", and cursor movement.
@@ -99,6 +100,12 @@ output "eDP-1" {
     // If the position is unset or results in an overlap, the output is instead placed
     // automatically.
     position x=0 y=0
+}
+output "HDMI-A-1" {
+    scale 1.2
+    transform "normal"
+    mode "1680x1200@60"
+    position x=1920 y=0
 }
 
 overview {
@@ -222,6 +229,11 @@ window-rule {
 	clip-to-geometry true
 }
 window-rule {
+    match app-id="affinity.exe"
+    open-floating true
+    default-column-width {  }
+}
+window-rule {
     match title="Yazi Chooser"
     match title="^Picture-in-Picture$"
     match app-id="org.twosheds.iwgtk"
@@ -235,6 +247,7 @@ window-rule {
 window-rule {
     match title=r#"^dbg:"#
     open-floating true
+    open-focused false
     default-floating-position x=16 y=16 relative-to="top-right"
 }
 
@@ -317,17 +330,19 @@ binds {
     // Mod+Alt+3 {set-column-width "66.666%";}
     Mod+Alt+3 {expand-column-to-available-width; }
     // Suggested bnds for running programs: terminal, app launcher, screen locker.
-    Mod+Return repeat=false { spawn "ghostty"; }
+    Mod+Return repeat=false { spawn "foot"; }
     Mod+B { spawn "zen-browser"; }
     Mod+E { spawn "dolphin"; }
-    Mod+Alt+E { spawn "bash" "-c" "foot -e -a froot broot"; }
+    // Mod+Alt+E { spawn "bash" "-c" "foot -e -a froot broot"; }
     Mod+I { toggle-column-tabbed-display; }
     Alt+Space { spawn "bash" "-c" "ags -i niri toggle launcher"; }
     Mod+Space repeat=false { spawn "vicinae" "toggle"; }
+    Mod+Alt+E repeat=false { spawn "vicinae" "vicinae://extensions/sameoldlab/fuzzy-files/find"; }
+    Mod+Alt+I  { spawn "vicinae" "vicinae://extensions/vicinae/core/search-emojis"; }
     // Mod+Escape { spawn "swaylock"; }
-    Mod+Shift+R {spawn "bash" "-c" "ags quit -i niri; ags run";}
+    // Mod+Shift+R {spawn "bash" "-c" "ags quit -i niri; ags run";}
     // Mod+Alt+G {spawn "bash" "-c" "foot -D $PWD lazygit";}
-     // niri msg action spawn -- foot -D $PWD lazygit && sleep 0.09 && niri msg action toggle-window-floating && niri msg action fullscreen-window 
+    // niri msg action spawn -- foot -D $PWD lazygit && sleep 0.09 && niri msg action toggle-window-floating && niri msg action fullscreen-window 
  
     // Media Keys
     XF86AudioRaiseVolume allow-when-locked=true { spawn "bash" "-c" "wpctl set-mute @DEFAULT_SINK@ 0 && wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.1+"; }
@@ -553,7 +568,7 @@ environment {
 	QT_QPA_PLATFORM "wayland"
 	QT_QPA_PLATFORMTHEME "qt6ct"
 	QT_ENABLE_HIGHDPI_SCALING "1"
-	TERMINAL "ghostty"
+	TERMINAL "foot"
 	
 	// brings back default applications in dolphin
 	XDG_MENU_PREFIX "arch-"
