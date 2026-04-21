@@ -2,21 +2,41 @@
 #
 # zsh exports
 #
-export FZF_CTRL_T_OPTS="--walker-skip .git,node_modules,dist"
-export FZF_DEFAULT_COMMAND='fd --type file --hidden'
-export FZF_CTRL_T_COMMAND="fd"
-export FZF_CTRL_T_OPTS="
+set -o allexport
+FZF_CTRL_T_OPTS="--walker-skip .git,node_modules,dist"
+FZF_DEFAULT_COMMAND='fd --type file --hidden'
+FZF_CTRL_T_COMMAND="fd"
+FZF_CTRL_T_OPTS="
   --preview 'bat -n --color=always {}'
   --bind 'ctrl-/:change-preview-window(down|hidden|)'"
-export FZF_ALT_C_COMMAND="fd --type d --no-ignore-vcs --exclude node_modules --exclude .git"
-export FZF_ALT_C_OPTS="
+FZF_ALT_C_COMMAND="fd --type d --no-ignore-vcs --exclude node_modules --exclude .git"
+FZF_ALT_C_OPTS="
     --preview 'dust -D {}'
 "
-export EDITOR="hx"
-export PNPM_HOME="$HOME/.local/share/pnpm"
-export RUSTC_WRAPPER="/usr/bin/sccache"
-export GOPATH="$HOME/go"
-export NARGO_HOME="$HOME/.nargo"
-# Add to PATH
-export PATH="$PATH:$PATH:/home/ibro/.foundry/bin:/usr/local/cuda-12.2/bin:$PNPM_HOME:$HOME/.local/bin"
-export GPG_TTY=/dev/pts/0
+EDITOR="hx"
+PNPM_HOME="$HOME/.local/share/pnpm"
+RUSTC_WRAPPER="/usr/bin/sccache"
+GOPATH="$HOME/go"
+NARGO_HOME="$HOME/.nargo"
+PATH="$PATH:$PATH:/home/ibro/.foundry/bin:/usr/local/cuda-12.2/bin:$PNPM_HOME:$HOME/.local/bin:$HOME/Applications/odin"
+GPG_TTY=/dev/pts/0
+SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
+
+# Colorize man pages
+LESS_TERMCAP_mb=$'\e[1;31m'
+LESS_TERMCAP_md=$'\e[1;31m'
+LESS_TERMCAP_me=$'\e[0m'
+LESS_TERMCAP_se=$'\e[0m'
+LESS_TERMCAP_so=$'\e[1;33;44m'
+LESS_TERMCAP_ue=$'\e[0m'
+LESS_TERMCAP_us=$'\e[4;1;32m'
+LESS_TERMCAP_mr=$'\e[7m'
+LESS_TERMCAP_mh=$'\e[2m'
+LESS_TERMCAP_ZN=$'\e[74m'
+LESS_TERMCAP_ZV=$'\e[75m'
+LESS_TERMCAP_ZO=$'\e[73m'
+LESS_TERMCAP_ZW=$'\e[75m'
+MANPAGER='less'
+GROFF_NO_SGR=1
+
+set +o allexport
