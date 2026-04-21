@@ -2,6 +2,13 @@
 command = "zk"
 args = ["lsp"]
 
+[language-server.basedpyright]
+command = "basedpyright-langserver"
+args = ["--stdio"]
+[language-server.ruff]
+command = "ruff"
+args = ["server"]
+
 [language-server.qmlls]
 command = "/usr/lib/qt6/bin/qmlls"
 args = ["-E"]
@@ -54,6 +61,12 @@ nodePath = ""
 [language-server.tailwindcss]
 command = "tailwindcss-language-server"
 args = ["--stdio"]
+
+[language-server.cssmodules]
+command = "cssmodules-language-server"
+args = ["--stdio"]
+# if you write kebab-case in CSS but want camelCase completions:
+config = { camelCase = "dashes" }
 
 ###          ###
 ### LANGUAGE ###
@@ -117,17 +130,18 @@ roots = ["package.json", "astro.config.mjs"]
 [[language]]
 name = "typescript"
 auto-format = true
-language-servers = ["typescript-language-server", "emmet-ls", "eslint-ls"]
+language-servers = ["typescript-language-server", "eslint-ls"]
 
 [[language]]
 name = "javascript"
 auto-format = true
-language-servers = ["typescript-language-server", "emmet-ls", "eslint-ls"]
+language-servers = ["typescript-language-server", "eslint-ls"]
 
 [[language]]
 name = "jsx"
 auto-format = true
 language-servers = [
+  "cssmodules",
   "typescript-language-server",
   "tailwindcss",
   "emmet-ls",
@@ -138,6 +152,7 @@ language-servers = [
 name = "tsx"
 auto-format = true
 language-servers = [
+  "cssmodules",
   "typescript-language-server",
   "tailwindcss",
   "emmet-ls",
@@ -163,3 +178,9 @@ language-servers = ["vscode-css-language-server", "emmet-ls", "eslint-ls"]
 name = "scss"
 auto-format = false
 language-servers = ["vscode-css-language-server", "emmet-ls", "eslint-ls"]
+
+[[language]]
+name = "python"
+language-servers = ["basedpyright", "ruff"]
+formatter = { command = "ruff", args = ["format", "-"] }
+auto-format = true
