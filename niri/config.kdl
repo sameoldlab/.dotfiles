@@ -7,13 +7,14 @@ spawn-at-startup "ags" "run"
 // spawn-at-startup "swayidle"
 spawn-at-startup "udiskie" "-sna"
 spawn-at-startup "playerctld daemon"
+spawn-at-startup "niri-tag"
 
-workspace "main"
-workspace "research"
-workspace "burner"
-workspace "config"
-workspace "LAB"
-workspace "media"
+// workspace "main"
+// workspace "research"
+// workspace "burner"
+// workspace "config"
+// workspace "LAB"
+// workspace "media"
 
 input {
     keyboard {
@@ -119,27 +120,23 @@ layout {
     // This is because windows using client-side decoratins can have an arbitrary shape.
     focus-ring {
         off
-        width 2
+        width 1
         // active-gradient from="#7A7168" to="#080137" angle=135 relative-to="workspace-view"
         active-color "#e0def4a0"
         // 108 112 134 255
-	}
-			
-	// You can also add a border. It's similar to the focus ring, but always visible.
-	border {
+    }
+
+    // You can also add a border. It's similar to the focus ring, but always visible.
+    border {
         // off
-        width 1
-        active-color "#e0def4a0"
-        // 108 112 134 255
-        inactive-color "#00000000"
-        // 69 71 90 180
-         // 80 80 255
-		active-gradient from="#f5c2e7" to="#89DCEB" angle=135 relative-to="workspace-view"
-		// inactive-gradient from="#7A716877" to="#08013777" angle=135 relative-to="workspace-view"
+        width 2
+        active-color "oklch(0.74 0.064 260)"
+        inactive-color "oklch(0.32 0.034 260)"
+
 
     }
     shadow {
-        on
+        // on
     }
     // You can customize the widths that "switch-preset-column-width" (Mod+R) toggles between.
     preset-column-widths {
@@ -154,7 +151,7 @@ layout {
     default-column-width {proportion 0.48; }
     background-color "transparent";
     center-focused-column "never"
-    gaps 2
+    gaps 0
     struts {
         left 8
         right 8
@@ -280,7 +277,7 @@ window-rule {
 }
 window-rule {
     match app-id="tauon"
-    open-on-workspace "media"
+    // open-on-workspace "media"
 }
 window-rule {
     match title=r#"^Extension:"#
@@ -382,16 +379,16 @@ binds {
     // Focus
     Mod+Left           { focus-column-left; }
     Mod+Right          { focus-column-right; }
-    Mod+Up             { focus-window-or-workspace-up; }
-    Mod+Down           { focus-window-or-workspace-down; }
+    Mod+Up             { focus-window-up; }
+    Mod+Down           { focus-window-down; }
     Mod+H              { focus-column-left; }
     Mod+L              { focus-column-right; }
-    Mod+K              { focus-window-or-workspace-up; }
-    Mod+J              { focus-window-or-workspace-down; }
+    Mod+K              { focus-window-up; }
+    Mod+J              { focus-window-down; }
     Mod+Home           { focus-column-first; }
     Mod+End            { focus-column-last; }
-    Mod+Page_Up        { focus-workspace-up; }
-    Mod+Page_Down      { focus-workspace-down; }
+    // Mod+Page_Up        { focus-workspace-up; }
+    // Mod+Page_Down      { focus-workspace-down; }
 
     // Move
     Mod+Shift+Left  { move-column-left; }
@@ -403,12 +400,12 @@ binds {
 
     Mod+Ctrl+H     { move-column-left; }
     Mod+Ctrl+L     { move-column-right; }
-    Mod+Ctrl+K     { move-column-to-workspace-up; }
-    Mod+Ctrl+J     { move-column-to-workspace-down; }
+    // Mod+Ctrl+K     { move-column-to-workspace-up; }
+    // Mod+Ctrl+J     { move-column-to-workspace-down; }
     Mod+Ctrl+Left  { move-column-left; }
     Mod+Ctrl+Right { move-column-right; }
-    Mod+Ctrl+Up    { move-column-to-workspace-up; }
-    Mod+Ctrl+Down  { move-column-to-workspace-down; }
+    // Mod+Ctrl+Up    { move-column-to-workspace-up; }
+    // Mod+Ctrl+Down  { move-column-to-workspace-down; }
 
     Mod+Ctrl+Home { move-column-to-first; }
     Mod+Ctrl+End  { move-column-to-last; }
@@ -416,10 +413,10 @@ binds {
     // Alternatively, there are commands to move just a single window:
     // Mod+Ctrl+Page_Down { move-window-to-workspace-down; }
 
-    Mod+Shift+Page_Down { move-workspace-down; }
-    Mod+Shift+Page_Up   { move-workspace-up; }
-    Mod+Shift+D         { move-workspace-down; }
-    Mod+Shift+U         { move-workspace-up; }
+    // Mod+Shift+Page_Down { move-workspace-down; }
+    // Mod+Shift+Page_Up   { move-workspace-up; }
+    // Mod+Shift+D         { move-workspace-down; }
+    // Mod+Shift+U         { move-workspace-up; }
 
     // Multi Monitor
     // Mod+Shift+Left  { focus-monitor-left; }
@@ -474,10 +471,10 @@ binds {
     // To avoid scrolling through workspaces really fast, you can use
     // the cooldown-ms property. The bind will be rate-limited to this value.
     // You can set a cooldown on any bind, but it's most useful for the wheel.
-    Mod+WheelScrollDown      cooldown-ms=150 { focus-workspace-down; }
-    Mod+WheelScrollUp        cooldown-ms=150 { focus-workspace-up; }
-    Mod+Ctrl+WheelScrollDown cooldown-ms=150 { move-column-to-workspace-down; }
-    Mod+Ctrl+WheelScrollUp   cooldown-ms=150 { move-column-to-workspace-up; }
+    // Mod+WheelScrollDown      cooldown-ms=150 { focus-workspace-down; }
+    // Mod+WheelScrollUp        cooldown-ms=150 { focus-workspace-up; }
+    // Mod+Ctrl+WheelScrollDown cooldown-ms=150 { move-column-to-workspace-down; }
+    // Mod+Ctrl+WheelScrollUp   cooldown-ms=150 { move-column-to-workspace-up; }
 
     Mod+WheelScrollRight      { focus-column-left; }
     Mod+WheelScrollLeft       { focus-column-right; }
@@ -509,6 +506,7 @@ binds {
     //
     // For example, with 2 workspaces + 1 empty, indices 3, 4, 5 and so on
     // will all refer to the 3rd workspace.
+    /*
     Mod+1 { focus-workspace 1; }
     Mod+2 { focus-workspace 2; }
     Mod+3 { focus-workspace 3; }
@@ -527,12 +525,41 @@ binds {
     Mod+Ctrl+7 { move-column-to-workspace 7; }
     Mod+Ctrl+8 { move-column-to-workspace 8; }
     Mod+Ctrl+9 { move-column-to-workspace 9; }
+    */
+    Mod+1 { spawn "tagctl" "toggle-tag" "1"; }
+    Mod+2 { spawn "tagctl" "toggle-tag" "2"; }
+    Mod+3 { spawn "tagctl" "toggle-tag" "3"; }
+    Mod+4 { spawn "tagctl" "toggle-tag" "4"; }
+    Mod+5 { spawn "tagctl" "toggle-tag" "5"; }
+    Mod+6 { spawn "tagctl" "toggle-tag" "6"; }
+    Mod+7 { spawn "tagctl" "toggle-tag" "7"; }
+    Mod+8 { spawn "tagctl" "toggle-tag" "8"; }
+    Mod+9 { spawn "tagctl" "toggle-tag" "9"; }
+    Mod+Ctrl+1 { spawn "tagctl" "toggle" "1"; }
+    Mod+Ctrl+2 { spawn "tagctl" "toggle" "2"; }
+    Mod+Ctrl+3 { spawn "tagctl" "toggle" "3"; }
+    Mod+Ctrl+4 { spawn "tagctl" "toggle" "4"; }
+    Mod+Ctrl+5 { spawn "tagctl" "toggle" "5"; }
+    Mod+Ctrl+6 { spawn "tagctl" "toggle" "6"; }
+    Mod+Ctrl+7 { spawn "tagctl" "toggle" "7"; }
+    Mod+Ctrl+8 { spawn "tagctl" "toggle" "8"; }
+    Mod+Ctrl+9 { spawn "tagctl" "toggle" "9"; }
+
+    Mod+Shift+1 { spawn "tagctl" "exclusive-tag" "1"; }
+    Mod+Shift+2 { spawn "tagctl" "exclusive-tag" "2"; }
+    Mod+Shift+3 { spawn "tagctl" "exclusive-tag" "3"; }
+    Mod+Shift+4 { spawn "tagctl" "exclusive-tag" "4"; }
+    Mod+Shift+5 { spawn "tagctl" "exclusive-tag" "5"; }
+    Mod+Shift+6 { spawn "tagctl" "exclusive-tag" "6"; }
+    Mod+Shift+7 { spawn "tagctl" "exclusive-tag" "7"; }
+    Mod+Shift+8 { spawn "tagctl" "exclusive-tag" "8"; }
+    Mod+Shift+9 { spawn "tagctl" "exclusive-tag" "9"; }
 
     // Alternatively, there are commands to move just a single window:
     // Mod+Ctrl+1 { move-window-to-workspace 1; }
 
     // Switches focus between the current and the previous workspace.
-    Mod+Tab { focus-workspace-previous; }
+    // Mod+Tab { focus-workspace-previous; }
 
     Mod+Comma  { consume-window-into-column; }
     Mod+Period { expel-window-from-column; }
@@ -555,13 +582,13 @@ binds {
     // Mod+Shift+Space { switch-layout "prev"; }
 
     Print { screenshot; }
-    Ctrl+Print { screenshot-screen; }
+    Mod+Print { screenshot-screen; }
     Alt+Print { screenshot-window; }
 
-    Mod+Shift+E { quit; }
+    Mod+Escape { quit; }
     Mod+Shift+P { power-off-monitors; }
 
-    Mod+Shift+Ctrl+T { toggle-debug-tint; }
+    // Mod+Shift+Ctrl+T { toggle-debug-tint; }
 }
 
 environment {
