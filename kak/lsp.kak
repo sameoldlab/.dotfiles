@@ -5,6 +5,9 @@ args = ["lsp"]
 [language-server.rust-analyzer]
 command = "rust-analyzer"
 
+[language-server.glslx]
+command = "glslx"
+
 [language-server.vala-language-server]
 command = "vala-language-server"
 
@@ -49,6 +52,11 @@ nodePath = ""
 [[language]]
 name = "markdown"
 language-servers = ["zk" ]
+
+[[language]]
+name = "glsl"
+language-servers = ["glslx" ]
+file-types = ["frag", "vert" ]
 
 [[language]]
 name = "vala"
