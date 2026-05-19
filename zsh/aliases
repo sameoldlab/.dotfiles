@@ -18,6 +18,9 @@ alias zj="zellij"
 alias fzfp="fzf --preview 'bat --style=numbers --color=always {}'"
 alias lg="lazygit"
 alias zz="yazi"
+function kk {
+ kak -C "$(basename $(git rev-parse --show-toplevel))"
+}
 
 function zja { zj attach $(zj list-sessions | fzf --ansi | awk '{print $1}')}
 function zr  { zj run --name "$*" -- zsh -ic "$*";}

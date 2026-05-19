@@ -7,14 +7,8 @@ spawn-at-startup "ags" "run"
 // spawn-at-startup "swayidle"
 spawn-at-startup "udiskie" "-sna"
 spawn-at-startup "playerctld daemon"
+spawn-at-startup "dms" "run"
 spawn-at-startup "niri-tag"
-
-// workspace "main"
-// workspace "research"
-// workspace "burner"
-// workspace "config"
-// workspace "LAB"
-// workspace "media"
 
 input {
     keyboard {
@@ -225,6 +219,14 @@ window-rule {
 	geometry-corner-radius 0
 	clip-to-geometry true
 }
+
+window-rule {
+    match app-id="kak-picker"
+    match app-id="fzf-kak"
+    open-floating true
+    default-column-width { fixed 1000; }
+}
+
 window-rule {
     match app-id="affinity.exe"
     open-floating true

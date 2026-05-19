@@ -26,8 +26,8 @@ face global list rgb:dedede,default
 # kakoune UI
 
 face global Default rgb:dedede,rgb:1a1825
-face global PrimarySelection rgb:ffffff,rgb:403d52
-face global SecondarySelection rgb:cccccc,rgb:252239
+face global PrimarySelection default,rgba:403d527a
+face global SecondarySelection default,rgba:2522397a
 face global PrimaryCursor rgb:000000,rgb:ffffff+b
 face global SecondaryCursor rgb:121212,rgb:dedede+b
 face global MatchingChar default,rgb:333333

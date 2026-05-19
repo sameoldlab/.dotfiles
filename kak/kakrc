@@ -1,19 +1,30 @@
 # https://frog.ski/blog/writing-your-first-kakrc
 # Plugins
-source "%val{config}/bundle/wezterm/wezterm.kak"
-# wezterm-integration-enable
-eval %sh{ kak-tree-sitter -dks --with-text-objects --with-highlighting --client $kak_session }
+source "%val{config}/bundle/kak-ansi/rc/ansi.kak"
+evaluate-commands %sh{ kak-tree-sitter -dks --init "$kak_session" -vvv }
+# enable LSP
 eval %sh{ kak-lsp --kakoune -s $kak_session}
 lsp-enable
 
 hook global KakEnd .* lsp-exit
 
+
+map global user t ':enter-user-mode tree-sitter<ret>' -docstring 'tree-sitter'
+
+colorscheme carbonfox 
 colorscheme rose_pine
+
 set-option global tabstop 2
 set-option global indentwidth 2
 set-option global scrolloff 1,3
-set-option global ui_options ncurses_status_un_top=true
+set-option global ui_options ncurses_status_on_top=true
 set-option global ui_options terminal_assistant=none
+
+source "%val{config}/bundle/fzf.kak/rc/fzf.kak"
+source "%val{config}/bundle/fzf.kak/rc/modules/fzf-buffer.kak"
+source "%val{config}/bundle/fzf.kak/rc/modules/fzf-file.kak"
+source "%val{config}/bundle/fzf.kak/rc/modules/fzf-search.kak"
+evaluate-commands %sh{kak-popup init }
 
 # Highlight trailing whitespace
 # add-highlighter global/ regex \h+$ 0:Error
@@ -24,33 +35,41 @@ add-highlighter global/ number-lines -hlcursor -relative -separator "  " -min-di
 # exit edit mode with `jk`
 hook global InsertChar k %{ try %{
   exec -draft hH <a-k>jk<ret> d
-  exec <esc>
+  exec -with-hooks <esc>
 }}
 
-hook global ModeChange pop:insert:.* %{
-  write
+define-command acme-exec %{
+  set-option local windowing_placement horizontal
+  terminal sh -c %val{selection}
 }
+
+map global normal <C-s> ':write<ret>'
+map global normal <C-g> ':acme-exec<ret>'
+map global normal <ret> '<A-o>'
+map global normal <S-ret> '<A-O>'
+map global normal <A-o> '<A-o>'
+# map global normal <ret> '<A-O>'
 
 # Change color in inert mode
 hook global InsertIdle .* %{
-  set-face window PrimaryCursor default,default+u
-  set-face window PrimaryCursorEol default,default+u
-  set-face window SecondaryCursor default,default+u
-  set-face window SecondaryCursorEol default,default+u
-  set-face window LineNumberCursor default,default+u
-  set-face window PrimarySelection default,default+u
-  set-face window SecondarySelection default,default+u
+  # set-face window PrimaryCursor default,default+u
+  # set-face window PrimaryCursorEol default,default+u
+  # set-face window SecondaryCursor default,default+u
+  # set-face window SecondaryCursorEol default,default+u
+  # set-face window LineNumberCursor default,default+u
+  # set-face window PrimarySelection default,default+u
+  # set-face window SecondarySelection default,default+u
 }
 
-# set cursor to default
+## set cursor to default
 hook global NormalIdle .* %{
-  set-face window PrimaryCursor default,default+r
-  set-face window PrimaryCursorEol default,default+r
-  set-face window SecondaryCursor default,default+r
-  set-face window SecondaryCursorEol default,default+r
-  set-face window LineNumberCursor default,default+r
-  set-face window PrimarySelection default,default+r
-  set-face window SecondarySelection default,default+r
+  # set-face window PrimaryCursor default,default+r
+  # set-face window PrimaryCursorEol default,default+r
+  # set-face window SecondaryCursor default,default+r
+  # set-face window SecondaryCursorEol default,default+r
+  # set-face window LineNumberCursor default,default+r
+  # set-face window PrimarySelection default,default+r
+  # set-face window SecondarySelection default,default+r
 }
 
 # tabs for autocomplete
@@ -70,71 +89,111 @@ hook global InsertCompletionShow .* %{
   }
 }
 
+
 # swap q and b
 map global normal <q> "b"
 map global normal <Q> "B"
+map global normal <a-q> "<a-b>"
+map global normal <a-Q> "<a-B>"
 map global normal <b> "q"
 map global normal <B> "Q"
+map global normal <a-b> "<a-q>"
+map global normal <a-B> "<a-Q>"
 
+map global user k '' -docstring 'show docs for item under cursor'
 map global normal <esc> ";,"
 map global normal <c-v> ":comment-line<ret>"
-define-command -docstring "open file" o -params .. %{ edit %arg{1} }
-define-command -docstring "new buffer" n "new"
 
-map -docstring "enter-user-mode" global normal <space> ":enter-user-mode<space>user<ret>"
-#map -docstring "buffer next" global goto n ":bn<ret>"
-#map -docstring "buffer previous" global goto p ":bp<ret>"
+## map -docstring "enter-user-mode" global normal <space> ":enter-user-mode<space>user<ret>"
+map -docstring "buffer next" global user g ":bn<ret>"
+map -docstring "buffer previous" global user G ":bp<ret>"
 
 # Clipboard management mappings
 map -docstring "yank to system clipboard" global user y "<a-|>wl-copy<ret>"
-map -docstring "paste to system clipboard" global user p "<a-!>wl-paste<ret>"
+map -docstring "paste from system clipboard" global user p "<a-!>wl-paste<ret>"
 map -docstring "save current buffer" global user s ":write<ret>"
 
-# https://github.com/kakoune-lsp/kak-lsp 
-map global user l %{:enter-user-mode lsp<ret>} -docstring "LSP mode"
-map global insert <tab> '<a-;>:try lsp-snippets-select-next-placeholders catch %{ execute-keys -with-hooks <lt>tab> }<ret>' -docstring 'Select next snippet placeholder'
-map global object a '<a-semicolon>lsp-object<ret>' -docstring 'LSP any symbol'
-map global object <a-a> '<a-semicolon>lsp-object<ret>' -docstring 'LSP any symbol'
-map global object f '<a-semicolon>lsp-object Function Method<ret>' -docstring 'LSP function or method'
-map global object t '<a-semicolon>lsp-object Class Interface Struct<ret>' -docstring 'LSP class interface or struct'
-map global object d '<a-semicolon>lsp-diagnostic-object --include-warnings<ret>' -docstring 'LSP errors and warnings'
-map global object D '<a-semicolon>lsp-diagnostic-object<ret>' -docstring 'LSP errors'
 
-hook global BufSetOption filetype=vala %{
-  set-option buffer lsp_servers %{
-      [vala-language-server]
-      root_globs = ["meson.build"]
-  }
-}
-hook global BufSetOption filetype=rust %{
-  set-option buffer lsp_servers %{
-      [rust-analyzer]
-      root_globs = ["Cargo.toml"]
-      command = "sh"
-      args = [
-          "-c",
-          """
-              if path=$(rustup which rust-analyzer 2>/dev/null); then
-                  exec "$path"
-              else
-                  exec rust-analyzer
-              fi
-          """,
-      ]
-      # [rust-analyzer.experimental]
-      # commands.commands = ["rust-analyzer.runSingle"]
-      # hoverActions = true
-      [rust-analyzer.settings.rust-analyzer]
-      # See https://rust-analyzer.github.io/manual.html#configuration
-      # cargo.features = []
-      check.command = "clippy"
-  }
-}
+#
+# Helix Leader-mode
+map global user f ':fzf-mode<ret>f'           -docstring 'open file picker'
+map global user F ':fzf-mode<ret>F'           -docstring 'open file picker at cwd (fzf uses cwd by default)'
 
-hook -group lsp-filetype-svelte global BufSetOption filetype=svelte %{
+# e/E - file explorer: requires a plugin like lf.kak, ranger.kak, or similar
+# No direct fzf equivalent for "explorer". Leave unmapped or bind to a file manager.
+# map global user e ...  # open file explorer at workspace root  — NO EQUIVALENT
+# map global user E ...  # open file explorer at buffer's directory — NO EQUIVALENT
+
+map global user b ':fzf-mode<ret>b'           -docstring 'open buffer picker'
+
+# j - jumplist picker: Kakoune has jump-forward/back but no interactive jumplist picker
+# map global user j ...  # open jumplist picker — NO EQUIVALENT (no interactive jumplist in kak or fzf.kak)
+
+map global user s ':lsp-goto-document-symbol<ret>' -docstring 'open symbol picker (LSP document symbols)'
+#map global user S ':lsp-workspace-symbol ""<ret>' -docstring 'open workspace symbol picker (LSP)'
+
+map global user d ':lsp-diagnostics<ret>'     -docstring 'open diagnostic picker (buffer)'
+map global user D ':lsp-diagnostics<ret>'     -docstring 'open workspace diagnostics — kak-lsp shows all, no separate workspace view'
+
+map global user g ':fzf-mode<ret>v'           -docstring 'changed file picker (fzf-vcs)'
+
+map global user a ':lsp-code-actions<ret>'    -docstring 'perform code action'
+map global user / ':fzf-mode<ret>g'           -docstring 'global search in workspace (fzf grep)'
+
+# G - debug: no DAP in stock kak-lsp; skip unless you have kak-dap
+# map global user G ...  # debug (experimental) — NO EQUIVALENT without kak-dap
+
+# w - window management: Kakoune uses its own client/window model; no submenu equivalent
+# map global user w ...  # window submenu — NO DIRECT EQUIVALENT (use tmux/splits directly)
+
+map global user R '|xclip -selection clipboard -o<ret>'   -docstring 'replace selections with clipboard'
+
+map global user l ':fzf-mode<ret>/'           -docstring 'local search in buffer (fzf buffer lines)'
+
+# L - fuzzy local search in buffer: fzf-mode `/` already does this
+map global user L ':fzf-mode<ret>/'           -docstring 'fuzzy local search in buffer'
+
+map global user k ':lsp-hover<ret>'           -docstring 'show docs for item under cursor'
+map global user r ':lsp-rename-prompt<ret>'   -docstring 'rename symbol'
+map global user h ':lsp-highlight-references<ret>' -docstring 'select/highlight symbol references'
+
+map global user c ':comment-line<ret>'        -docstring 'comment/uncomment selections (line)'
+map global user C ':comment-block<ret>'       -docstring 'block comment/uncomment selections'
+
+# A-c - line comment toggle: same as `c` above; bind the chord in user mode
+map global user <C-c> ':comment-line<ret>'    -docstring 'line comment/uncomment selections'
+
+# B - git blame: requires kak-git or similar
+map global user B ':git blame<ret>'           -docstring 'show blame for current line (requires git.kak)'
+
+
+
+#
+# Kak LSP
+# Docs: https://github.com/kakoune-lsp/kak-lsp
+# 
+map global user   -docstring 'LSP mode' l %{:enter-user-mode lsp<ret>}
+
+map global insert -docstring 'Select next snippet placeholder' <tab> '<a-;>:try lsp-snippets-select-next-placeholders catch %{ execute-keys -with-hooks <lt>tab> }<ret>'
+map global object -docstring 'LSP any symbol' a '<a-semicolon>lsp-object<ret>'
+map global object -docstring 'LSP any symbol' <a-a> '<a-semicolon>lsp-object<ret>'
+map global object -docstring 'LSP function or method' f '<a-semicolon>lsp-object Function Method<ret>'
+map global object -docstring 'LSP class interface or struct' t '<a-semicolon>lsp-object Class Interface Struct<ret>'
+map global object -docstring 'LSP errors and warnings' d '<a-semicolon>lsp-diagnostic-object --include-warnings<ret>'
+map global object -docstring 'LSP errors' D '<a-semicolon>lsp-diagnostic-object<ret>'
+
+
+# #
+# # FZF Mode
+# #
+# map global normal <c-p> ':fzf-mode<ret>'
+# map global user f ':fzf-mode<ret>F' -docstring 'search for file and open it'
+
+
+hook -group lsp-filetype-odin global BufSetOption filetype=odin %{
     set-option buffer lsp_servers %{
-        [svelteserver]
-        root_globs = ["package.json", "tsconfig.json", "jsconfig.json", ".git", ".hg"]
+        [ols]
+        root_globs = [".git", ".main.odin"]
         args = ["--stdio"]
     }
 }
@@ -160,22 +219,57 @@ hook -group lsp-filetype-markdown global BufSetOption filetype=markdown %{
          args = ["lsp"]
      }
 }
-hook -group lsp-language-id global BufSetOption filetype=javascript %{
-    set-option buffer lsp_language_id javascript
-}
-hook -group lsp-language-id global BufCreate .*[.]jsx %{
-    hook -group lsp-language-id buffer BufSetOption filetype=javascript %{
-        set-option buffer lsp_language_id javascriptreact
-    }
-}
+
 hook -group lsp-language-id global BufSetOption filetype=sh %{
     set-option buffer lsp_language_id shellscript
 }
-hook -group lsp-language-id global BufSetOption filetype=typescript %{
-    set-option buffer lsp_language_id typescript
+
+declare-user-mode match
+define-command enter_match_mode %{
+  enter-user-mode -lock match
 }
-hook -group lsp-language-id global BufCreate .*[.]tsx %{
-    hook -group lsp-language-id buffer BufSetOption filetype=typescript %{
-        set-option buffer lsp_language_id typescriptreact
-    }
-}
+map global normal   -docstring 'Match mode' m %{:enter-user-mode match<ret>}
+# map global match -docstring 'Goto matching bracket' m 'm'
+map global match -docstring 'Select around object' a '<a-a>'
+map global match -docstring 'Select inside object' i '<a-i>'
+map global match -docstring 'Lock' M ': enter_match_mode <ret>'
+
+# from https://git.sr.ht/~raiguard/kak-mirror
+# based on https://github.com/Delapouite/kakoune-mirror
+
+# grow/shrink
+map global match c 'C<a-;><a-C><a-;>'  -docstring column
+map global match h 'H<a-;>L<a-;>'      -docstring character
+map global match l 'L<a-;>H<a-;>'      -docstring character
+map global match j 'J<a-;>K<a-;>'      -docstring line
+map global match k 'K<a-;>J<a-;>'      -docstring line
+map global match J 'J<a-;>K<a-;><a-x>' -docstring 'full line'
+map global match K 'K<a-;>J<a-;><a-x>' -docstring 'full line'
+map global match b 'B<a-;>W<a-;>'      -docstring 'word begin'
+map global match w 'W<a-;>B<a-;>'      -docstring 'word begin'
+map global match e 'E<a-;>B<a-;>'      -docstring 'word end'
+map global match p '}p<a-;>{p<a-;>'    -docstring paragraph
+map global match s '}s<a-;>{s<a-;>'    -docstring sentence
+map global match m 'M<a-;><a-M><a-;>'  -docstring matching
+# fallthrough
+map global match '<a-;>' '<a-;>'       -docstring 'swap anchor and cursor'
+map global match '<a-S>' '<a-S>'       -docstring 'select sels boundaries'
+map global match u u                   -docstring 'undo'
+map global match U U                   -docstring 'redo'
+# Surround / Delete
+map global match ( '\a)<esc>\i(<esc>H<a-;>'          -docstring '(surround)'
+map global match { '\a}<esc>\i{<esc>H<a-;>'          -docstring '{surround}'
+map global match [ '\a]<esc>\i[<esc>H<a-;>'          -docstring '[surround]'
+map global match < '\a<gt><esc>\i<lt><esc>H<a-;>'    -docstring '<surround>'
+map global match ) '\a )<esc>\i( <esc>2H<a-;>'       -docstring '( surround )'
+map global match } '\a }<esc>\i{ <esc>2H<a-;>'       -docstring '{ surround }'
+map global match ] '\a ]<esc>\i[ <esc>2H<a-;>'       -docstring '[ surround ]'
+map global match > '\a <gt><esc>\i<lt> <esc>2H<a-;>' -docstring '< surround >'
+map global match '"' '\a"<esc>\i"<esc>H<a-;>'        -docstring '"surround"'
+map global match "'" "\a'<esc>\i'<esc>H<a-;>"        -docstring "'surround'"
+map global match '`' '\a`<esc>\i`<esc>H<a-;>'        -docstring '`surround`'
+map global match d ': mirror-delete<ret>'            -docstring 'delete'
+define-command -hidden mirror-delete %{ execute-keys Z<a-S><a-d>z<a-:>H }
+
+
+map global normal -docstring 'select range' <a-i> ':lsp-selection-range'
