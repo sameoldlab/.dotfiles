@@ -4,6 +4,6 @@
 
 [mgr]
 show_hidden = true
-sort_dir_first = true
-
-
+sort_dir_first = false
+sort_by = "btime"
+linemode = "size_and_mtime"
