@@ -108,10 +108,11 @@ file-types = ["sol", "solidity"]
 
 [[language]]
 name = "svelte"
-auto-format = false
+auto-format = true
 language-servers = [
-  "tailwindcss",
   "svelteserver",
+  "tailwindcss",
+  "emmet-ls",
   # "eslint-ls",
 ]
 roots = ["package.json", "svelte.config.ts"]
