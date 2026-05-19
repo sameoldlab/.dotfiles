@@ -104,8 +104,8 @@ rules = [
 	{ mime = "application/x-rar",           fg = "#f5c2e7" },
 
 	# Fallback
-	{ name = "*", fg = "#cdd6f4" },
-	{ name = "*/", fg = "#89b4fa" }
+	{ mime = "", name = "*", fg = "#cdd6f4" },
+	{ mime = "", name = "*/", fg = "#89b4fa" }
 ]
 
 [icon]
