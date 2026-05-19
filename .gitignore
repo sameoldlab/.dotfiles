@@ -26,6 +26,8 @@
 !starfish.toml
 !*-flags.conf
 !theme.css
+!mango
+!ghostty
 
 !wezterm
 
@@ -40,3 +42,4 @@ mpv/scripts/uosc
 mpv/scripts-opts
 broot/launcher/bash/br
 helix/runtime/grammars
+kak/bundle
