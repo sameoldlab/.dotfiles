@@ -37,7 +37,8 @@ modmap:
       #   alone: j
       #   held: LeftCtrl
       #   alone_timeout_millis: 800
-         
+virtual_modifiers:
+ - FN
 keymap: 
   - name: default
     remap:
@@ -63,3 +64,20 @@ keymap:
       enter: {set_mode: default}
       #left: {} #shrink current window
     mode: resize
+
+  - name: Layer
+    application:
+      only: [zen]
+    remap:
+      Alt-J: Down
+      Alt-K: Up
+      Alt-L: Left
+      Alt-H: Right
+
+  - name: Layer
+    remap:
+      FN-J: Down
+      FN-K: Up
+      FN-L: Left
+      FN-H: Left
+      FN-semicolon: Right
