@@ -24,7 +24,7 @@ tab = "all"
 newline = "none"
 
 [editor.statusline]
-merge-with-commandline = true
+# merge-with-commandline = true
 
 [editor.soft-wrap]
 enable = true

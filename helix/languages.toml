@@ -5,6 +5,11 @@ args = ["lsp"]
 [language-server.basedpyright]
 command = "basedpyright-langserver"
 args = ["--stdio"]
+
+[language-server.ty]
+command = "ty"
+args = ["server"]
+
 [language-server.ruff]
 command = "ruff"
 args = ["server"]
@@ -182,6 +187,6 @@ language-servers = ["vscode-css-language-server", "emmet-ls", "eslint-ls"]
 
 [[language]]
 name = "python"
-language-servers = ["basedpyright", "ruff"]
+language-servers = ["ty",  "basedpyright", "ruff",]
 formatter = { command = "ruff", args = ["format", "-"] }
 auto-format = true
