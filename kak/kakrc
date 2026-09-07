@@ -330,4 +330,29 @@ hook global WinSetOption filetype=odin %{
 }
 
 
-map global normal -docstring 'select range' <a-i> ':lsp-selection-range'
+declare-option str scheme_repl_in "/tmp/scheme-repl-in"
+declare-option str scheme_repl_out "/tmp/scheme-repl-out"
+
+
+define-command scheme-repl-start -override %{
+  nop %sh{
+    mkfifo "$kak_opt_scheme_repl_in" 2>/dev/null
+    mkfifo "$kak_opt_scheme_repl_out" 2>/dev/null
+    ( exec 3<> "$kak_opt_scheme_repl_in"
+      mit-scheme <&3 > "$kak_opt_scheme_repl_out" 2>&1
+    ) > /dev/null 2>&1 < /dev/null &
+    disown 2>/dev/null
+  }
+  evaluate-commands -try-client %opt{toolsclient} %{
+    edit! -fifo %opt{scheme_repl_out} -scroll *scheme-repl*
+  }
+}
+
+define-command scheme-send -override %{
+  nop %sh{
+    printf '%s\n' "$kak_selection" >> "$kak_opt_scheme_repl_in"
+  }
+}
+
+map global normal <c-a> ': scheme-send<ret>' -docstring 'send selection/sexp to scheme REPL'
+
