@@ -22,9 +22,20 @@ set-option global ui_options terminal_assistant=none
 
 source "%val{config}/bundle/fzf.kak/rc/fzf.kak"
 source "%val{config}/bundle/fzf.kak/rc/modules/fzf-buffer.kak"
+source "%val{config}/bundle/fzf.kak/rc/modules/fzf-cd.kak"
 source "%val{config}/bundle/fzf.kak/rc/modules/fzf-file.kak"
+source "%val{config}/bundle/fzf.kak/rc/modules/fzf-grep.kak"
+source "%val{config}/bundle/fzf.kak/rc/modules/fzf-recent.kak"
 source "%val{config}/bundle/fzf.kak/rc/modules/fzf-search.kak"
 evaluate-commands %sh{kak-popup init }
+define-command -params 1.. picker-files %{
+  popup --title "files" --kak-script %{edit %opt{popup_output}} -- %sh{ fd --type f | ~/.cargo/target/debug/harpoon }
+}
+
+
+
+enable-auto-pairs
+set-option global auto_pairs ( ) { } [ ] '"' '"' "'" "'" ` ` “ ” ‘ ’ « » ‹ › 
 
 # Highlight trailing whitespace
 # add-highlighter global/ regex \h+$ 0:Error
@@ -38,19 +49,43 @@ hook global InsertChar k %{ try %{
   exec -with-hooks <esc>
 }}
 
-define-command acme-exec %{
-  set-option local windowing_placement horizontal
-  terminal sh -c %val{selection}
+define-command acme-exec -override -params 0 %{
+  evaluate-commands -draft -save-regs '|"' %sh{
+    if [[ "${#kak_selection}" -eq 1 ]]
+		then
+			# we don't have any selected text, select anything after `$ ` and execute it, outputting it
+			# below the line
+	 		printf '%s\n' \
+	 		"
+			try %{
+				execute-keys x 1s \\$<space>(.+)\n<ret>
+				set-register '|' %val{selection}
+				execute-keys o <esc> !<ret>
+				execute-keys j d
+			} catch %{
+			}
+			"
+		else
+			printf '%s\n' \
+			"
+			set-register '|' %val{selection}
+			execute-keys o <esc> !<ret>
+			execute-keys j d
+			"
+		fi
+  }
 }
 
+map global normal z  acme-exec
 map global normal <C-s> ':write<ret>'
+map global normal <C-q> ':delete-buffer<ret>'
 map global normal <C-g> ':acme-exec<ret>'
 map global normal <ret> '<A-o>'
 map global normal <S-ret> '<A-O>'
 map global normal <A-o> '<A-o>'
 # map global normal <ret> '<A-O>'
 
-# Change color in inert mode
+# Change color in insert mode
 hook global InsertIdle .* %{
   # set-face window PrimaryCursor default,default+u
   # set-face window PrimaryCursorEol default,default+u
@@ -71,6 +106,20 @@ hook global NormalIdle .* %{
   # set-face window PrimarySelection default,default+r
   # set-face window SecondarySelection default,default+r
 }
+
+hook global ModeChange ".*:normal" %{
+    face window PrimaryCursor black,white+F
+    face window PrimaryCursorEol black,blue+F
+    face window SecondaryCursor black,bright-green+F
+    face window SecondarySelection black,green+F
+}
+hook global ModeChange ".*:insert" %{
+    face window PrimaryCursor black,red+F
+    face window PrimaryCursorEol black,red+F
+    face window SecondaryCursor black,red+F
+    face window SecondarySelection black,green+F
+}
+
 
 # tabs for autocomplete
 hook global InsertCompletionShow .* %{
@@ -105,24 +154,30 @@ map global normal <esc> ";,"
 map global normal <c-v> ":comment-line<ret>"
 
 ## map -docstring "enter-user-mode" global normal <space> ":enter-user-mode<space>user<ret>"
-map -docstring "buffer next" global user g ":bn<ret>"
-map -docstring "buffer previous" global user G ":bp<ret>"
+map global user g ":bn<ret>"                        -docstring "buffer next"
+map global user G ":bp<ret>"                        -docstring "buffer previous"
+map global goto n <esc>:buffer-next<ret>         -docstring "buffer next"
+map global goto p <esc>:buffer-previous<ret>     -docstring "buffer previous"
+map global goto d <esc>:lsp-definition<ret>      -docstring "lsp definition"
+map global goto D <esc>:lsp-declaration<ret>     -docstring "lsp declaration"
+map global goto i <esc>:lsp-implementation<ret>  -docstring "lsp implementation"
+map global goto y <esc>:lsp-type-definition<ret> -docstring "lsp type definition"
+map global goto r <esc>:lsp-references<ret>      -docstring "*lsp references"
 
 # Clipboard management mappings
-map -docstring "yank to system clipboard" global user y "<a-|>wl-copy<ret>"
-map -docstring "paste from system clipboard" global user p "<a-!>wl-paste<ret>"
-map -docstring "save current buffer" global user s ":write<ret>"
+map global user y "<a-|>wl-copy<ret>"               -docstring "yank to system clipboard"
+map global user p "<a-!>wl-paste<ret>"              -docstring "paste from system clipboard"
+map global user s ":write<ret>"                     -docstring "save current buffer"
 
 
 #
 # Helix Leader-mode
-map global user f ':fzf-mode<ret>f'           -docstring 'open file picker'
-map global user F ':fzf-mode<ret>F'           -docstring 'open file picker at cwd (fzf uses cwd by default)'
+map global user f ':fzf-mode<ret>f'                 -docstring 'open file picker'
+map global user F ':fzf-mode<ret>F'                 -docstring 'open file picker at cwd'
 
-# e/E - file explorer: requires a plugin like lf.kak, ranger.kak, or similar
 # No direct fzf equivalent for "explorer". Leave unmapped or bind to a file manager.
-# map global user e ...  # open file explorer at workspace root  — NO EQUIVALENT
-# map global user E ...  # open file explorer at buffer's directory — NO EQUIVALENT
+# map global user e ...  # open file explorer at workspace root
+# map global user E ...  # open file explorer at buffer's directory
 
 map global user b ':fzf-mode<ret>b'           -docstring 'open buffer picker'
 
@@ -132,11 +187,8 @@ map global user b ':fzf-mode<ret>b'           -docstring 'open buffer picker'
 map global user s ':lsp-goto-document-symbol<ret>' -docstring 'open symbol picker (LSP document symbols)'
 #map global user S ':lsp-workspace-symbol ""<ret>' -docstring 'open workspace symbol picker (LSP)'
 
-map global user d ':lsp-diagnostics<ret>'     -docstring 'open diagnostic picker (buffer)'
-map global user D ':lsp-diagnostics<ret>'     -docstring 'open workspace diagnostics — kak-lsp shows all, no separate workspace view'
-
+map global user d ':lsp-diagnostics<ret>'     -docstring '*open diagnostic picker'
 map global user g ':fzf-mode<ret>v'           -docstring 'changed file picker (fzf-vcs)'
-
 map global user a ':lsp-code-actions<ret>'    -docstring 'perform code action'
 map global user / ':fzf-mode<ret>g'           -docstring 'global search in workspace (fzf grep)'
 
@@ -190,10 +242,35 @@ map global object -docstring 'LSP errors' D '<a-semicolon>lsp-diagnostic-object<
 # map global user f ':fzf-mode<ret>F' -docstring 'search for file and open it'
 
 
-hook -group lsp-filetype-odin global BufSetOption filetype=odin %{
+hook -group lsp-filetype-html global BufSetOption filetype=html %{
     set-option buffer lsp_servers %{
-        [ols]
-        root_globs = [".git", ".main.odin"]
+        # Documented options see
+        # https://github.com/sublimelsp/LSP-html/blob/master/LSP-html.sublime-settings
+        [vscode-html-language-server]
+        root_globs = ["package.json", ".git", ".hg"]
+        args = ["--stdio"]
+        settings_section = "_"
+        [vscode-html-language-server.settings._]
+        provideFormatter = true
+        [vscode-html-language-server.settings]
+        embeddedLanguages.css = true
+        embeddedLanguages.javascript = true
+        html.autoClosingTags = true
+        html.format.enable = true
+        html.mirrorCursorOnMatchingTag = true
+        html.validate.scripts = true
+        html.validate.styles = true
+        css.validate = true
+        css.format.enable = true
+        css.validProperties = []
+        javascript.format.enable = true
+        javascript.validate.enable = true
+        # This is mainly a linter for HTML and to be used together with vscode-html-language-server
+        # https://github.com/kristoff-it/superhtml
+        # [superhtml]
+        # root_globs = ["package.json", ".git", ".hg"]
+        # args = ["lsp"]
+        [emmet-language-server]
         args = ["--stdio"]
     }
 }
@@ -224,52 +301,33 @@ hook -group lsp-language-id global BufSetOption filetype=sh %{
     set-option buffer lsp_language_id shellscript
 }
 
-declare-user-mode match
-define-command enter_match_mode %{
-  enter-user-mode -lock match
+
+remove-hooks global lsp-filetype-python
+hook -group lsp-filetype-python global BufSetOption filetype=python %{
+    set-option buffer lsp_servers %{
+        [basedpyright]
+        command = "basedpyright-langserver"
+        root_globs = ["pyproject.toml", "setup.py", "poetry.lock", ".git", ".hg"]
+        args = ["--stdio"]
+        [ty]
+        command = "ty"
+        args = ["server"]
+        root_globs = ["pyproject.toml", "setup.py", "poetry.lock", ".git", ".hg"]
+        [ruff]
+        args = ["server", "--quiet"]
+        root_globs = ["pyproject.toml", "setup.py", "poetry.lock", ".git", ".hg"]
+        settings_section = "_"
+        [ruff.settings._.globalSettings]
+        organizeImports = true
+        fixAll = true
+    }
 }
-map global normal   -docstring 'Match mode' m %{:enter-user-mode match<ret>}
-# map global match -docstring 'Goto matching bracket' m 'm'
-map global match -docstring 'Select around object' a '<a-a>'
-map global match -docstring 'Select inside object' i '<a-i>'
-map global match -docstring 'Lock' M ': enter_match_mode <ret>'
+map global normal -docstring 'select range' <a-i> ':lsp-selection-range<ret>'
 
-# from https://git.sr.ht/~raiguard/kak-mirror
-# based on https://github.com/Delapouite/kakoune-mirror
-
-# grow/shrink
-map global match c 'C<a-;><a-C><a-;>'  -docstring column
-map global match h 'H<a-;>L<a-;>'      -docstring character
-map global match l 'L<a-;>H<a-;>'      -docstring character
-map global match j 'J<a-;>K<a-;>'      -docstring line
-map global match k 'K<a-;>J<a-;>'      -docstring line
-map global match J 'J<a-;>K<a-;><a-x>' -docstring 'full line'
-map global match K 'K<a-;>J<a-;><a-x>' -docstring 'full line'
-map global match b 'B<a-;>W<a-;>'      -docstring 'word begin'
-map global match w 'W<a-;>B<a-;>'      -docstring 'word begin'
-map global match e 'E<a-;>B<a-;>'      -docstring 'word end'
-map global match p '}p<a-;>{p<a-;>'    -docstring paragraph
-map global match s '}s<a-;>{s<a-;>'    -docstring sentence
-map global match m 'M<a-;><a-M><a-;>'  -docstring matching
-# fallthrough
-map global match '<a-;>' '<a-;>'       -docstring 'swap anchor and cursor'
-map global match '<a-S>' '<a-S>'       -docstring 'select sels boundaries'
-map global match u u                   -docstring 'undo'
-map global match U U                   -docstring 'redo'
-# Surround / Delete
-map global match ( '\a)<esc>\i(<esc>H<a-;>'          -docstring '(surround)'
-map global match { '\a}<esc>\i{<esc>H<a-;>'          -docstring '{surround}'
-map global match [ '\a]<esc>\i[<esc>H<a-;>'          -docstring '[surround]'
-map global match < '\a<gt><esc>\i<lt><esc>H<a-;>'    -docstring '<surround>'
-map global match ) '\a )<esc>\i( <esc>2H<a-;>'       -docstring '( surround )'
-map global match } '\a }<esc>\i{ <esc>2H<a-;>'       -docstring '{ surround }'
-map global match ] '\a ]<esc>\i[ <esc>2H<a-;>'       -docstring '[ surround ]'
-map global match > '\a <gt><esc>\i<lt> <esc>2H<a-;>' -docstring '< surround >'
-map global match '"' '\a"<esc>\i"<esc>H<a-;>'        -docstring '"surround"'
-map global match "'" "\a'<esc>\i'<esc>H<a-;>"        -docstring "'surround'"
-map global match '`' '\a`<esc>\i`<esc>H<a-;>'        -docstring '`surround`'
-map global match d ': mirror-delete<ret>'            -docstring 'delete'
-define-command -hidden mirror-delete %{ execute-keys Z<a-S><a-d>z<a-:>H }
+hook global WinSetOption filetype=odin %{
+    set-option buffer formatcmd "odinfmt %val{buffile}"
+    set-option buffer makecmd "odin build ."
+}
 
 
 map global normal -docstring 'select range' <a-i> ':lsp-selection-range'
