@@ -28,8 +28,7 @@ verbs: [
         invocation: edit
         shortcut: e
         key: ctrl-e
-        apply_to: text_file
-        # execution: "$EDITOR {file}"
+        execution: "br-kk {file}"
         leave_broot: false
     }
 
