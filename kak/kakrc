@@ -1,7 +1,7 @@
 # https://frog.ski/blog/writing-your-first-kakrc
 # Plugins
 source "%val{config}/bundle/kak-ansi/rc/ansi.kak"
-evaluate-commands %sh{ kak-tree-sitter -dks --init "$kak_session" -vvv }
+eval %sh{ kak-tree-sitter -dks --init $kak_session -vvv }
 # enable LSP
 eval %sh{ kak-lsp --kakoune -s $kak_session}
 lsp-enable
@@ -40,6 +40,7 @@ set-option global auto_pairs ( ) { } [ ] '"' '"' "'" "'" ` ` “ ” ‘ ’ « 
 add-highlighter global/ wrap -word -indent
 add-highlighter global/ show-matching
 add-highlighter global/ number-lines -hlcursor -relative -separator "  " -min-digits 3
+add-highlighter global/ show-whitespaces
 
 # exit edit mode with `jk`
 hook global InsertChar k %{ try %{
@@ -47,7 +48,7 @@ hook global InsertChar k %{ try %{
   exec -with-hooks <esc>
 }}
 
-define-command acme-exec -override -params 0 %{
+define-command sh-exec -override -params 0 %{
   evaluate-commands -draft -save-regs '|"' %sh{
     if [[ "${#kak_selection}" -eq 1 ]]
 		then
@@ -60,7 +61,6 @@ define-command acme-exec -override -params 0 %{
 				set-register '|' %val{selection}
 				execute-keys o <esc> !<ret>
 				execute-keys j d
-			} catch %{
 			}
 			"
 		else
@@ -74,50 +74,29 @@ define-command acme-exec -override -params 0 %{
   }
 }
 
-map global normal z  acme-exec
-map global normal <C-s> ':write<ret>'
-map global normal <C-q> ':delete-buffer<ret>'
-map global normal <C-g> ':acme-exec<ret>'
+map global normal <c-w> ':write<ret>'
+map global normal <c-q> ':delete-buffer<ret>'
+# map global normal <C-g> ':sh-exec<ret>'
 map global normal <ret> '<A-o>'
-map global normal <S-ret> '<A-O>'
-map global normal <A-o> '<A-o>'
-# map global normal <ret> '<A-O>'
+map global normal <s-ret> '<A-O>'
+map global normal <a-o> '<A-o>'
+map global normal <a-o> '<A-o>'
+
 
 # Change color in insert mode
-hook global InsertIdle .* %{
-  # set-face window PrimaryCursor default,default+u
-  # set-face window PrimaryCursorEol default,default+u
-  # set-face window SecondaryCursor default,default+u
-  # set-face window SecondaryCursorEol default,default+u
-  # set-face window LineNumberCursor default,default+u
-  # set-face window PrimarySelection default,default+u
-  # set-face window SecondarySelection default,default+u
-}
-
-## set cursor to default
-hook global NormalIdle .* %{
-  # set-face window PrimaryCursor default,default+r
-  # set-face window PrimaryCursorEol default,default+r
-  # set-face window SecondaryCursor default,default+r
-  # set-face window SecondaryCursorEol default,default+r
-  # set-face window LineNumberCursor default,default+r
-  # set-face window PrimarySelection default,default+r
-  # set-face window SecondarySelection default,default+r
-}
-
 hook global ModeChange ".*:normal" %{
     face window PrimaryCursor black,white+F
     face window PrimaryCursorEol black,blue+F
     face window SecondaryCursor black,bright-green+F
     face window SecondarySelection black,green+F
 }
+## set cursor to default
 hook global ModeChange ".*:insert" %{
     face window PrimaryCursor black,red+F
     face window PrimaryCursorEol black,red+F
     face window SecondaryCursor black,red+F
     face window SecondarySelection black,green+F
 }
-
 
 # tabs for autocomplete
 hook global InsertCompletionShow .* %{
@@ -136,67 +115,49 @@ hook global InsertCompletionShow .* %{
   }
 }
 
-
 # swap q and b
-map global normal <q> "b"
-map global normal <Q> "B"
+map global normal q     "b"
+map global normal Q     "B"
 map global normal <a-q> "<a-b>"
 map global normal <a-Q> "<a-B>"
-map global normal <b> "q"
-map global normal <B> "Q"
+map global normal b     "q"
+map global normal B     "Q"
 map global normal <a-b> "<a-q>"
 map global normal <a-B> "<a-Q>"
-
-map global user k '' -docstring 'show docs for item under cursor'
 map global normal <esc> ";,"
 map global normal <c-v> ":comment-line<ret>"
 
 ## map -docstring "enter-user-mode" global normal <space> ":enter-user-mode<space>user<ret>"
-map global user g ":bn<ret>"                        -docstring "buffer next"
-map global user G ":bp<ret>"                        -docstring "buffer previous"
-map global goto n <esc>:buffer-next<ret>         -docstring "buffer next"
-map global goto p <esc>:buffer-previous<ret>     -docstring "buffer previous"
-map global goto d <esc>:lsp-definition<ret>      -docstring "lsp definition"
-map global goto D <esc>:lsp-declaration<ret>     -docstring "lsp declaration"
-map global goto i <esc>:lsp-implementation<ret>  -docstring "lsp implementation"
-map global goto y <esc>:lsp-type-definition<ret> -docstring "lsp type definition"
-map global goto r <esc>:lsp-references<ret>      -docstring "*lsp references"
 
-# Clipboard management mappings
-map global user y "<a-|>wl-copy<ret>"               -docstring "yank to system clipboard"
-map global user p "<a-!>wl-paste<ret>"              -docstring "paste from system clipboard"
-map global user s ":write<ret>"                     -docstring "save current buffer"
+map global goto n <esc>:buffer-next<ret>             -docstring "buffer next"
+map global goto p <esc>:buffer-previous<ret>         -docstring "buffer previous"
+map global goto d <esc>:lsp-definition<ret>          -docstring "lsp definition"
+map global goto D <esc>:lsp-declaration<ret>         -docstring "lsp declaration"
+map global goto i <esc>:lsp-implementation<ret>      -docstring "lsp implementation"
+map global goto y <esc>:lsp-type-definition<ret>     -docstring "lsp type definition"
+map global goto r <esc>:lsp-references<ret>          -docstring "*lsp references"
 
-
-#
-# Helix Leader-mode
-map global user f ':fzf-mode<ret>f'                 -docstring 'open file picker'
-map global user F ':fzf-mode<ret>F'                 -docstring 'open file picker at cwd'
+map global user y <a-|>wl-copy<ret>                  -docstring "yank to system clipboard"
+map global user p '!wl-paste -n<ret>'                 -docstring "paste from system clipboard"
+map global user P '<esc>h!wl-paste -n<ret>'           -docstring "paste from system clipboard"
+map global user s ":write<ret>"                      -docstring "save current buffer"
+map global user f ':fzf-mode<ret>f'                  -docstring 'open file picker'
+map global user F ':fzf-mode<ret>F'                  -docstring 'open file picker at cwd'
+map global user b ':fzf-mode<ret>b'                  -docstring 'open buffer picker'
+map global user s ':lsp-goto-document-symbol<ret>'   -docstring 'open symbol picker (LSP document symbols)'
+map global user d ':lsp-diagnostics<ret>'            -docstring '*open diagnostic picker'
+map global user g ':fzf-mode<ret>v'                  -docstring 'changed file picker (fzf-vcs)'
+map global user a ':lsp-code-actions<ret>'           -docstring 'perform code action'
+map global user / ':fzf-mode<ret>g'                  -docstring 'global search in workspace (fzf grep)'
 
 # No direct fzf equivalent for "explorer". Leave unmapped or bind to a file manager.
 # map global user e ...  # open file explorer at workspace root
 # map global user E ...  # open file explorer at buffer's directory
-
-map global user b ':fzf-mode<ret>b'           -docstring 'open buffer picker'
-
 # j - jumplist picker: Kakoune has jump-forward/back but no interactive jumplist picker
 # map global user j ...  # open jumplist picker — NO EQUIVALENT (no interactive jumplist in kak or fzf.kak)
+# map global user S ':lsp-workspace-symbol ""<ret>' -docstring 'open workspace symbol picker (LSP)'
 
-map global user s ':lsp-goto-document-symbol<ret>' -docstring 'open symbol picker (LSP document symbols)'
-#map global user S ':lsp-workspace-symbol ""<ret>' -docstring 'open workspace symbol picker (LSP)'
-
-map global user d ':lsp-diagnostics<ret>'     -docstring '*open diagnostic picker'
-map global user g ':fzf-mode<ret>v'           -docstring 'changed file picker (fzf-vcs)'
-map global user a ':lsp-code-actions<ret>'    -docstring 'perform code action'
-map global user / ':fzf-mode<ret>g'           -docstring 'global search in workspace (fzf grep)'
-
-# G - debug: no DAP in stock kak-lsp; skip unless you have kak-dap
-# map global user G ...  # debug (experimental) — NO EQUIVALENT without kak-dap
-
-# w - window management: Kakoune uses its own client/window model; no submenu equivalent
-# map global user w ...  # window submenu — NO DIRECT EQUIVALENT (use tmux/splits directly)
-
-map global user R '|xclip -selection clipboard -o<ret>'   -docstring 'replace selections with clipboard'
+map global user R 'd!wl-paste -n<ret>'   -docstring 'replace selections with clipboard'
 
 map global user l ':fzf-mode<ret>/'           -docstring 'local search in buffer (fzf buffer lines)'
 
@@ -281,11 +242,6 @@ hook -group lsp-language-id global BufSetOption filetype=solidity %{
   }
   set-option buffer lsp_language_id nomicfoundation-solidity-language-server
 }
-# hook -group lsp-language-id global BufCreate .*[.]sol %{
-#     hook -group lsp-language-id buffer BufSetOption filetype=solidity %{
-#       set-option buffer lsp_language_id nomicfoundation-solidity-language-server
-#     }
-# }
 
 hook -group lsp-filetype-markdown global BufSetOption filetype=markdown %{
      set-option buffer lsp_servers %{
@@ -298,7 +254,6 @@ hook -group lsp-filetype-markdown global BufSetOption filetype=markdown %{
 hook -group lsp-language-id global BufSetOption filetype=sh %{
     set-option buffer lsp_language_id shellscript
 }
-
 
 remove-hooks global lsp-filetype-python
 hook -group lsp-filetype-python global BufSetOption filetype=python %{
@@ -320,37 +275,111 @@ hook -group lsp-filetype-python global BufSetOption filetype=python %{
         fixAll = true
     }
 }
-map global normal -docstring 'select range' <a-i> ':lsp-selection-range<ret>'
+
+hook global BufCreate .*[.](asd|lisp) %{
+    set-option buffer filetype lisp
+    set-option buffer tree_sitter_lang 'common-lisp'
+
+    define-command lisp-expand %{
+      try %{
+        execute-keys <a-a>b
+      }
+    }
+    define-command lisp-next %{
+      execute-keys <semicolon>
+      try %{
+        execute-keys <a-a>b
+      }
+      execute-keys f(<a-a>b
+    }
+    define-command lisp-prev %{
+      execute-keys <semicolon>
+      try %{
+        execute-keys <a-a>b
+      }
+      execute-keys <a-f>)<a-a>b
+    }
+    map global normal <a-n>  ': lisp-next<ret>'
+    map global normal <a-p>  ': lisp-prev<ret>'
+    map global normal <a-o>  ': lisp-expand<ret>'
+}
+
+hook global WinSetOption filetype=(asd|ct|lisp|scheme|janet) %{
+    # parinfer-enable-window -smart
+    # rainbow-enable-window
+}
+
+hook -group lsp-filetype-janet global BufSetOption filetype=janet %{
+    set-option buffer formatcmd "janet-format -i %val{buffile} -o %val{buffile}"
+    set-option buffer lsp_servers %{
+        [janet-lsp]
+        root_globs = ["project.janet"]
+        command = "janet-lsp"
+        args = ["--stdio"]
+    }
+}
+
+hook -group lsp-filetype-css global BufSetOption filetype=(?:css|less|scss) %{
+    set-option buffer lsp_servers %{
+        # Documented options see
+        # https://github.com/sublimelsp/LSP-css/blob/master/LSP-css.sublime-settings
+        # [vscode-css-language-server]
+        # root_globs = ["package.json", ".git", ".hg"]
+        # args = ["--stdio"]
+        # settings_section = "_"
+        # [vscode-css-language-server.settings._]
+        # provideFormatter = true
+        # handledSchemas = ["file"]
+        # [vscode-css-language-server.settings]
+        # css.format.enable = true
+        # css.validProperties = []
+        # css.validate = true
+        # scss.validProperties = []
+        # scss.format.enable = true
+        # scss.validate = true
+        # less.validProperties = []
+        # less.format.enable = true
+        # less.validate = true
+        [css-variable-lsp]
+        root_globs = ["package.json", ".git", ".hg"]
+        args = ["--lookup-files", "'*.css,*.scss,*.svelte,*.html'"]
+        [go-css-lsp]
+        root_globs = ["package.json", ".git", ".hg"]
+        args = [""]
+    }
+    # set-option buffer lsp_servers %opt{lsp_server_biome}
+}
+
+hook -group lsp-filetype-svelte global BufSetOption filetype=svelte %{
+  	set-option buffer comment_block_begin '/*'
+  	set-option buffer comment_block_end '*/'
+  	set-option buffer comment_line '//'
+
+    set-option buffer lsp_servers %{
+        [svelteserver]
+        root_globs = ["package.json", "tsconfig.json", "jsconfig.json", ".git"]
+        args = ["--stdio"]
+        [css-variable-lsp]
+        root_globs = ["package.json", ".git", ".hg"]
+        # args = ["--lookup-files", "'*.css,*.scss,*.svelte,*.html'"]
+        # [go-css-lsp]
+        # root_globs = ["package.json", ".git", ".hg"]
+        # args = [""]
+    }
+}
+
+hook -group lsp-filetype-janet global BufSetOption filetype=janet %{
+    set-option buffer formatcmd "janet-format -i %val{buffile} -o %val{buffile}"
+    set-option buffer lsp_servers %{
+        [janet-lsp]
+        root_globs = ["project.janet"]
+        command = "janet-lsp"
+        args = ["--stdio"]
+    }
+}
+map global normal -docstring 'select range' <a-i> ':enter-user-mode tree-sitter<ret>' 
 
 hook global WinSetOption filetype=odin %{
     set-option buffer formatcmd "odinfmt %val{buffile}"
     set-option buffer makecmd "odin build ."
 }
-
-
-declare-option str scheme_repl_in "/tmp/scheme-repl-in"
-declare-option str scheme_repl_out "/tmp/scheme-repl-out"
-
-
-define-command scheme-repl-start -override %{
-  nop %sh{
-    mkfifo "$kak_opt_scheme_repl_in" 2>/dev/null
-    mkfifo "$kak_opt_scheme_repl_out" 2>/dev/null
-    ( exec 3<> "$kak_opt_scheme_repl_in"
-      mit-scheme <&3 > "$kak_opt_scheme_repl_out" 2>&1
-    ) > /dev/null 2>&1 < /dev/null &
-    disown 2>/dev/null
-  }
-  evaluate-commands -try-client %opt{toolsclient} %{
-    edit! -fifo %opt{scheme_repl_out} -scroll *scheme-repl*
-  }
-}
-
-define-command scheme-send -override %{
-  nop %sh{
-    printf '%s\n' "$kak_selection" >> "$kak_opt_scheme_repl_in"
-  }
-}
-
-map global normal <c-a> ': scheme-send<ret>' -docstring 'send selection/sexp to scheme REPL'
-
