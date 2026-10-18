@@ -11,7 +11,6 @@ hook global KakEnd .* lsp-exit
 
 map global user t ':enter-user-mode tree-sitter<ret>' -docstring 'tree-sitter'
 
-colorscheme carbonfox 
 colorscheme rose_pine
 
 set-option global tabstop 2
@@ -36,7 +35,6 @@ define-command -params 1.. picker-files %{
 
 enable-auto-pairs
 set-option global auto_pairs ( ) { } [ ] '"' '"' "'" "'" ` ` “ ” ‘ ’ « » ‹ › 
-
 # Highlight trailing whitespace
 # add-highlighter global/ regex \h+$ 0:Error
 add-highlighter global/ wrap -word -indent
