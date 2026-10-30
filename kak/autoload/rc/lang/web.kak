@@ -37,49 +37,54 @@ hook -group lsp-filetype-css global BufSetOption filetype=(?:css|less|scss) %{
     set-option buffer lsp_servers %{
         # Documented options see
         # https://github.com/sublimelsp/LSP-css/blob/master/LSP-css.sublime-settings
-        # [vscode-css-language-server]
-        # root_globs = ["package.json", ".git", ".hg"]
-        # args = ["--stdio"]
-        # settings_section = "_"
-        # [vscode-css-language-server.settings._]
-        # provideFormatter = true
-        # handledSchemas = ["file"]
-        # [vscode-css-language-server.settings]
-        # css.format.enable = true
-        # css.validProperties = []
-        # css.validate = true
-        # scss.validProperties = []
-        # scss.format.enable = true
-        # scss.validate = true
-        # less.validProperties = []
-        # less.format.enable = true
-        # less.validate = true
+        [vscode-css-language-server]
+        root_globs = ["package.json", ".git", ".hg"]
+        args = ["--stdio"]
+        settings_section = "_"
+        [vscode-css-language-server.settings._]
+        provideFormatter = true
+        handledSchemas = ["file"]
+        [vscode-css-language-server.settings]
+        css.format.enable = true
+        css.validProperties = []
+        css.validate = true
+        scss.validProperties = []
+        scss.format.enable = true
+        scss.validate = true
+        less.validProperties = []
+        less.format.enable = true
+        less.validate = true
         [css-variable-lsp]
         root_globs = ["package.json", ".git", ".hg"]
         args = ["--lookup-files", "'*.css,*.scss,*.svelte,*.html'"]
+        [css-variable-lsp]
+        root_globs = ["package.json", ".git"]
         [csscls]
-        root_globs = ["package.json", ".git", ".hg"]
+        root_globs = ["package.json", ".git"]
         [go-css-lsp]
-        root_globs = ["package.json", ".git", ".hg"]
+        root_globs = ["package.json", ".git"]
         args = [""]
     }
     # set-option buffer lsp_servers %opt{lsp_server_biome}
 }
 
-
-hook -group lsp-filetype-svelte global BufSetOption filetype=(html|js|ts|svelte|jsx|tsx|vue) %{
-    set-option buffer -add lsp_servers %{
-        [css-variable-lsp]
-        root_globs = ["package.json", ".git", ".hg"]
-        [csscls]
-        root_globs = ["package.json", ".git", ".hg"]
-    }
-}
+# hook -group lsp-filetype-svelte global BufSetOption filetype=(html|js|ts|svelte|jsx|tsx|vue) %{
+#     set-option buffer lsp_servers %{
+#         [css-variable-lsp]
+#         root_globs = ["package.json", ".git", ".hg"]
+#         [csscls]
+#         root_globs = ["package.json", ".git", ".hg"]
+#     }
+# }
 
 hook -group lsp-filetype-svelte global BufSetOption filetype=svelte %{
-    set-option buffer -add lsp_servers %{
+    set-option buffer lsp_servers %{
         [svelteserver]
         root_globs = ["package.json", "tsconfig.json", "jsconfig.json", ".git"]
         args = ["--stdio"]
+        [css-variable-lsp]
+        root_globs = ["package.json", ".git" ]
+        [csscls]
+        root_globs = ["package.json", ".git" ]
     }
 }
