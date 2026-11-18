@@ -5,7 +5,6 @@ eval %sh{ kak-lsp --kakoune -s $kak_session}
 lsp-enable
 enable-auto-pairs
 
-colorscheme rose_pine
 
 set-option global tabstop 2
 set-option global indentwidth 2
@@ -30,20 +29,21 @@ hook global InsertChar k %{ try %{
   exec -with-hooks <esc>
 }}
 
-# Change color in insert mode
-hook global ModeChange ".*:normal" %{
-    face window PrimaryCursor black,white+F
-    face window PrimaryCursorEol black,blue+F
-    face window SecondaryCursor black,bright-green+F
-    face window SecondarySelection black,green+F
-}
-## set cursor to default
-hook global ModeChange ".*:insert" %{
-    face window PrimaryCursor black,red+F
-    face window PrimaryCursorEol black,red+F
-    face window SecondaryCursor black,red+F
-    face window SecondarySelection black,green+F
-}
+# # Change color in insert mode
+# hook global ModeChange ".*:normal" %{
+#     face window PrimaryCursor black,white+F
+#     face window PrimaryCursorEol black,blue+F
+#     face window SecondaryCursor black,bright-green+F
+#     face window SecondarySelection black,green+F
+# }
+# ## set cursor to default
+# hook global ModeChange ".*:insert" %{
+#     face window PrimaryCursor black,red+F
+#     face window PrimaryCursorEol black,red+F
+#     face window SecondaryCursor black,red+F
+#     face window SecondarySelection black,green+F
+# }
+colorscheme slate
 
 # tabs for autocomplete
 hook global InsertCompletionShow .* %{

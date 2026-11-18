@@ -126,13 +126,14 @@ layout {
         // off
         width 1
         // active-color "oklch(0.74 0.064 260)"
-        active-color "oklch(0.7 0.09 304)"
-        inactive-color "oklch(0.3 0.03 304)"
+        active-color "#a0a0a0"
+        inactive-color "#2f2f2f"
+        // inactive-color "oklch(0.3 0.03 304)"
 
 
     }
     shadow {
-        // on
+        on
     }
     // You can customize the widths that "switch-preset-column-width" (Mod+R) toggles between.
     preset-column-widths {
@@ -147,7 +148,7 @@ layout {
     default-column-width {proportion 0.48; }
     background-color "transparent";
     center-focused-column "never"
-    gaps 8
+    gaps 0
     struts {
         left 8
         right 8
