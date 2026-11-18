@@ -1,382 +1,518 @@
-# Examples
-#   define-command pick-file %{ picker-filter -script 'fd -t f' }
-#   define-command pick-line %{ picker-filter -buffer %val{bufname} }
-#   define-command pick-grep %{ picker-filter -buffer '*grep*' -on-select grep-jump }
-#
-# Requires fzf, awk, and kakoune-focus (https://github.com/caksoylar/kakoune-focus).
-
-declare-option str picker_preview_client ''
-declare-option str picker_key_next '<a-j>'
-declare-option str picker_key_prev '<a-k>'
-declare-option str picker_key_preview '<tab>'
+declare-option -docstring 'client that shows previews, defaults to toolsclient' str picker_preview_client ''
+declare-option str picker_key_next '<c-j>'
+declare-option str picker_key_prev '<c-k>'
 declare-option str picker_key_stay '<a-ret>'
-declare-option -hidden bool picker_active false
-declare-option -hidden bool picker_stay false
+declare-option -docstring 'milliseconds to wait for a -run command to produce a buffer' int picker_timeout 1000
+
+declare-option -hidden str picker_phase idle
 declare-option -hidden str picker_kind
-declare-option -hidden str picker_src
+declare-option -hidden str picker_script
+declare-option -hidden str picker_run
+declare-option -hidden str picker_pin
+declare-option -hidden str picker_label
 declare-option -hidden str picker_on_select
-declare-option -hidden str picker_on_change
+declare-option -hidden str picker_on_preview
 declare-option -hidden str picker_on_abort
+declare-option -hidden str picker_finally
+declare-option -hidden int picker_timeout_now 1000
 declare-option -hidden str picker_origin
 declare-option -hidden str-list picker_saved_sels
 declare-option -hidden str-list picker_buflist
+declare-option -hidden str-list picker_created
+declare-option -hidden str picker_stamp_now
+declare-option -hidden str picker_source
+declare-option -hidden str picker_source_stamp
 declare-option -hidden str picker_tmp
 declare-option -hidden str picker_query
-declare-option -hidden int picker_length
 declare-option -hidden str picker_shown
-declare-option -hidden str-list picker_matches
 declare-option -hidden int picker_idx 1
+declare-option -hidden int picker_count 1
+declare-option -hidden int picker_height 0
 declare-option -hidden str picker_item
-declare-option -hidden int picker_line 0
+declare-option -hidden bool picker_stay false
+declare-option -hidden bool picker_failed false
 
-# ---------------------------------------------------------------- entry point
-
-# options available in callbacks:
-#   %opt{picker_item}   text of the chosen/highlighted line
-#   %opt{picker_line}   line number in the source buffer (-buffer only, else 0)
-# Defaults:
-# on-select:   -script  picker-open-file (edit the item in jumpclient if available, else current client)
-#              -buffer  nop
-# on-change:   -script  picker-preview-file (previews existing file)
-#              -buffer  nop
-#  on-abort:            nop
+# ------------------------------------------------------ entry point
 
 define-command -params 1.. -docstring %{
-  picker-filter (-buffer <name> | -script <shell>) [-on-select <cmd>] [-on-change <cmd>] [-on-abort <cmd>]
+  picker-filter (-script <shell> | -run <kak> [-buffer <name>] | -buffer <name>) [-on-select <cmd>] [-on-preview <cmd>] [-on-abort <cmd>] [-timeout <ms>]
+  Fuzzy filter lines from a shell command or a buffer.
   Switches:
-    -script <arg>     source     provide a shell command to run as a source.
-    -buffer <arg>     source     give an existing buffer name to use as a source.
-    -on-select <cmd>  callback   run on final entry selection.
-    -on-change <cmd>  callback   run on change to query.
-    -on-abort  <cmd>  callback   run on cancelled search.
-} -shell-script-candidates %{
+    -script <shell>    shell command whose output is the candidate list
+    -run <kak>         Kakoune command that creates the candidate buffer
+    -buffer <name>     use or require this buffer as the source
+    -on-select <cmd>   run on the chosen line (default loc-jump)
+    -on-preview <cmd>  run in the preview client when moving (default loc-preview)
+    -on-abort <cmd>    run when the picker is cancelled
+    -finally  <cmd>    run at any completion
+    -timeout <ms>      how long -run may take to produce a buffer
+
+    Options available in callbacks
+      %opt{picker_item}    text of the chosen or highlighted line
+      %opt{picker_source}  name of the source buffer (-run and -buffer only)
+
+    Defaults
+      -on-select   loc-jump
+      -on-preview  loc-preview (needs picker_preview_client or toolsclient)
+      -on-abort    nop
 } picker-filter %{
   evaluate-commands %sh{
-    q() { printf "'%s'" "$(printf '%s' "$1" | sed "s/'/''/g")"; }
-    kind=; src=; sel=; chg=; abt=
+    apos=$(printf '\047')
+    quote() { printf '%s%s%s' "$apos" "$(printf '%s' "$1" | sed "s/$apos/$apos$apos/g")" "$apos"; }
+    fail_with() { printf 'fail %s\n' "$(quote "$1")"; exit 0; }
+    script=; run=; pin=; on_select=; on_preview=; on_abort=; finally=; timeout_ms=
     while [ $# -gt 0 ]; do
-      case "$1" in
-        -buffer)    kind=buffer; src=$2; shift 2 ;;
-        -script)    kind=script; src=$2; shift 2 ;;
-        -on-select) sel=$2; shift 2 ;;
-        -on-change) chg=$2; shift 2 ;;
-        -on-abort)  abt=$2; shift 2 ;;
-        *) printf 'fail %s\n' "$(q "picker-filter: unknown argument $1")"; exit 0 ;;
+      case $1 in
+        -script|-run|-buffer|-on-select|-on-preview|-on-abort|-finally|-timeout)
+          [ $# -ge 2 ] || fail_with "picker-filter: $1 needs a value"
+          case $1 in
+            -script)     script=$2 ;;
+            -run)        run=$2 ;;
+            -buffer)     pin=$2 ;;
+            -on-select)  on_select=$2 ;;
+            -on-preview) on_preview=$2 ;;
+            -on-abort)   on_abort=$2 ;;
+            -finally)    finally=$2 ;;
+            -timeout)    timeout_ms=$2 ;;
+          esac
+          shift 2 ;;
+        *) fail_with "picker-filter: unknown argument $1" ;;
       esac
     done
-    if [ -z "$kind" ]; then
-      echo "fail 'picker-filter: need -buffer or -script'"; exit 0
-    fi
-    if [ "$kind" = script ]; then
-      [ -n "$sel" ] || sel='picker-open-file'
-      [ -n "$chg" ] || chg='picker-preview-file'
+    if [ -n "$script" ]; then
+      [ -z "$run$pin" ] || fail_with 'picker-filter: -script cannot be combined with -run or -buffer'
+      kind=script
+      source_text=$script
+    elif [ -n "$run$pin" ]; then
+      kind=buffer
+      source_text=${run:-$pin}
     else
-      [ -n "$sel" ] || sel='nop'
-      [ -n "$chg" ] || chg='nop'
+      fail_with 'picker-filter: need -script, -run or -buffer'
     fi
-    [ -n "$abt" ] || abt='nop'
-    printf 'set-option global picker_kind %s\n'      "$kind"
-    printf 'set-option global picker_src %s\n'       "$(q "$src")"
-    printf 'set-option global picker_on_select %s\n' "$(q "$sel")"
-    printf 'set-option global picker_on_change %s\n' "$(q "$chg")"
-    printf 'set-option global picker_on_abort %s\n'  "$(q "$abt")"
-    echo picker-start
+    case $timeout_ms in
+      '') timeout_ms=$kak_opt_picker_timeout ;;
+      *[!0-9]*) fail_with 'picker-filter: -timeout takes a number of milliseconds' ;;
+    esac
+    [ -n "$on_select" ]  || on_select=loc-jump
+    [ -n "$on_preview" ] || on_preview=loc-preview
+    [ -n "$on_abort" ]   || on_abort=nop
+    first_line=$(printf '%s' "$source_text" | head -n 1)
+    label=$(printf '%s' "$first_line" | cut -c1-60)
+    [ "$label" = "$source_text" ] || label="$label..."
+    printf 'set-option global picker_kind %s\n'       "$kind"
+    printf 'set-option global picker_script %s\n'     "$(quote "$script")"
+    printf 'set-option global picker_run %s\n'        "$(quote "$run")"
+    printf 'set-option global picker_pin %s\n'        "$(quote "$pin")"
+    printf 'set-option global picker_label %s\n'      "$(quote "$label")"
+    printf 'set-option global picker_on_select %s\n'  "$(quote "$on_select")"
+    printf 'set-option global picker_on_preview %s\n' "$(quote "$on_preview")"
+    printf 'set-option global picker_on_abort %s\n'   "$(quote "$on_abort")"
+    printf 'set-option global picker_finally %s\n'    "$(quote "$finally")"
+    printf 'set-option global picker_timeout_now %s\n' "$timeout_ms"
+    echo picker-run
   }
 }
 
-define-command -hidden picker-start %{
+define-command -hidden picker-run %{
+  picker-release
   set-option global picker_origin %val{bufname}
   set-option global picker_saved_sels %val{selections_desc}
-  set-option global picker_buflist %val{buflist}
-  set-option global picker_query ''
-  set-option global picker_shown '<none>'
-  set-option global picker_matches
-  set-option global picker_idx 1
   set-option global picker_tmp %sh{ mktemp -d }
-  evaluate-commands "picker-start-%opt{picker_kind}"
-  picker-update
-  set-option global picker_active true
+  set-option global picker_source ''
+  set-option global picker_source_stamp ''
+  set-option global picker_query ''
   set-option global picker_stay false
-  hook -group picker-keys global RawKey %opt{picker_key_next}    %{ picker-next-entry }
-  hook -group picker-keys global RawKey %opt{picker_key_prev}    %{ picker-prev-entry }
-  hook -group picker-keys global RawKey %opt{picker_key_preview} %{ picker-preview }
-  hook -group picker-keys global RawKey %opt{picker_key_stay}    %{ picker-stay }
-  prompt 'pick:' \
-    -on-change %{ set-option global picker_query %val{text}; picker-update } \
-    -on-abort  %{ picker-abort } \
-    %{ picker-accept }
+  set-option global picker_failed false
+  nop %sh{ : > "$kak_opt_picker_tmp/src"; : > "$kak_opt_picker_tmp/results" }
+  evaluate-commands "picker-start-%opt{picker_kind}"
+  picker-open
 }
 
-# ------------------------------------------------------------- source: script
-
 define-command -hidden picker-start-script %{
-  edit -scratch '*picker*'
-  add-highlighter -override window/picker-sel line '%opt{picker_idx}' 'default,rgba:3935527a+b'
-  # Producer writes cache file. Watcher in the triggers rerender
-  # on growth until producer exits or picker closes
   nop %sh{
     (
       tmp=$kak_opt_picker_tmp
-      sh -c "$kak_opt_picker_src" > "$tmp/src" 2>/dev/null &
-      pid=$!
-      last=-1
+      client=$kak_client
+      session=$kak_session
+      sh -c "$kak_opt_picker_script" > "$tmp/src" 2>/dev/null &
+      producer=$!
+      last_size=-1
       while :; do
-        alive=1; kill -0 "$pid" 2>/dev/null || alive=0
+        alive=1
+        kill -0 "$producer" 2>/dev/null || alive=0
         if [ ! -d "$tmp" ]; then
-          kill "$pid" 2>/dev/null; pkill -P "$pid" 2>/dev/null
+          kill "$producer" 2>/dev/null
+          pkill -P "$producer" 2>/dev/null
           break
         fi
         size=$(wc -c < "$tmp/src")
-        if [ "$size" != "$last" ]; then
-          last=$size
-          printf "evaluate-commands -client '%s' %%{ picker-stream-refresh '%s' }\n" \
-            "$kak_client" "$tmp" | kak -p "$kak_session"
+        if [ "$size" != "$last_size" ]; then
+          last_size=$size
+          printf "evaluate-commands -client '%s' %%{ picker-event '%s' refresh }\n" \
+
+            "$client" "$tmp" | kak -p "$session"
         fi
-        [ "$alive" = 1 ] || break
-        sleep 0.15
+        if [ "$alive" = 0 ]; then
+          [ "$size" -gt 0 ] || printf "evaluate-commands -client '%s' %%{ picker-event '%s' empty }\n" \
+            "$client" "$tmp" | kak -p "$session"
+          break
+        fi
+        sleep 0.1
       done
     ) >/dev/null 2>&1 </dev/null &
+    exit 0
   }
 }
 
-define-command -hidden picker-stream-refresh -params 1 %{
+define-command -hidden picker-start-buffer %{
+  set-option global picker_created
   evaluate-commands %sh{
-    if [ "$kak_opt_picker_active" = true ] && [ "$kak_opt_picker_kind" = script ] \
-       && [ "$1" = "$kak_opt_picker_tmp" ]; then
-      echo picker-render-script
+    [ -n "$kak_opt_picker_pin" ] && echo 'set-option global picker_created %opt{picker_pin}'
+    [ -n "$kak_opt_picker_pin" ] && [ -n "$kak_opt_picker_run" ] && echo 'try %{
+      evaluate-commands -buffer %opt{picker_pin} %{ set-option global picker_source_stamp %val{timestamp} }
+    }'
+    exit 0
+  }
+  hook -group picker-created global BufCreate .* %{
+    set-option -add global picker_created %val{hook_param}
+    set-option global picker_source_stamp ''
+  }
+  try %{
+    evaluate-commands %opt{picker_run}
+  } catch %{
+    picker-release
+    fail %val{error}
+  }
+  nop %sh{
+    (
+      tmp=$kak_opt_picker_tmp
+      client=$kak_client
+      session=$kak_session
+      timeout_ms=$kak_opt_picker_timeout_now
+      elapsed_ms=0
+      while [ -d "$tmp" ]; do
+        sleep 0.1
+        elapsed_ms=$((elapsed_ms + 100))
+        if [ ! -f "$tmp/found" ] && [ "$elapsed_ms" -ge "$timeout_ms" ]; then
+          printf "evaluate-commands -client '%s' %%{ picker-event '%s' empty }\n" \
+            "$client" "$tmp" | kak -p "$session"
+          break
+        fi
+        printf "evaluate-commands -client '%s' %%{ picker-event '%s' refresh }\n" \
+          "$client" "$tmp" | kak -p "$session"
+      done
+    ) >/dev/null 2>&1 </dev/null &
+    exit 0
+  }
+}
+
+define-command -hidden picker-refresh-buffer %{
+  set-option global picker_source %sh{
+    if [ -f "$kak_opt_picker_tmp/found" ]; then
+      printf '%s' "$kak_opt_picker_source"
+      exit 0
+    fi
+    eval "set -- $kak_quoted_opt_picker_created"
+    for buffer_name; do
+      if [ -n "$kak_opt_picker_pin" ]; then
+        [ "$buffer_name" = "$kak_opt_picker_pin" ] || continue
+      else
+        case $buffer_name in
+          '*debug*'|'*picker*') continue ;;
+        esac
+        [ -f "$buffer_name" ] && continue
+      fi
+      printf '%s' "$buffer_name"
+      break
+    done
+  }
+  set-option global picker_stamp_now ''
+  try %{
+    evaluate-commands -buffer %opt{picker_source} %{
+      set-option global picker_stamp_now %val{timestamp}
+    }
+  }
+  evaluate-commands %sh{
+    if [ -n "$kak_opt_picker_stamp_now" ] && [ "$kak_opt_picker_stamp_now" != "$kak_opt_picker_source_stamp" ]; then
+      echo picker-load-source
     fi
     exit 0
   }
 }
 
-define-command -hidden picker-render-script %{
-  set-option buffer picker_length %val{window_height}
-  evaluate-commands -save-regs '"' -buffer '*picker*' %{
-    set-register dquote %sh{ fzf --filter="$kak_opt_picker_query" < "$kak_opt_picker_tmp/src" 2>/dev/null | head -n "$kak_opt_picker_length" }
-    execute-keys -draft '%R'
+define-command -hidden picker-load-source %{
+  set-option global picker_source_stamp %opt{picker_stamp_now}
+  evaluate-commands -draft -no-hooks -buffer %opt{picker_source} %{
+    write -force "%opt{picker_tmp}/src"
+  }
+  evaluate-commands %sh{
+    if [ "$(wc -c < "$kak_opt_picker_tmp/src")" -gt 1 ]; then
+      touch "$kak_opt_picker_tmp/found"
+      echo 'try %{ remove-hooks global picker-created }'
+      echo picker-refilter
+    fi
+    exit 0
   }
 }
 
-# Query changed: re-render and go back to the top entry.
-define-command -hidden picker-update-script %{
-  picker-render-script
+# ------------------------------------------------------ events and open
+
+define-command -hidden picker-event -params 2 %{
+  evaluate-commands %sh{
+    [ "$1" = "$kak_opt_picker_tmp" ] || exit 0
+    case $2 in
+      refresh) echo "picker-refresh-$kak_opt_picker_kind" ;;
+      empty)   echo picker-fail-empty ;;
+    esac
+    exit 0
+  }
+}
+
+define-command -hidden picker-open %{
+  set-option global picker_phase open
   set-option global picker_idx 1
-}
-
-define-command -hidden picker-move-script -params 1 %{
-  evaluate-commands %sh{
-    n=$kak_buf_line_count
-    i=$((kak_opt_picker_idx + $1)); [ $i -lt 1 ] && i=1; [ $i -gt $n ] && i=$n
-    echo "set-option global picker_idx $i"
-  }
+  set-option global picker_shown ''
+  set-option global picker_buflist %val{buflist}
+  edit -scratch '*picker*'
+  add-highlighter -override window/picker-sel line '%opt{picker_idx}' 'default,rgba:3935527a+b'
+  hook -group picker-keys window RawKey %opt{picker_key_next}    %{ picker-next-entry }
+  hook -group picker-keys window RawKey %opt{picker_key_prev}    %{ picker-prev-entry }
+  hook -group picker-keys window RawKey %opt{picker_key_stay}    %{ picker-stay }
+  picker-refilter
   picker-preview
-}
-
-define-command -hidden picker-load-item-script %{
-  evaluate-commands -draft -buffer '*picker*' %{
-    execute-keys "%opt{picker_idx}gx_"
-    set-option global picker_item %val{selection}
-  }
-  set-option global picker_line 0
-}
-
-# ------------------------------------------------------------- source: buffer
-
-define-command -hidden picker-start-buffer %{
-  evaluate-commands %sh{ [ "$kak_bufname" = "$kak_opt_picker_src" ] || echo "buffer %opt{picker_src}" }
-  set-option window focus_context_lines 0
-  evaluate-commands -draft -no-hooks %{ write -force "%opt{picker_tmp}/raw" }
-  nop %sh{ awk '{printf "%d\t%s\n", NR, $0}' "$kak_opt_picker_tmp/raw" > "$kak_opt_picker_tmp/src" }
-}
-
-define-command -hidden picker-update-buffer %{
   evaluate-commands %sh{
-    src="$kak_opt_picker_tmp/src"
-    matches=$(fzf --filter="$kak_opt_picker_query" --delimiter='\t' --nth=2.. --no-sort < "$src" 2>/dev/null | cut -f1)
-    total=$(wc -l < "$src")
-    count=$(printf '%s' "$matches" | grep -c .)
-    printf 'set-option global picker_matches %s\n' "$(printf '%s' "$matches" | tr '\n' ' ')"
-    if [ "$count" -eq 0 ] || [ "$count" -ge "$total" ]; then
-      echo "try %{ focus-clear }"
-    else
-      descs=$(printf '%s\n' "$matches" | awk '{printf "%d.1,%d.1 ", $1, $1}')
-      echo "evaluate-commands -draft %{ select $descs; focus-selections }"
-    fi
-    if [ -z "$kak_opt_picker_query" ]; then
-      echo "set-option global picker_idx $kak_cursor_line"
-    else
-      echo "set-option global picker_idx 1"
-      first=$(printf '%s\n' "$matches" | head -n 1)
-      [ -n "$first" ] && echo "select $first.1,$first.1"
-    fi
+    [ "$kak_opt_picker_kind" = buffer ] && echo picker-refresh-buffer
+    exit 0
+  }
+  prompt -on-change %{
+    set-option global picker_query %val{text}
+    picker-update
+  } -on-abort %{
+    picker-abort
+  } 'pick:' %{
+    picker-accept
   }
 }
 
-define-command -hidden picker-move-buffer -params 1 %{
-  evaluate-commands %sh{
-    d=$1
-    eval "set -- $kak_quoted_opt_picker_matches"
-    n=$#; [ $n -gt 0 ] || exit 0
-    i=$((kak_opt_picker_idx + d)); [ $i -lt 1 ] && i=1; [ $i -gt $n ] && i=$n
-    eval "line=\${$i}"
-    echo "set-option global picker_idx $i"
-    echo "select $line.1,$line.1"
-  }
-  picker-preview
-}
-
-define-command -hidden picker-load-item-buffer %{
-  evaluate-commands %sh{
-    eval "set -- $kak_quoted_opt_picker_matches"
-    [ $# -gt 0 ] || exit 0
-    eval "line=\${$kak_opt_picker_idx}"
-    [ -n "$line" ] || exit 0
-    item=$(sed -n "${line}p" "$kak_opt_picker_tmp/src" | cut -f2-)
-    printf 'set-option global picker_line %s\n' "$line"
-    printf "set-option global picker_item '%s'\n" "$(printf '%s' "$item" | sed "s/'/''/g")"
-  }
-}
-
-# ------------------------------------------------------------------- shared
+# ------------------------------------------------------ filtering
 
 define-command -hidden picker-update %{
   evaluate-commands %sh{
-    if [ "$kak_opt_picker_query" != "$kak_opt_picker_shown" ]; then
-      echo 'set-option global picker_shown %opt{picker_query}; evaluate-commands "picker-update-%opt{picker_kind}"'
-    fi
+    if [ "$kak_opt_picker_query" = "$kak_opt_picker_shown" ]; then echo nop; else echo picker-requery; fi
     exit 0
   }
 }
 
-define-command -hidden picker-move -params 1 %{
-  evaluate-commands "picker-move-%opt{picker_kind} %arg{1}"
+define-command -hidden picker-requery %{
+  set-option global picker_shown %opt{picker_query}
+  set-option global picker_idx 1
+  picker-refilter
+  picker-preview
 }
 
-define-command -hidden picker-preview %{
-  evaluate-commands "picker-load-item-%opt{picker_kind}"
+define-command -hidden picker-refilter %{
+  nop %sh{
+    fzf --filter="$kak_opt_picker_query" < "$kak_opt_picker_tmp/src" > "$kak_opt_picker_tmp/results" 2>/dev/null
+    exit 0
+  }
+  picker-render %val{window_height}
+}
+
+define-command -hidden picker-render -params 1 %{
+  set-option global picker_height %arg{1}
+  evaluate-commands -save-regs '"' -buffer '*picker*' %{
+    set-register dquote %sh{ head -n "$kak_opt_picker_height" "$kak_opt_picker_tmp/results" }
+    execute-keys -draft '%R'
+  }
   evaluate-commands %sh{
-    c=${kak_opt_picker_preview_client:-$kak_opt_toolsclient}
-    [ -n "$c" ] || exit 0
-    printf "try %%{ evaluate-commands -client '%s' %%opt{picker_on_change} }\n" \
-      "$(printf '%s' "$c" | sed "s/'/''/g")"
+    total=$(wc -l < "$kak_opt_picker_tmp/results")
+    shown=$total
+    [ "$shown" -gt "$kak_opt_picker_height" ] && shown=$kak_opt_picker_height
+    index=$kak_opt_picker_idx
+    [ "$index" -gt "$shown" ] && index=$shown
+    [ "$index" -lt 1 ] && index=1
+    echo "set-option global picker_count $shown"
+    echo "set-option global picker_idx $index"
+    exit 0
   }
 }
 
-define-command -hidden picker-check-active %{
+# ------------------------------------------------------ selection and keys
+
+define-command -hidden picker-check-open %{
   evaluate-commands %sh{
-    [ "$kak_opt_picker_active" = true ] || echo "fail 'picker: no picker is open'"
+    [ "$kak_opt_picker_phase" = open ] || echo "fail 'picker: no picker is open'"
     exit 0
   }
 }
 
 define-command picker-next-entry -docstring 'picker: move to the next entry' %{
-  picker-check-active
+  picker-check-open
   picker-move 1
 }
 
 define-command picker-prev-entry -docstring 'picker: move to the previous entry' %{
-  picker-check-active
+  picker-check-open
   picker-move -1
 }
 
-define-command picker-open-file -docstring 'open %opt{picker_item} in jumpclient if there is one, else in the current client' %{
-  evaluate-commands -try-client %opt{jumpclient} %{ edit -existing %opt{picker_item} }
-  try %{ focus %opt{jumpclient} }
+define-command -hidden picker-move -params 1 %{
+  evaluate-commands %sh{
+    delta=$1
+    index=$((kak_opt_picker_idx + delta))
+    [ "$index" -gt "$kak_opt_picker_count" ] && index=$kak_opt_picker_count
+    [ "$index" -lt 1 ] && index=1
+    echo "set-option global picker_idx $index"
+    exit 0
+  }
+  picker-preview
 }
 
-define-command picker-preview-file -docstring 'open %opt{picker_item} if it is an existing file' %{
+define-command -hidden picker-load-item %{
+  set-option global picker_item %sh{ sed -n "${kak_opt_picker_idx}p" "$kak_opt_picker_tmp/results" }
+}
+
+define-command -hidden picker-preview %{
+  picker-load-item
+  try %{
+    evaluate-commands -client %sh{ printf '%s' "${kak_opt_picker_preview_client:-$kak_opt_toolsclient}" } %opt{picker_on_preview}
+  }
+}
+
+# ------------------------------------------------------ closing the picker
+
+define-command -hidden picker-accept %{
+  picker-load-item
+  picker-close
   evaluate-commands %sh{
-    [ -f "$kak_opt_picker_item" ] && echo 'edit -existing %opt{picker_item}'
+    [ -n "$kak_opt_picker_item" ] && echo 'evaluate-commands %opt{picker_on_select}'
+    echo 'evaluate-commands %opt{picker_finally}'
     exit 0
   }
 }
 
-define-command -hidden picker-teardown -params 1 %{
-  set-option global picker_active false
-  remove-hooks global picker-keys
-  try %{ remove-highlighter window/picker-sel }
+define-command -hidden picker-abort %{
   evaluate-commands %sh{
-    [ "$1" = stay ] && exit 0
-    echo "try %{ focus-clear }"
-    echo "try %{ unset-option window focus_context_lines }"
-    if [ "$kak_opt_picker_kind" = script ]; then
-      echo "buffer %opt{picker_origin}"
-      echo "try %{ delete-buffer! '*picker*' }"
-    elif [ "$1" = abort ]; then
-      echo "buffer %opt{picker_origin}"
-      echo "select %opt{picker_saved_sels}"
+    if [ "$kak_opt_picker_stay" = true ]; then
+      echo picker-stay-finish
+    elif [ "$kak_opt_picker_failed" = true ]; then
+      echo picker-fail-finish
+    else
+      echo picker-cancel
     fi
     exit 0
   }
 }
 
-# Delete every buffer that did not exist when the picker started, drop temp files.
-define-command -hidden picker-gc %{
-  evaluate-commands %sh{
-    eval "set -- $kak_quoted_opt_picker_buflist"
-    old=$(printf '%s\n' "$@")
-    eval "set -- $kak_quoted_buflist"
-    for b; do
-      [ "$b" = "$kak_bufname" ] && continue
-      if ! printf '%s\n' "$old" | grep -Fxq -- "$b"; then
-        printf "try %%{ delete-buffer '%s' }\n" "$(printf '%s' "$b" | sed "s/'/''/g")"
-      fi
-    done
-    rm -rf "$kak_opt_picker_tmp"
-    exit 0
-  }
-}
-
-define-command -hidden picker-accept %{
-  evaluate-commands "picker-load-item-%opt{picker_kind}"
-  picker-teardown accept
-  picker-gc
-  evaluate-commands %opt{picker_on_select}
-}
-
-define-command -hidden picker-abort %{
-  evaluate-commands %sh{
-    if [ "$kak_opt_picker_stay" = true ]; then echo picker-stay-finish; else echo picker-cancel; fi
-    exit 0
-  }
-}
-
 define-command -hidden picker-cancel %{
-  picker-teardown abort
-  picker-gc
+  picker-close
   evaluate-commands %opt{picker_on_abort}
+  evaluate-commands %opt{picker_finally}
+}
+
+define-command -hidden picker-fail-empty %{
+  set-option global picker_failed true
+  execute-keys '<esc>'
+}
+
+define-command -hidden picker-fail-finish %{
+  set-option global picker_failed false
+  picker-close
+  echo -debug "picker-filter: command did not produce any candidates: %opt{picker_label}"
+  fail "picker-filter: command did not produce any candidates: %opt{picker_label}"
+}
+
+define-command -hidden picker-close %{
+  try %{ remove-highlighter window/picker-sel }
+  try %{ remove-hooks window picker-keys }
+  try %{ buffer %opt{picker_origin} }
+  try %{ delete-buffer! '*picker*' }
+  try %{ select %opt{picker_saved_sels} }
+  picker-gc
+  picker-release
+}
+
+define-command -hidden picker-gc %{
+  try %{
+    evaluate-commands -buffer %sh{
+      eval "set -- $kak_quoted_opt_picker_buflist"
+      known_buffers=$(printf '%s\n' "$@")
+      eval "set -- $kak_quoted_buflist"
+      for buffer_name; do
+        [ "$buffer_name" = "$kak_bufname" ] && continue
+        [ "$buffer_name" = "$kak_opt_picker_source" ] && continue
+        printf '%s\n' "$known_buffers" | grep -Fxq -- "$buffer_name" && continue
+        printf '%s\n' "$buffer_name"
+      done | paste -sd, -
+    } %{
+      try %{ delete-buffer }
+    }
+  }
+}
+
+define-command -hidden picker-release %{
+  nop %sh{
+    [ -n "$kak_opt_picker_tmp" ] && rm -rf -- "$kak_opt_picker_tmp"
+    exit 0
+  }
+  set-option global picker_tmp ''
+  set-option global picker_phase idle
+  try %{ remove-hooks window picker-keys }
+  try %{ remove-hooks global picker-created }
 }
 
 define-command picker-stay -docstring 'close the prompt but keep the results buffer' %{
-  picker-check-active
+  picker-check-open
   set-option global picker_stay true
-  # NOT -draft. key goes to the prompt which aborts
   execute-keys '<esc>'
 }
 
 define-command -hidden picker-stay-finish %{
   set-option global picker_stay false
-  picker-teardown stay
-  try {
-    evaluate-commands "picker-stay-finish-script"
-  }
-  picker-gc
-}
-
-define-command -hidden picker-stay-finish-script %{
+  picker-render 1000000
+  try %{ remove-highlighter window/picker-sel }
+  try %{ remove-hooks window picker-keys }
   select "%opt{picker_idx}.1,%opt{picker_idx}.1"
   set-option buffer picker_on_select %opt{picker_on_select}
   try %{ delete-buffer! "*picker: %opt{picker_query}*" }
   rename-buffer "*picker: %opt{picker_query}*"
-  map buffer normal <ret> ':picker-open-here<ret>'
+  picker-gc
+  picker-release
 }
 
-define-command picker-open-here -docstring 'run on-select on the line under the cursor (stay buffers)' %{
+define-command picker-open-here -docstring 'run on-select on the line under the cursor' %{
   evaluate-commands -draft %{
-    execute-keys 'x_'
+    execute-keys 'ghGl'
     set-option global picker_item %val{selection}
   }
-  set-option global picker_line 0
-  evaluate-commands %opt{picker_on_select}
+  evaluate-commands %sh{
+    stripped=$(printf '%s' "$kak_opt_picker_item" | tr -d '\n')
+    [ -n "$stripped" ] && echo 'evaluate-commands %opt{picker_on_select}'
+    exit 0
+  }
 }
 
+# ------------------------------------------------------ default jump actions
+
+define-command -hidden picker-split-location %{
+  set-register l %sh{ printf '%s' "${kak_opt_picker_item%%:*}" } %sh{
+    r=${kak_opt_picker_item#*:}; r=${r%%:*}
+    case $r in ''|*[!0-9]*) r=1 ;; esac
+    printf '%s' "$r"
+  }
+}
+
+define-command loc-jump -docstring 'open a path:line item in current client or, if available, jumpclient' %{
+  evaluate-commands -save-regs l %{
+    picker-split-location
+    evaluate-commands -try-client %opt{jumpclient} -verbatim -- edit -existing -- %reg{l}
+    try %{ focus %opt{jumpclient} }
+  }
+}
+
+define-command loc-preview -docstring 'preview a path:line item' %{
+  evaluate-commands -save-regs l %{
+    picker-split-location
+    evaluate-commands -verbatim -- edit -existing -- %reg{l}
+  }
+}

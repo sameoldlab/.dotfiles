@@ -57,65 +57,61 @@ hook global InsertCompletionShow .* %{
     }
   }
 }
-
-# ------------------------------------ Stray Commands
+# -------------------------------------------- Stray Commands
 
 # source "%val{config}/bundle/fzf.kak/rc/modules/fzf-cd.kak"
 # source "%val{config}/bundle/fzf.kak/rc/modules/fzf-recent.kak"
 # source "%val{config}/bundle/fzf.kak/rc/modules/fzf-search.kak"
 
-define-command -hidden picker-split-location %{
-  set-register l %sh{ printf '%s' "${kak_opt_picker_item%%:*}" } %sh{
-    r=${kak_opt_picker_item#*:}; r=${r%%:*}
-    case $r in ''|*[!0-9]*) r=1 ;; esac
-    printf '%s' "$r"
-  }
-}
+define-command -override niri-new-consume -params .. -docstring '
+niri-new-consume [<commands>]: create a new Kakoune client and consume it into the current column
+The optional arguments are passed as commands to the new client' \
+  %{
+    evaluate-commands %sh{
+        quote() {
+            printf "'"
+            printf '%s' "$1" | sed "s/'/''/g"
+            printf "'"
+        }
 
-define-command loc-jump -docstring 'open a path:line item in jumpclient if there is one, else here' %{
-  evaluate-commands -save-regs l %{
-    picker-split-location
-    evaluate-commands -try-client %opt{jumpclient} -verbatim -- edit -existing -- %reg{l}
-    try %{ focus %opt{jumpclient} }
-  }
-}
+        command=
+        for arg do
+            command="$command $(quote "$arg")"
+        done
+        printf 'echo -debug "command:%s"\n' "$command"
 
-define-command loc-preview -docstring 'preview a path:line item' %{
-  evaluate-commands -save-regs l %{
-    picker-split-location
-    evaluate-commands -verbatim -- edit -existing -- %reg{l}
-  }
+        printf 'niri-terminal-consume kak -c %s -e %s\n' \
+            "$(quote "$kak_session")" \
+            "$(quote "${command# }")"
+    }
 }
+complete-command -menu niri-new-consume command
 
 set-option global grepcmd 'rg --line-number --no-heading --column --smart-case'
-define-command pick-grep %{
-  picker-filter -script "%opt{grepcmd} '.'" \
-    -on-select loc-jump -on-change loc-preview
+define-command minibuffer-pick -params 1.. %{
+  set-option global picker_preview_client %val{client}
+  set-option global jumpclient %val{client}
+  niri-new-consume picker-filter %arg{@} -finally quit
 }
-define-command pick-refs %{
-  lsp-references
-  picker-filter -buffer "*goto*" -on-select loc-jump
-}
-define-command pick-files %{ picker-filter -script 'fd -t f' }
-define-command pick-current %{ picker-filter -buffer %val{bufname} }
+define-command pick-files %{ minibuffer-pick -script 'fd -t f' }
+define-command pick-refs  %{ minibuffer-pick -run lsp-references }
+define-command pick-grep  %{ minibuffer-pick -script "%opt{grepcmd} ." }
 
-define-command -hidden pick-buffer-with -params 1 %{
-  picker-filter -script %sh{
-    out="printf '%s\\n'"
-    eval "set -- $kak_quoted_buflist"
-    for b; do
-      out="$out $(printf "'%s'" "$(printf '%s' "$b" | sed "s/'/'\\\\''/g")")"
-    done
-    printf '%s' "$out"
-  } -on-select %arg{1} -on-change 'buffer %opt{picker_item}'
-}
+# extract this because it's shared but also miribuffer-pick is finnicky serializing blocks
+# buffer specifically also has rough edges because the command spawns an extra buffer that shouldn't be included in the list
+# NOTE: next version of pickers should not prioritize buffers because that can litterally just be `prompt -buffer-completion -menu ...``!!!
+define-command -hidden _get-buffers %*debug*{
+  evaluate-commands -save-regs '"' -draft %{
+  set-register dquote %sh{ eval "set -- $kak_quoted_buflist"; printf '%s\n' "$@" }
+  edit -scratch '*buffers*'
+  execute-keys '%R'
+}}
 
-define-command pick-buffers -docstring 'pick a buffer to switch to' %{
-  pick-buffer-with 'buffer %opt{picker_item}'
+define-command pick-buffers %{
+  minibuffer-pick -run _get-buffers -buffer '*buffers*' -on-preview buffer -on-select "buffer %opt{picker_item}"
 }
-
-define-command pick-buffer-delete -docstring 'pick a buffer to delete' %{
-  pick-buffer-with 'delete-buffer %opt{picker_item}'
+define-command pick-buffers-delete %{
+  minibuffer-pick -run get-buffers -buffer '*buffers*' -on-preview buffer -on-select "delete-buffer %opt{picker_item}"
 }
 
 define-command ide -params 0..1 -docstring 'ide [session-name]: Turn Kakoune into an IDE' %{
@@ -162,7 +158,7 @@ define-command sh-exec -override -params 0 %{
 }
 
 
-#-------------------- Bindings
+# -------------------------------------------- Bindings
 
 map global insert -docstring 'Select next snippet placeholder' <a-n> '<a-;>:try lsp-snippets-select-next-placeholders catch %{ execute-keys -with-hooks <lt>tab> }<ret>'
 
@@ -198,7 +194,6 @@ map global user p '!wl-paste -n<ret>'                   -docstring "paste from s
 map global user P '<esc>h!wl-paste -n<ret>'             -docstring "paste from system clipboard"
 map global user s ":write<ret>"                         -docstring "save current buffer"
 map global user f ':pick-files<ret>'                    -docstring 'open file picker'
-# map global user F ':fzf-mode<ret>F'                   -docstring 'open file picker at cwd'
 map global user b ':pick-buffers<ret>'                  -docstring 'open buffer picker'
 map global user s ':lsp-goto-document-symbol<ret>'      -docstring 'open symbol picker (LSP document symbols)'
 map global user d ':lsp-diagnostics<ret>'               -docstring '*open diagnostic picker'
@@ -225,7 +220,7 @@ map global object -docstring 'LSP errors and warnings' d '<a-semicolon>lsp-diagn
 map global object -docstring 'LSP errors' D '<a-semicolon>lsp-diagnostic-object<ret>'
 
 
-#-------------------- Lang scraps
+# -------------------------------------------- Lang scraps
 
 hook -group lsp-language-id global BufSetOption filetype=solidity %{
   set-option buffer lsp_servers %{
